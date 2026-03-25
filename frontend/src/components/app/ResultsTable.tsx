@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { ColumnInfo } from '../../stores/tabStore'
 import { ChevronIcon } from '../icons'
 import { isNumericType } from '../../lib/typeUtils'
@@ -11,11 +11,13 @@ interface ResultsTableProps {
 
 type SortDir = 'asc' | 'desc' | null
 
-function CellValue({ value }: { value: unknown }) {
+function CellValue({ value, maxLength }: { value: unknown; maxLength?: number }) {
   if (value === null || value === undefined) {
     return <span className="italic text-[var(--fg-faint)]">NULL</span>
   }
-  return <>{String(value)}</>
+  const str = String(value)
+  if (maxLength && str.length > maxLength) return <>{str.slice(0, maxLength)}<span className="text-[var(--fg-faint)]">…</span></>
+  return <>{str}</>
 }
 
 export function ResultsTable({ columns, rows, truncated }: ResultsTableProps) {
@@ -34,17 +36,17 @@ export function ResultsTable({ columns, rows, truncated }: ResultsTableProps) {
     }
   }
 
-  const sorted =
-    sortCol !== null && sortDir !== null
-      ? [...rows].sort((a, b) => {
-          const av = a[sortCol]
-          const bv = b[sortCol]
-          if (av === null) return 1
-          if (bv === null) return -1
-          const cmp = String(av).localeCompare(String(bv), undefined, { numeric: true })
-          return sortDir === 'asc' ? cmp : -cmp
-        })
-      : rows
+  const sorted = useMemo(() => {
+    if (sortCol === null || sortDir === null) return rows
+    return [...rows].sort((a, b) => {
+      const av = a[sortCol]
+      const bv = b[sortCol]
+      if (av === null) return 1
+      if (bv === null) return -1
+      const cmp = String(av).localeCompare(String(bv), undefined, { numeric: true })
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+  }, [rows, sortCol, sortDir])
 
   return (
     <div className="h-full overflow-auto">

@@ -6,6 +6,7 @@ import { useTabStore } from '../../stores/tabStore'
 import { toast } from 'sonner'
 import { useResizableWidth } from '../../hooks/useResizableWidth'
 import { formatTime } from '../../lib/formatUtils'
+import { STORAGE_KEYS } from '../../lib/storageKeys'
 
 export function QuerySidebar() {
   const [historyExpanded, setHistoryExpanded] = useState(false)
@@ -15,9 +16,9 @@ export function QuerySidebar() {
   const { queries: savedQueries, delete: deleteSaved } = useSavedStore()
   const { activeTabId, updateSql } = useTabStore()
   
-  const { width, onMouseDown } = useResizableWidth({ 
-    storageKey: 'query-sidebar-width', 
-    initialWidth: 280 
+  const { width, onMouseDown } = useResizableWidth({
+    storageKey: STORAGE_KEYS.QUERY_SIDEBAR_WIDTH,
+    initialWidth: 280
   })
 
   return (

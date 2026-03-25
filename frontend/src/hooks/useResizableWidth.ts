@@ -20,16 +20,20 @@ export function useResizableWidth({
   const dragging = useRef(false)
   const widthRef = useRef(width)
   widthRef.current = width
+  const startXRef = useRef(0)
+  const startWidthRef = useRef(0)
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
+    startXRef.current = e.clientX
+    startWidthRef.current = widthRef.current
     dragging.current = true
   }, [])
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
       if (!dragging.current) return
-      const newWidth = Math.max(minWidth, Math.min(maxWidth, e.clientX))
+      const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidthRef.current + (e.clientX - startXRef.current)))
       setWidth((prev) => (newWidth === prev ? prev : newWidth))
     }
     const onMouseUp = () => {

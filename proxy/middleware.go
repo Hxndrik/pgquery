@@ -14,9 +14,26 @@ type rateLimiter struct {
 }
 
 func newRateLimiter(rpm int) *rateLimiter {
-	return &rateLimiter{
+	rl := &rateLimiter{
 		windows: make(map[string][]time.Time),
 		rpm:     rpm,
+	}
+	go rl.cleanup()
+	return rl
+}
+
+func (rl *rateLimiter) cleanup() {
+	tick := time.NewTicker(5 * time.Minute)
+	defer tick.Stop()
+	for range tick.C {
+		cutoff := time.Now().Add(-time.Minute)
+		rl.mu.Lock()
+		for ip, times := range rl.windows {
+			if len(times) == 0 || times[len(times)-1].Before(cutoff) {
+				delete(rl.windows, ip)
+			}
+		}
+		rl.mu.Unlock()
 	}
 }
 

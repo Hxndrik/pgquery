@@ -24,12 +24,19 @@ function quote(id: string) {
   return `"${id.replace(/"/g, '""')}"`
 }
 
-function CellValue({ value }: { value: unknown }) {
+function buildWhereClause(columns: SchemaColumn[], searchQuery: string): { where: string; params: unknown[] } | null {
+  const trimmed = searchQuery.trim()
+  if (!trimmed) return null
+  const where = columns.map((col) => `${quote(col.name)}::text ILIKE $1`).join(' OR ')
+  return { where, params: [`%${trimmed}%`] }
+}
+
+function CellValue({ value, maxLength = 120 }: { value: unknown; maxLength?: number }) {
   if (value === null || value === undefined) {
     return <span className="italic text-[var(--fg-faint)]">NULL</span>
   }
   const str = String(value)
-  if (str.length > 120) return <>{str.slice(0, 120)}<span className="text-[var(--fg-faint)]">…</span></>
+  if (str.length > maxLength) return <>{str.slice(0, maxLength)}<span className="text-[var(--fg-faint)]">…</span></>
   return <>{str}</>
 }
 
@@ -54,26 +61,18 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
   const [singleDeleteRow, setSingleDeleteRow] = useState<Record<string, unknown> | null>(null)
 
   const pkCol = columns.find((c) => c.isPrimary)
+  const pkIdx = columns.findIndex((c) => c.isPrimary)
   const tableRef = `${quote(schemaName)}.${quote(tableName)}`
 
   const loadData = useCallback(async () => {
     setLoading(true)
     setError(null)
     const offset = page * PAGE_SIZE
-    
-    let query: string
-    let params: unknown[] = []
-    
-    if (searchQuery.trim()) {
-      const whereClauses = columns.map((col) => `${quote(col.name)}::text ILIKE $1`).join(' OR ')
-      
-      query = `SELECT * FROM ${tableRef} WHERE ${whereClauses} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
-      params = [`%${searchQuery.trim()}%`]
-    } else {
-      query = `SELECT * FROM ${tableRef} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
-    }
-    
-    const result = await executeQuery(connectionUrl, query, params)
+    const clause = buildWhereClause(columns, searchQuery)
+    const query = clause
+      ? `SELECT * FROM ${tableRef} WHERE ${clause.where} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
+      : `SELECT * FROM ${tableRef} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
+    const result = await executeQuery(connectionUrl, query, clause?.params ?? [])
     if (result.success) {
       setRows(result.data.rows)
       setError(null)
@@ -84,19 +83,11 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
   }, [connectionUrl, tableRef, page, searchQuery, columns])
 
   const loadCount = useCallback(async () => {
-    let query: string
-    let params: unknown[] = []
-    
-    if (searchQuery.trim()) {
-      const whereClauses = columns.map((col) => `${quote(col.name)}::text ILIKE $1`).join(' OR ')
-      
-      query = `SELECT COUNT(*)::int AS count FROM ${tableRef} WHERE ${whereClauses}`
-      params = [`%${searchQuery.trim()}%`]
-    } else {
-      query = `SELECT COUNT(*)::int AS count FROM ${tableRef}`
-    }
-    
-    const result = await executeQuery(connectionUrl, query, params)
+    const clause = buildWhereClause(columns, searchQuery)
+    const query = clause
+      ? `SELECT COUNT(*)::int AS count FROM ${tableRef} WHERE ${clause.where}`
+      : `SELECT COUNT(*)::int AS count FROM ${tableRef}`
+    const result = await executeQuery(connectionUrl, query, clause?.params ?? [])
     if (result.success && result.data.rows[0]) {
       setTotalCount(Number(result.data.rows[0][0]))
     }
@@ -118,7 +109,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
 
   useEffect(() => {
     if (!selectAllMode) {
-      setSelectedRows(new Set())
+      if (selectedRows.size > 0) setSelectedRows(new Set())
       setLastSelectedIndex(null)
     }
   }, [page, selectAllMode])
@@ -130,15 +121,12 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
   }
 
   const getSelectedPKs = (): unknown[] => {
-    if (!pkCol) return []
+    if (!pkCol || pkIdx === -1) return []
     if (selectAllMode) {
-      // All except unselected
-      const unselectedPKs = Array.from(selectedRows).map(idx => rows[idx]?.[columns.findIndex(c => c.isPrimary)])
-      return rows.map(row => row[columns.findIndex(c => c.isPrimary)]).filter(pk => !unselectedPKs.includes(pk))
-    } else {
-      // Only selected
-      return Array.from(selectedRows).map(idx => rows[idx]?.[columns.findIndex(c => c.isPrimary)]).filter(Boolean)
+      const unselectedPKs = Array.from(selectedRows).map(idx => rows[idx]?.[pkIdx])
+      return rows.map(row => row[pkIdx]).filter(pk => !unselectedPKs.includes(pk))
     }
+    return Array.from(selectedRows).map(idx => rows[idx]?.[pkIdx]).filter(Boolean)
   }
 
   const getSelectionCount = (): number => {
@@ -187,14 +175,11 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
       setSelectedRows(newSelected)
       setLastSelectedIndex(rowIndex)
     } else {
-      // Single select (replace)
-      if (selectAllMode) {
-        // In "all" mode, clicking without ctrl/shift deselects all and selects one
-        setSelectAllMode(false)
-        setSelectedRows(new Set([rowIndex]))
-      } else {
-        setSelectedRows(new Set([rowIndex]))
-      }
+      // Toggle single without clearing others
+      const newSelected = new Set(selectedRows)
+      if (newSelected.has(rowIndex)) newSelected.delete(rowIndex)
+      else newSelected.add(rowIndex)
+      setSelectedRows(newSelected)
       setLastSelectedIndex(rowIndex)
     }
   }
@@ -428,7 +413,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
       )}
 
       {!error && rows.length > 0 && (
-        <div className="flex-1 overflow-auto relative">
+        <div className="flex-1 overflow-auto relative bg-[var(--bg)]">
           {loading && (
             <div className="absolute top-2 right-2 z-20 px-2 py-1 bg-[var(--bg-card)] border border-[var(--border)] rounded text-[10px] text-[var(--fg-subtle)] shadow-sm">
               Loading…

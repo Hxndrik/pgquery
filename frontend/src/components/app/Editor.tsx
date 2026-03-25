@@ -1,9 +1,8 @@
 import MonacoEditor, { type OnMount } from '@monaco-editor/react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useSettingsStore } from '../../stores/settingsStore'
 import { useTabStore } from '../../stores/tabStore'
 import { useSchemaStore } from '../../stores/schemaStore'
-import { useConnectionStore } from '../../stores/connectionStore'
 import type * as Monaco from 'monaco-editor'
 
 interface EditorProps {
@@ -14,19 +13,16 @@ interface EditorProps {
 export function Editor({ tabId, onRun }: EditorProps) {
   const { theme } = useSettingsStore()
   const { tabs, updateSql } = useTabStore()
-  const { activeConnectionUrl } = useConnectionStore()
-  const { loadSchema } = useSchemaStore()
   const tab = tabs.find((t) => t.id === tabId)
+  const completionProviderRef = useRef<{ dispose: () => void } | null>(null)
 
-  // Load schema when connection changes
   useEffect(() => {
-    if (activeConnectionUrl) {
-      loadSchema(activeConnectionUrl)
+    return () => {
+      completionProviderRef.current?.dispose()
     }
-  }, [activeConnectionUrl, loadSchema])
+  }, [])
 
   const handleMount: OnMount = (editor, monaco) => {
-    // Register dark theme
     monaco.editor.defineTheme('pgquery-dark', {
       base: 'vs-dark',
       inherit: true,
@@ -48,7 +44,6 @@ export function Editor({ tabId, onRun }: EditorProps) {
       },
     })
 
-    // Register light theme
     monaco.editor.defineTheme('pgquery-light', {
       base: 'vs',
       inherit: true,
@@ -69,9 +64,9 @@ export function Editor({ tabId, onRun }: EditorProps) {
 
     monaco.editor.setTheme(theme === 'dark' ? 'pgquery-dark' : 'pgquery-light')
 
-    // Register completion provider for SQL - use closure to access latest schema
+    // Use getState() inside the closure so completions always see the latest schema without stale closure issues
     const getSchema = () => useSchemaStore.getState().schema
-    
+
     const completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: (model: Monaco.editor.ITextModel, position: Monaco.Position) => {
         const textUntilPosition = model.getValueInRange({
@@ -170,14 +165,9 @@ export function Editor({ tabId, onRun }: EditorProps) {
       },
       triggerCharacters: ['.', ' '],
     })
+    completionProviderRef.current = completionProvider
 
-    // Ctrl+Enter to run
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, onRun)
-
-    // Clean up on unmount
-    return () => {
-      completionProvider.dispose()
-    }
   }
 
   return (

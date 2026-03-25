@@ -24,10 +24,7 @@ export function useKeyboardShortcuts({
       const mod = e.ctrlKey || e.metaKey
       if (!mod) return
 
-      if (e.key === 'Enter' && onRun) {
-        e.preventDefault()
-        onRun()
-      } else if (e.key === 's' && onSave) {
+      if (e.key === 's' && onSave) {
         e.preventDefault()
         onSave()
       } else if (e.key === 'n' && onNewTab) {

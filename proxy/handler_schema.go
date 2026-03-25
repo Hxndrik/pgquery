@@ -63,7 +63,7 @@ func (cfg *config) handleSchema(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close(context.Background())
 
-	queryCtx, queryCancel := context.WithTimeout(r.Context(), 30*time.Second)
+	queryCtx, queryCancel := context.WithTimeout(r.Context(), cfg.QueryTimeout)
 	defer queryCancel()
 
 	// Introspect schema

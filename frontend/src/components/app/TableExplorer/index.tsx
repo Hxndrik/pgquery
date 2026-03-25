@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { TableDataView } from './TableDataView'
 import { ExplorerSection } from './ExplorerSection'
-import { fetchSchema, type SchemaResponse, type SchemaColumn } from '../../../lib/api'
+import { type SchemaColumn } from '../../../lib/api'
+import { useSchemaStore } from '../../../stores/schemaStore'
 import { SchemaIcon, TableGridIcon } from '../../icons'
+import { STORAGE_KEYS } from '../../../lib/storageKeys'
 
 interface TableExplorerProps {
   connectionUrl: string | null
@@ -15,28 +17,22 @@ function formatRowCount(n: number): string {
 }
 
 export function TableExplorer({ connectionUrl }: TableExplorerProps) {
-  const [schema, setSchema] = useState<SchemaResponse | null>(null)
-  const [loading, setLoading] = useState(false)
+  const { schema, isLoading: loading } = useSchemaStore()
   const [selectedSchema, setSelectedSchema] = useState<string | null>(null)
   const [selectedTable, setSelectedTable] = useState<string | null>(null)
 
+  // Auto-select first schema/table when schema loads or connection changes
   useEffect(() => {
-    if (!connectionUrl) { setSchema(null); return }
-    let current = true
-    setLoading(true)
-    fetchSchema(connectionUrl).then((s) => {
-      if (!current) return
-      setSchema(s)
-      setLoading(false)
-      if (s?.schemas[0]) {
-        setSelectedSchema(s.schemas[0].name)
-        if (s.schemas[0].tables[0]) {
-          setSelectedTable(s.schemas[0].tables[0].name)
-        }
-      }
-    })
-    return () => { current = false }
-  }, [connectionUrl])
+    if (!connectionUrl) {
+      setSelectedSchema(null)
+      setSelectedTable(null)
+      return
+    }
+    if (schema?.schemas[0]) {
+      setSelectedSchema(schema.schemas[0].name)
+      setSelectedTable(schema.schemas[0].tables[0]?.name ?? null)
+    }
+  }, [connectionUrl, schema])
 
   const activeSchemaData = schema?.schemas.find((s) => s.name === selectedSchema) ?? null
 
@@ -47,10 +43,8 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
 
   const handleSchemaSelect = (schemaName: string) => {
     setSelectedSchema(schemaName)
-    setSelectedTable(null)
-    // Auto-select first table in schema
     const sc = schema?.schemas.find((s) => s.name === schemaName)
-    if (sc?.tables[0]) setSelectedTable(sc.tables[0].name)
+    setSelectedTable(sc?.tables[0]?.name ?? null)
   }
 
   return (
@@ -73,7 +67,7 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
         searchable={true}
         loading={loading}
         emptyMessage="No schemas"
-        storageKey="explorer-schemas-width"
+        storageKey={STORAGE_KEYS.EXPLORER_SCHEMAS_WIDTH}
         initialWidth={160}
       />
 
@@ -96,7 +90,7 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
         )}
         searchable={true}
         emptyMessage={!selectedSchema ? 'Select a schema' : 'No tables'}
-        storageKey="explorer-tables-width"
+        storageKey={STORAGE_KEYS.EXPLORER_TABLES_WIDTH}
         initialWidth={220}
       />
 
