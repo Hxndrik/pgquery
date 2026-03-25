@@ -3,6 +3,7 @@ import { Modal } from '../../ui/Modal'
 import { Button } from '../../ui/Button'
 import { Input } from '../../ui/Input'
 import type { SchemaColumn } from '../../../lib/api'
+import { NUMERIC_TYPES } from '../../../lib/typeUtils'
 
 interface RowFormProps {
   open: boolean
@@ -17,7 +18,6 @@ interface RowFormProps {
   totalCount?: number | null
 }
 
-const NUMERIC_TYPES = new Set(['int2', 'int4', 'int8', 'float4', 'float8', 'numeric', 'integer', 'bigint', 'smallint', 'real', 'double precision'])
 const BOOL_TYPES = new Set(['bool', 'boolean'])
 const TIMESTAMP_TYPES = new Set(['timestamp', 'timestamptz', 'date'])
 

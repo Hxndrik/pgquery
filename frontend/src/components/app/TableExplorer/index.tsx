@@ -22,8 +22,10 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
 
   useEffect(() => {
     if (!connectionUrl) { setSchema(null); return }
+    let current = true
     setLoading(true)
     fetchSchema(connectionUrl).then((s) => {
+      if (!current) return
       setSchema(s)
       setLoading(false)
       if (s?.schemas[0]) {
@@ -33,6 +35,7 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
         }
       }
     })
+    return () => { current = false }
   }, [connectionUrl])
 
   const activeSchemaData = schema?.schemas.find((s) => s.name === selectedSchema) ?? null
@@ -52,7 +55,6 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
 
   return (
     <div className="flex h-full overflow-hidden">
-      {/* Schemas section */}
       <ExplorerSection
         title="Schemas"
         icon={<SchemaIcon size={14} />}
@@ -75,7 +77,6 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
         initialWidth={160}
       />
 
-      {/* Tables section */}
       <ExplorerSection
         title="Tables"
         icon={<TableGridIcon size={14} />}
@@ -99,7 +100,6 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
         initialWidth={220}
       />
 
-      {/* Data pane */}
       <div className="flex-1 overflow-hidden">
         {connectionUrl && selectedSchema && selectedTable ? (
           <TableDataView

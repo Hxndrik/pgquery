@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { RowForm } from './RowForm'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
 import { BulkActionsBar } from './BulkActionsBar'
@@ -9,6 +9,7 @@ import { EditIcon, TrashIcon, PlusIcon, ChevronIcon, TableGridIcon, SearchIcon }
 import { executeQuery } from '../../../lib/api'
 import type { SchemaColumn } from '../../../lib/api'
 import { toast } from 'sonner'
+import { isNumericType } from '../../../lib/typeUtils'
 
 interface TableDataViewProps {
   connectionUrl: string
@@ -18,12 +19,6 @@ interface TableDataViewProps {
 }
 
 const PAGE_SIZE = 100
-
-const NUMERIC_TYPES = new Set(['int2', 'int4', 'int8', 'float4', 'float8', 'numeric', 'integer', 'bigint', 'smallint', 'real', 'double precision'])
-
-function isNumeric(type: string) {
-  return NUMERIC_TYPES.has(type.toLowerCase().split('(')[0].trim())
-}
 
 function quote(id: string) {
   return `"${id.replace(/"/g, '""')}"`
@@ -50,12 +45,10 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
   const [editRow, setEditRow] = useState<Record<string, unknown> | null>(null)
   const [editFocusColumn, setEditFocusColumn] = useState<string | undefined>(undefined)
   
-  // Multi-select state
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
   const [selectAllMode, setSelectAllMode] = useState(false)
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null)
   
-  // Delete confirmation
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<'single' | 'bulk' | null>(null)
   const [singleDeleteRow, setSingleDeleteRow] = useState<Record<string, unknown> | null>(null)
@@ -72,7 +65,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     let params: unknown[] = []
     
     if (searchQuery.trim()) {
-      // Build WHERE clause that searches across all columns using ILIKE
       const whereClauses = columns.map((col) => `${quote(col.name)}::text ILIKE $1`).join(' OR ')
       
       query = `SELECT * FROM ${tableRef} WHERE ${whereClauses} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
@@ -96,7 +88,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     let params: unknown[] = []
     
     if (searchQuery.trim()) {
-      // Using ILIKE for case-insensitive pattern matching
       const whereClauses = columns.map((col) => `${quote(col.name)}::text ILIKE $1`).join(' OR ')
       
       query = `SELECT COUNT(*)::int AS count FROM ${tableRef} WHERE ${whereClauses}`
@@ -112,11 +103,9 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
   }, [connectionUrl, tableRef, searchQuery, columns])
 
   useEffect(() => {
-    loadData()
-    loadCount()
+    Promise.all([loadData(), loadCount()])
   }, [loadData, loadCount])
 
-  // Reset page and selection when table changes
   useEffect(() => {
     setPage(0)
     setTotalCount(null)
@@ -127,7 +116,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     setSearchQuery('')
   }, [schemaName, tableName])
 
-  // Clear selection when page changes
   useEffect(() => {
     if (!selectAllMode) {
       setSelectedRows(new Set())
@@ -141,7 +129,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     return m
   }
 
-  // Selection helpers
   const getSelectedPKs = (): unknown[] => {
     if (!pkCol) return []
     if (selectAllMode) {
@@ -258,7 +245,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
         return
       }
 
-      // Only update fields that have values (not empty/null unless they were explicitly cleared)
       const entries = Object.entries(values).filter(([k, v]) => v !== null && v !== '')
       if (entries.length === 0) {
         toast.error('No fields to update')
@@ -313,7 +299,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     }
 
     if (deleteTarget === 'single' && singleDeleteRow) {
-      // Single delete
       const pkVal = singleDeleteRow[pkCol.name]
       const result = await executeQuery(
         connectionUrl,
@@ -331,7 +316,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
         toast.error(result.error.error)
       }
     } else if (deleteTarget === 'bulk') {
-      // Bulk delete
       const pks = getSelectedPKs()
       if (pks.length === 0) {
         toast.error('No rows selected')
@@ -395,7 +379,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header - matching ExplorerSection design */}
       <div className="px-3 py-2.5 border-b border-[var(--border)] bg-[var(--bg-raised)] flex items-center gap-2 shrink-0">
         <span className="text-[var(--fg-subtle)] opacity-70 shrink-0">
           <TableGridIcon size={14} />
@@ -412,7 +395,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
         )}
       </div>
 
-      {/* Search bar */}
       <div className="px-2.5 py-2 border-b border-[var(--border)] bg-[var(--bg-raised)] shrink-0">
         <div className="flex items-center gap-2">
           <div className="flex-1">
@@ -441,7 +423,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
         </div>
       )}
 
-      {/* Data grid */}
       {!error && rows.length === 0 && !loading && (
         <EmptyState title="No rows" description="This table is empty" hint="" />
       )}
@@ -456,7 +437,6 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
           <table className="w-full border-collapse text-[12px]">
             <thead>
               <tr className="bg-[var(--bg-raised)] sticky top-0 z-10">
-                {/* Checkbox column */}
                 <th className="px-2 py-2 border-b border-r border-[var(--border)] w-10 shrink-0">
                   <div className="flex items-center">
                     <input
@@ -474,10 +454,10 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
                     className={`
                       px-3 py-2 border-b border-r border-[var(--border)] whitespace-nowrap
                       text-[10px] font-semibold uppercase tracking-[0.3px] text-[var(--fg-subtle)] text-left
-                      ${isNumeric(col.type) ? 'text-right' : ''}
+                      ${isNumericType(col.type) ? 'text-right' : ''}
                     `}
                   >
-                    <div className={`flex items-center gap-1.5 ${isNumeric(col.type) ? 'justify-end' : ''}`}>
+                    <div className={`flex items-center gap-1.5 ${isNumericType(col.type) ? 'justify-end' : ''}`}>
                       {col.isPrimary && <span className="text-[9px] font-bold text-[var(--warning)]">PK</span>}
                       <span>{col.name}</span>
                       <span className="text-[var(--fg-faint)] font-mono font-normal normal-case tracking-normal text-[9px]">{col.type}</span>
@@ -520,7 +500,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
                         key={ci}
                         className={`
                           px-3 py-2 border-r border-[var(--border)] whitespace-nowrap max-w-[300px] truncate cursor-pointer
-                          ${isNumeric(columns[ci]?.type ?? '') ? 'text-right font-mono' : ''}
+                          ${isNumericType(columns[ci]?.type ?? '') ? 'text-right font-mono' : ''}
                           ${cell === null ? 'text-[var(--fg-faint)]' : 'text-[var(--fg)]'}
                         `}
                         onDoubleClick={() => handleCellDoubleClick(ri, columns[ci]?.name ?? '')}

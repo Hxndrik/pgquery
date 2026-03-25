@@ -5,11 +5,7 @@ import { useSavedStore } from '../../stores/savedStore'
 import { useTabStore } from '../../stores/tabStore'
 import { toast } from 'sonner'
 import { useResizableWidth } from '../../hooks/useResizableWidth'
-
-function formatTime(ts: number): string {
-  const d = new Date(ts)
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
+import { formatTime } from '../../lib/formatUtils'
 
 export function QuerySidebar() {
   const [historyExpanded, setHistoryExpanded] = useState(false)
@@ -30,7 +26,6 @@ export function QuerySidebar() {
         onMouseDown={onMouseDown}
         className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-[var(--accent)] transition-colors z-10"
       />
-      {/* Saved Queries Section */}
       <div className="border-b border-[var(--border)]">
         <button
           onClick={() => setSavedExpanded(!savedExpanded)}
@@ -84,7 +79,6 @@ export function QuerySidebar() {
         )}
       </div>
 
-      {/* History Section */}
       <div className="border-b border-[var(--border)] flex-1 flex flex-col overflow-hidden">
         <button
           onClick={() => setHistoryExpanded(!historyExpanded)}

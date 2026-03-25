@@ -32,6 +32,10 @@ export function parseConnectionUrl(url: string): ConnectionFields {
   }
 }
 
+export function extractDbName(url: string): string {
+  return url.split('@').pop()?.split('/').pop() ?? ''
+}
+
 export function buildConnectionUrl(fields: ConnectionFields): string {
   const { host, port, database, user, password, ssl } = fields
   const auth =

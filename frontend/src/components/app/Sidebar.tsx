@@ -4,6 +4,7 @@ import { ConnectionManager } from "./ConnectionManager";
 import { LogoMark, QueryIcon, ExplorerIcon, ConnectionIcon } from "../icons";
 import { useConnectionStore } from "../../stores/connectionStore";
 import { useResizableWidth } from "../../hooks/useResizableWidth";
+import { extractDbName } from "../../lib/connectionParser";
 
 export type SidebarView = "queries" | "explorer";
 
@@ -24,11 +25,8 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const activeConnection = connections.find((c) => c.id === activeConnectionId);
   const connectionName =
     activeConnection?.name ??
-    (activeConnectionUrl
-      ? (activeConnectionUrl.split("@").pop()?.split("/").pop() ?? "Connected")
-      : "No connection");
+    (activeConnectionUrl ? (extractDbName(activeConnectionUrl) || "Connected") : "No connection");
 
-  // Determine icon color based on status
   const getStatusColor = () => {
     switch (status) {
       case 'connected':

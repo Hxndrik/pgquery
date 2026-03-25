@@ -15,6 +15,7 @@ import { useSavedStore } from "../../stores/savedStore";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import { useResizable } from "../../hooks/useResizable";
 import { executeQuery } from "../../lib/api";
+import { extractDbName } from "../../lib/connectionParser";
 import { toast } from "sonner";
 import { LogoMark, GithubIcon } from "../icons";
 import { Button } from "../ui/Button";
@@ -40,12 +41,12 @@ export default function AppLayout() {
   });
 
   const resetLayout = useCallback(() => {
-    localStorage.removeItem('sidebar-width')
-    localStorage.removeItem('query-sidebar-width')
-    localStorage.removeItem('explorer-schemas-width')
-    localStorage.removeItem('explorer-tables-width')
-    toast.success('Layout reset - refresh to apply')
-  }, [])
+    localStorage.removeItem("sidebar-width");
+    localStorage.removeItem("query-sidebar-width");
+    localStorage.removeItem("explorer-schemas-width");
+    localStorage.removeItem("explorer-tables-width");
+    toast.success("Layout reset - refresh to apply");
+  }, []);
 
   const activeTab = tabs.find((t) => t.id === activeTabId);
 
@@ -68,8 +69,7 @@ export default function AppLayout() {
         timestamp: Date.now(),
         duration: result.data.duration,
         rowCount: result.data.rowCount,
-        connectionName:
-          activeConnectionUrl.split("@").pop()?.split("/").pop() ?? "DB",
+        connectionName: extractDbName(activeConnectionUrl) || "DB",
       });
     } else {
       setError(activeTabId, result.error);
@@ -142,9 +142,9 @@ export default function AppLayout() {
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={resetLayout}
             className="text-[13px]"
           >

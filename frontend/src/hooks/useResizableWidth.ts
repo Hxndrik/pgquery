@@ -18,6 +18,8 @@ export function useResizableWidth({
     return stored ? Number(stored) : initialWidth
   })
   const dragging = useRef(false)
+  const widthRef = useRef(width)
+  widthRef.current = width
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
@@ -28,11 +30,11 @@ export function useResizableWidth({
     const onMouseMove = (e: MouseEvent) => {
       if (!dragging.current) return
       const newWidth = Math.max(minWidth, Math.min(maxWidth, e.clientX))
-      setWidth(newWidth)
+      setWidth((prev) => (newWidth === prev ? prev : newWidth))
     }
     const onMouseUp = () => {
       if (dragging.current) {
-        localStorage.setItem(storageKey, String(width))
+        localStorage.setItem(storageKey, String(widthRef.current))
         dragging.current = false
       }
     }
@@ -42,7 +44,7 @@ export function useResizableWidth({
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('mouseup', onMouseUp)
     }
-  }, [minWidth, maxWidth, storageKey, width])
+  }, [minWidth, maxWidth, storageKey])
 
   const reset = useCallback(() => {
     setWidth(initialWidth)

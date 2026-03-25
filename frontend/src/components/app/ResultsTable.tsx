@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ColumnInfo } from '../../stores/tabStore'
 import { ChevronIcon } from '../icons'
+import { isNumericType } from '../../lib/typeUtils'
 
 interface ResultsTableProps {
   columns: ColumnInfo[]
@@ -9,12 +10,6 @@ interface ResultsTableProps {
 }
 
 type SortDir = 'asc' | 'desc' | null
-
-const NUMERIC_TYPES = new Set(['int2', 'int4', 'int8', 'float4', 'float8', 'numeric'])
-
-function isNumericType(type: string) {
-  return NUMERIC_TYPES.has(type)
-}
 
 function CellValue({ value }: { value: unknown }) {
   if (value === null || value === undefined) {

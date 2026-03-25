@@ -5,7 +5,7 @@ import { Input } from '../ui/Input'
 import { Badge } from '../ui/Badge'
 import { TrashIcon, CheckIcon, ConnectionIcon } from '../icons'
 import { useConnectionStore } from '../../stores/connectionStore'
-import { parseConnectionUrl, buildConnectionUrl, type ConnectionFields } from '../../lib/connectionParser'
+import { parseConnectionUrl, buildConnectionUrl, extractDbName, type ConnectionFields } from '../../lib/connectionParser'
 import { testConnection } from '../../lib/api'
 import { toast } from 'sonner'
 
@@ -121,7 +121,7 @@ function ConnectionForm({
         <div className="flex-1" />
         <Button
           size="sm"
-          onClick={() => onConnect(url, name || (url.split('@').pop()?.split('/').pop() ?? 'Connection'))}
+          onClick={() => onConnect(url, name || extractDbName(url) || 'Connection')}
           disabled={!url}
         >
           {isEdit ? 'Update' : 'Connect'}
@@ -141,10 +141,7 @@ export function ConnectionManager({ open, onClose }: ConnectionManagerProps) {
   const handleConnect = useCallback(
     async (url: string, name: string) => {
       if (editing) {
-        // Update existing connection
         updateConnection(editing, name, url)
-        
-        // Always connect after updating
         setStatus('connecting')
         const result = await testConnection(url)
         if (result.ok) {
@@ -158,7 +155,6 @@ export function ConnectionManager({ open, onClose }: ConnectionManagerProps) {
         }
         setEditing(null)
       } else {
-        // Add new connection
         const conn = addConnection(name, url)
         setStatus('connecting')
         const result = await testConnection(url)
