@@ -1,0 +1,50 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Go Proxy",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/proxy",
+      "env": {
+        "PORT": "28001",
+        "STATIC_DIR": "${workspaceFolder}/frontend/dist"
+      },
+      "presentation": {
+        "group": "pgquery",
+        "order": 2
+      }
+    },
+    {
+      "name": "Frontend Dev Server",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/frontend",
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "Local:.*:(\\d+)",
+        "uriFormat": "http://localhost:%s",
+        "action": "openExternally"
+      },
+      "presentation": {
+        "group": "pgquery",
+        "order": 1
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "pgquery Full Stack",
+      "configurations": ["Frontend Dev Server", "Go Proxy"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "",
+        "order": 1
+      }
+    }
+  ]
+}

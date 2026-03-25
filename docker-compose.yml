@@ -1,0 +1,13 @@
+services:
+  pgquery:
+    build: .
+    ports:
+    environment:
+      - PORT=8080
+      - STATIC_DIR=/app/static
+      - RATE_LIMIT_RPM=60
+      - MAX_QUERY_TIMEOUT=30s
+      - MAX_ROWS=10000
+    restart: unless-stopped
+    labels:
+      - "coolify.managed=true"

@@ -1,0 +1,22 @@
+{
+  "go.toolsManagement.autoUpdate": true,
+  "go.delveConfig": {
+    "dlvLoadConfig": {
+      "followPointers": true,
+      "maxVariableRecurse": 3,
+      "maxStringLen": 400,
+      "maxArrayValues": 400,
+      "maxStructFields": -1
+    }
+  },
+  "[go]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "golang.go"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
