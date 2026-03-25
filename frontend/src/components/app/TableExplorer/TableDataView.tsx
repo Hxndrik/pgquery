@@ -245,7 +245,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
         return
       }
 
-      const entries = Object.entries(values).filter(([k, v]) => v !== null && v !== '')
+      const entries = Object.entries(values).filter(([, v]) => v !== null && v !== '')
       if (entries.length === 0) {
         toast.error('No fields to update')
         return
@@ -485,11 +485,12 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
                         <input
                           type="checkbox"
                           checked={selected}
-                          onChange={(e) => toggleRowSelection(ri, e.ctrlKey || e.metaKey, e.shiftKey)}
+                          onChange={() => {}}
                           onClick={(e) => {
                             if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
                               e.stopPropagation()
                             }
+                            toggleRowSelection(ri, e.ctrlKey || e.metaKey, e.shiftKey)
                           }}
                           className="accent-[var(--accent)] w-3.5 h-3.5 cursor-pointer"
                         />

@@ -96,7 +96,7 @@ export function RowForm({ open, onClose, onSubmit, columns, initial, mode, focus
       <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-1">
         {editableCols.map((col) => {
           const itype = inputType(col.type)
-          const isReadOnly = (mode === 'edit' && col.isPrimary) || (isBulkEdit && col.isUnique)
+          const isReadOnly = (mode === 'edit' && col.isPrimary) || (!!isBulkEdit && col.isUnique)
 
           if (itype === 'checkbox') {
             return (

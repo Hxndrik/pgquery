@@ -73,7 +73,7 @@ export function Editor({ tabId, onRun }: EditorProps) {
     const getSchema = () => useSchemaStore.getState().schema
     
     const completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
-      provideCompletionItems: (model, position) => {
+      provideCompletionItems: (model: Monaco.editor.ITextModel, position: Monaco.Position) => {
         const textUntilPosition = model.getValueInRange({
           startLineNumber: position.lineNumber,
           startColumn: 1,

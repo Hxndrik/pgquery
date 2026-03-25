@@ -18,7 +18,6 @@ export function BulkActionsBar({
   onDelete,
   onClear,
 }: BulkActionsBarProps) {
-  const displayCount = isAllSelected && totalCount ? totalCount : selectedCount
   const countText = isAllSelected && totalCount
     ? `All ${totalCount.toLocaleString()} rows selected`
     : `${selectedCount} ${selectedCount === 1 ? 'row' : 'rows'} selected`

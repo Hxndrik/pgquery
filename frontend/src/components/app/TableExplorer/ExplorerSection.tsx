@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { SearchIcon } from '../../icons'
 import { Input } from '../../ui/Input'
 import { useResizableWidth } from '../../../hooks/useResizableWidth'
