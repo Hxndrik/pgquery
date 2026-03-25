@@ -4,7 +4,8 @@ import { DeleteConfirmModal } from './DeleteConfirmModal'
 import { BulkActionsBar } from './BulkActionsBar'
 import { EmptyState } from '../EmptyState'
 import { Button } from '../../ui/Button'
-import { EditIcon, TrashIcon, PlusIcon, ChevronIcon } from '../../icons'
+import { Input } from '../../ui/Input'
+import { EditIcon, TrashIcon, PlusIcon, ChevronIcon, TableGridIcon, SearchIcon } from '../../icons'
 import { executeQuery } from '../../../lib/api'
 import type { SchemaColumn } from '../../../lib/api'
 import { toast } from 'sonner'
@@ -43,6 +44,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
   const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const [addOpen, setAddOpen] = useState(false)
   const [editRow, setEditRow] = useState<Record<string, unknown> | null>(null)
@@ -65,27 +67,48 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     setLoading(true)
     setError(null)
     const offset = page * PAGE_SIZE
-    const result = await executeQuery(
-      connectionUrl,
-      `SELECT * FROM ${tableRef} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
-    )
+    
+    let query: string
+    let params: unknown[] = []
+    
+    if (searchQuery.trim()) {
+      // Build WHERE clause that searches across all columns using ILIKE
+      const whereClauses = columns.map((col) => `${quote(col.name)}::text ILIKE $1`).join(' OR ')
+      
+      query = `SELECT * FROM ${tableRef} WHERE ${whereClauses} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
+      params = [`%${searchQuery.trim()}%`]
+    } else {
+      query = `SELECT * FROM ${tableRef} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
+    }
+    
+    const result = await executeQuery(connectionUrl, query, params)
     if (result.success) {
       setRows(result.data.rows)
     } else {
       setError(result.error.error)
     }
     setLoading(false)
-  }, [connectionUrl, tableRef, page])
+  }, [connectionUrl, tableRef, page, searchQuery, columns])
 
   const loadCount = useCallback(async () => {
-    const result = await executeQuery(
-      connectionUrl,
-      `SELECT COUNT(*)::int AS count FROM ${tableRef}`
-    )
+    let query: string
+    let params: unknown[] = []
+    
+    if (searchQuery.trim()) {
+      // Using ILIKE for case-insensitive pattern matching
+      const whereClauses = columns.map((col) => `${quote(col.name)}::text ILIKE $1`).join(' OR ')
+      
+      query = `SELECT COUNT(*)::int AS count FROM ${tableRef} WHERE ${whereClauses}`
+      params = [`%${searchQuery.trim()}%`]
+    } else {
+      query = `SELECT COUNT(*)::int AS count FROM ${tableRef}`
+    }
+    
+    const result = await executeQuery(connectionUrl, query, params)
     if (result.success && result.data.rows[0]) {
       setTotalCount(Number(result.data.rows[0][0]))
     }
-  }, [connectionUrl, tableRef])
+  }, [connectionUrl, tableRef, searchQuery, columns])
 
   useEffect(() => {
     loadData()
@@ -99,6 +122,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     setSelectedRows(new Set())
     setSelectAllMode(false)
     setLastSelectedIndex(null)
+    setSearchQuery('')
   }, [schemaName, tableName])
 
   // Clear selection when page changes
@@ -369,23 +393,43 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-2.5 bg-[var(--bg-raised)] border-b border-[var(--border)] shrink-0">
-        <div className="flex items-center gap-1.5 text-[13px]">
-          <span className="text-[var(--fg-muted)] font-mono">{schemaName}</span>
-          <span className="text-[var(--fg-faint)]">/</span>
-          <span className="text-[var(--fg)] font-mono font-semibold">{tableName}</span>
+      {/* Header - matching ExplorerSection design */}
+      <div className="px-3 py-2.5 border-b border-[var(--border)] bg-[var(--bg-raised)] flex items-center gap-2 shrink-0">
+        <span className="text-[var(--fg-subtle)] opacity-70 shrink-0">
+          <TableGridIcon size={14} />
+        </span>
+        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+          <span className="text-[12px] font-mono text-[var(--fg-muted)] truncate">{schemaName}</span>
+          <span className="text-[var(--fg-faint)] shrink-0">/</span>
+          <span className="text-[12px] font-mono font-semibold text-[var(--fg)] truncate">{tableName}</span>
         </div>
         {totalCount !== null && (
-          <span className="text-[11px] text-[var(--fg-subtle)]">
-            {totalCount.toLocaleString()} rows
+          <span className="text-[10px] text-[var(--fg-faint)] shrink-0">
+            {totalCount.toLocaleString()}
           </span>
         )}
-        <div className="flex-1" />
-        <Button size="sm" onClick={() => setAddOpen(true)} className="gap-1.5">
-          <PlusIcon size={12} />
-          Add row
-        </Button>
+      </div>
+
+      {/* Search bar */}
+      <div className="px-2.5 py-2 border-b border-[var(--border)] bg-[var(--bg-raised)] shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <Input
+              placeholder="Search all columns…"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setPage(0) // Reset to first page on search
+              }}
+              icon={<SearchIcon size={13} />}
+              className="text-[12px] py-1.5"
+            />
+          </div>
+          <Button size="sm" onClick={() => setAddOpen(true)} className="gap-1.5 shrink-0">
+            <PlusIcon size={12} />
+            Add
+          </Button>
+        </div>
       </div>
 
       {/* Error */}
@@ -434,7 +478,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
                     <div className={`flex items-center gap-1.5 ${isNumeric(col.type) ? 'justify-end' : ''}`}>
                       {col.isPrimary && <span className="text-[9px] font-bold text-[var(--warning)]">PK</span>}
                       <span>{col.name}</span>
-                      <span className="text-[var(--fg-faint)] font-mono normal-case tracking-normal">{col.type}</span>
+                      <span className="text-[var(--fg-faint)] font-mono font-normal normal-case tracking-normal text-[9px]">{col.type}</span>
                     </div>
                   </th>
                 ))}

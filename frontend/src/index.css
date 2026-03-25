@@ -22,9 +22,9 @@ html.dark {
   --border-mid:   rgba(255,255,255,0.10);
   --border-strong:rgba(255,255,255,0.15);
 
-  --accent:        #a78bfa;
-  --accent-bg:     rgba(167,139,250,0.08);
-  --accent-border: rgba(167,139,250,0.20);
+  --accent:        #3b82f6;
+  --accent-bg:     rgba(59,130,246,0.08);
+  --accent-border: rgba(59,130,246,0.20);
 
   --success:        #4ade80;
   --success-bg:     rgba(74,222,128,0.08);
@@ -54,9 +54,9 @@ html.light {
   --border-mid:   rgba(0,0,0,0.12);
   --border-strong:rgba(0,0,0,0.18);
 
-  --accent:        #7c5cbf;
-  --accent-bg:     rgba(124,92,191,0.08);
-  --accent-border: rgba(124,92,191,0.20);
+  --accent:        #2563eb;
+  --accent-bg:     rgba(37,99,235,0.08);
+  --accent-border: rgba(37,99,235,0.20);
 
   --success:        #16a34a;
   --success-bg:     rgba(22,163,74,0.08);

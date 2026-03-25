@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react'
 import { Sidebar, type SidebarView } from './Sidebar'
+import { QuerySidebar } from './QuerySidebar'
+import { SaveQueryDialog } from './SaveQueryDialog'
 import { TabBar } from './TabBar'
 import { Editor } from './Editor'
 import { RunBar } from './RunBar'
 import { Results } from './Results'
 import { TableExplorer } from './TableExplorer'
-import { HistoryView } from './HistoryView'
-import { SavedView } from './SavedView'
 import { useTabStore } from '../../stores/tabStore'
 import { useConnectionStore } from '../../stores/connectionStore'
 import { useHistoryStore } from '../../stores/historyStore'
@@ -17,7 +17,8 @@ import { executeQuery } from '../../lib/api'
 import { toast } from 'sonner'
 
 export default function AppLayout() {
-  const [view, setView] = useState<SidebarView>('queries')
+  const [view, setView] = useState<SidebarView>('explorer')
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false)
   const { tabs, activeTabId, addTab, closeTab, setLoading, setResult, setError } = useTabStore()
   const { activeConnectionUrl } = useConnectionStore()
   const { push: pushHistory } = useHistoryStore()
@@ -52,16 +53,20 @@ export default function AppLayout() {
     }
   }, [activeTab, activeTabId, activeConnectionUrl, setLoading, setResult, setError, pushHistory])
 
-  const saveCurrentQuery = useCallback(() => {
+  const saveCurrentQuery = useCallback((name: string) => {
     if (!activeTab?.sql.trim()) return
-    const name = prompt('Save query as:', activeTab.name) ?? activeTab.name
     saveQuery(name, activeTab.sql)
     toast.success(`Saved "${name}"`)
   }, [activeTab, saveQuery])
 
+  const handleSaveShortcut = useCallback(() => {
+    if (!activeTab?.sql.trim()) return
+    setSaveDialogOpen(true)
+  }, [activeTab])
+
   useKeyboardShortcuts({
     onRun: runQuery,
-    onSave: saveCurrentQuery,
+    onSave: handleSaveShortcut,
     onNewTab: addTab,
     onCloseTab: () => closeTab(activeTabId),
   })
@@ -70,6 +75,9 @@ export default function AppLayout() {
     <div className="flex h-screen overflow-hidden bg-[var(--bg)]">
       {/* Unified Sidebar */}
       <Sidebar activeView={view} onViewChange={setView} />
+
+      {/* Query Sidebar (History + Saved) - Only show in queries view */}
+      {view === 'queries' && <QuerySidebar />}
 
       {/* Main area */}
       <div className="flex flex-col flex-1 overflow-hidden">
@@ -107,9 +115,15 @@ export default function AppLayout() {
           </>
         )}
         {view === 'explorer' && <TableExplorer connectionUrl={activeConnectionUrl} />}
-        {view === 'history' && <HistoryView />}
-        {view === 'saved' && <SavedView />}
       </div>
+
+      {/* Save Query Dialog */}
+      <SaveQueryDialog
+        open={saveDialogOpen}
+        onClose={() => setSaveDialogOpen(false)}
+        onSave={saveCurrentQuery}
+        initialName={activeTab?.name}
+      />
     </div>
   )
 }

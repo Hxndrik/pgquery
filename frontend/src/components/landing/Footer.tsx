@@ -11,7 +11,7 @@ export function Footer() {
         <div className="flex items-center gap-6 text-[12px] text-[var(--fg-muted)]">
           <span>MIT Licensed</span>
           <span>Made for developers</span>
-          <a href="#" className="hover:text-[var(--fg)] transition-colors flex items-center gap-1.5">
+          <a href="https://github.com/Hxndrik/pgquery" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--fg)] transition-colors flex items-center gap-1.5">
             <GithubIcon size={14} />
             GitHub
           </a>

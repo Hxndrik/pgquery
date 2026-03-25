@@ -1,6 +1,10 @@
 import MonacoEditor, { type OnMount } from '@monaco-editor/react'
+import { useEffect } from 'react'
 import { useSettingsStore } from '../../stores/settingsStore'
 import { useTabStore } from '../../stores/tabStore'
+import { useSchemaStore } from '../../stores/schemaStore'
+import { useConnectionStore } from '../../stores/connectionStore'
+import type * as Monaco from 'monaco-editor'
 
 interface EditorProps {
   tabId: string
@@ -10,7 +14,16 @@ interface EditorProps {
 export function Editor({ tabId, onRun }: EditorProps) {
   const { theme } = useSettingsStore()
   const { tabs, updateSql } = useTabStore()
+  const { activeConnectionUrl } = useConnectionStore()
+  const { loadSchema } = useSchemaStore()
   const tab = tabs.find((t) => t.id === tabId)
+
+  // Load schema when connection changes
+  useEffect(() => {
+    if (activeConnectionUrl) {
+      loadSchema(activeConnectionUrl)
+    }
+  }, [activeConnectionUrl, loadSchema])
 
   const handleMount: OnMount = (editor, monaco) => {
     // Register dark theme
@@ -56,8 +69,115 @@ export function Editor({ tabId, onRun }: EditorProps) {
 
     monaco.editor.setTheme(theme === 'dark' ? 'pgquery-dark' : 'pgquery-light')
 
+    // Register completion provider for SQL - use closure to access latest schema
+    const getSchema = () => useSchemaStore.getState().schema
+    
+    const completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
+      provideCompletionItems: (model, position) => {
+        const textUntilPosition = model.getValueInRange({
+          startLineNumber: position.lineNumber,
+          startColumn: 1,
+          endLineNumber: position.lineNumber,
+          endColumn: position.column,
+        })
+
+        const word = model.getWordUntilPosition(position)
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        }
+
+        const suggestions: Monaco.languages.CompletionItem[] = []
+        const currentSchema = getSchema()
+
+        if (!currentSchema?.schemas) {
+          return { suggestions }
+        }
+
+        // Check context for table/column suggestions
+        const fromMatch = textUntilPosition.match(/\bFROM\s+(\w+\.)?$/i)
+        const joinMatch = textUntilPosition.match(/\bJOIN\s+(\w+\.)?$/i)
+        const schemaPrefix = textUntilPosition.match(/\b(\w+)\.$/i)
+        const selectMatch = textUntilPosition.match(/\bSELECT\s+(?:.*,\s*)?$/i)
+        const whereMatch = textUntilPosition.match(/\bWHERE\s+(?:.*(?:AND|OR)\s+)?$/i)
+
+        // Schema completions
+        if (!schemaPrefix && (fromMatch || joinMatch)) {
+          currentSchema.schemas.forEach((s) => {
+            suggestions.push({
+              label: s.name,
+              kind: monaco.languages.CompletionItemKind.Module,
+              insertText: s.name,
+              range,
+              detail: 'Schema',
+              documentation: `${s.tables.length} tables`,
+            })
+          })
+        }
+
+        // Table completions
+        if (schemaPrefix) {
+          const schemaName = schemaPrefix[1]
+          const schemaData = currentSchema.schemas.find((s) => s.name === schemaName)
+          if (schemaData) {
+            schemaData.tables.forEach((t) => {
+              suggestions.push({
+                label: t.name,
+                kind: monaco.languages.CompletionItemKind.Class,
+                insertText: t.name,
+                range,
+                detail: `Table in ${schemaName}`,
+                documentation: `${t.columns.length} columns`,
+              })
+            })
+          }
+        } else if (fromMatch || joinMatch) {
+          currentSchema.schemas.forEach((s) => {
+            s.tables.forEach((t) => {
+              suggestions.push({
+                label: `${s.name}.${t.name}`,
+                kind: monaco.languages.CompletionItemKind.Class,
+                insertText: `${s.name}.${t.name}`,
+                range,
+                detail: 'Table',
+                documentation: `${t.columns.length} columns`,
+              })
+            })
+          })
+        }
+
+        // Column completions
+        if (selectMatch || whereMatch || (!fromMatch && !joinMatch && !schemaPrefix)) {
+          currentSchema.schemas.forEach((s) => {
+            s.tables.forEach((t) => {
+              t.columns.forEach((c) => {
+                suggestions.push({
+                  label: c.name,
+                  kind: monaco.languages.CompletionItemKind.Field,
+                  insertText: c.name,
+                  range,
+                  detail: c.type,
+                  documentation: `${s.name}.${t.name}.${c.name}${c.isPrimary ? ' (PK)' : ''}${c.isUnique ? ' (Unique)' : ''}`,
+                })
+              })
+            })
+          })
+        }
+
+        return { suggestions }
+      },
+      triggerCharacters: ['.', ' '],
+    })
+
     // Ctrl+Enter to run
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, onRun)
+
+    // Clean up on unmount
+    return () => {
+      completionProvider.dispose()
+    }
   }
 
   return (

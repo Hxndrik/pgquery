@@ -17,7 +17,7 @@ function applyTheme(theme: Theme) {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
-      theme: 'dark',
+      theme: 'light',
       setTheme: (theme) => {
         applyTheme(theme)
         set({ theme })
