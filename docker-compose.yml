@@ -1,7 +1,6 @@
 services:
   pgquery:
     build: .
-    ports:
     environment:
       - PORT=8080
       - STATIC_DIR=/app/static
