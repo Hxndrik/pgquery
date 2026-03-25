@@ -7,7 +7,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # Stage 2: Build Go binary
-FROM golang:1.22-alpine AS backend
+FROM golang:1.26-alpine AS backend
 WORKDIR /app
 COPY proxy/ ./
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o pgquery-proxy .
