@@ -71,7 +71,8 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
         searchable={true}
         loading={loading}
         emptyMessage="No schemas"
-        width="w-[160px]"
+        storageKey="explorer-schemas-width"
+        initialWidth={160}
       />
 
       {/* Tables section */}
@@ -94,7 +95,8 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
         )}
         searchable={true}
         emptyMessage={!selectedSchema ? 'Select a schema' : 'No tables'}
-        width="w-[220px]"
+        storageKey="explorer-tables-width"
+        initialWidth={220}
       />
 
       {/* Data pane */}

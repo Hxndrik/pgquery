@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#a78bfa"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="8" fill="url(#g)"/>
-  <text x="16" y="22" text-anchor="middle" font-family="monospace" font-size="14" font-weight="bold" fill="white">pq</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="40" fill="#f8fafc"/>
+  
+  <path d="M60 70C60 58.9543 68.9543 50 80 50H130C141.046 50 150 58.9543 150 70V130C150 141.046 141.046 150 130 150H80C68.9543 150 60 141.046 60 130V70Z" stroke="#336791" stroke-width="12"/>
+  
+  <path d="M85 100L105 120L145 80" stroke="#336791" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <rect x="75" y="65" width="15" height="4" rx="2" fill="#336791"/>
+  <rect x="95" y="65" width="15" height="4" rx="2" fill="#94a3b8"/>
 </svg>

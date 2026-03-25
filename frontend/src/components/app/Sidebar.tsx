@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { NavItem } from "./NavItem";
 import { ConnectionManager } from "./ConnectionManager";
-import { LogoMark, QueryIcon, ExplorerIcon } from "../icons";
-import { ThemeToggle } from "../ui/ThemeToggle";
+import { LogoMark, QueryIcon, ExplorerIcon, ConnectionIcon } from "../icons";
 import { useConnectionStore } from "../../stores/connectionStore";
+import { useResizableWidth } from "../../hooks/useResizableWidth";
 
 export type SidebarView = "queries" | "explorer";
 
@@ -13,6 +13,10 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeView, onViewChange }: SidebarProps) {
+  const { width, onMouseDown } = useResizableWidth({ 
+    storageKey: 'sidebar-width', 
+    initialWidth: 280 
+  });
   const [connOpen, setConnOpen] = useState(false);
   const { activeConnectionUrl, activeConnectionId, connections, status } =
     useConnectionStore();
@@ -24,27 +28,42 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
       ? (activeConnectionUrl.split("@").pop()?.split("/").pop() ?? "Connected")
       : "No connection");
 
+  // Determine icon color based on status
+  const getStatusColor = () => {
+    switch (status) {
+      case 'connected':
+        return 'text-[var(--success)]';
+      case 'connecting':
+        return 'text-[var(--warning)]';
+      case 'error':
+        return 'text-[var(--error)]';
+      default:
+        return 'text-[var(--fg-subtle)]';
+    }
+  };
+
   return (
-    <div className="w-[280px] shrink-0 bg-[var(--bg-raised)] border-r border-[var(--border)] h-full flex flex-col">
+    <div style={{ width }} className="shrink-0 bg-[var(--bg-raised)] border-r border-[var(--border)] h-full flex flex-col relative">
+      <div 
+        onMouseDown={onMouseDown}
+        className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-[var(--accent)] transition-colors z-10"
+      />
       <div className="p-4 flex items-center justify-center border-b border-[var(--border)]">
         <LogoMark size={32} />
       </div>
 
-      <button
-        onClick={() => setConnOpen(true)}
-        className="flex items-center gap-2 mx-3 mt-3 mb-2 px-3 py-2 rounded bg-[var(--bg-card)] border border-[var(--border-mid)] hover:border-[var(--border-strong)] transition-colors text-left"
-      >
-        <span
-          className={`w-2 h-2 rounded-full shrink-0 ${
-            status === "connected"
-              ? "bg-[var(--success)]"
-              : "bg-[var(--fg-faint)]"
-          }`}
-        />
-        <span className="text-[12px] text-[var(--fg)] font-medium truncate flex-1">
-          {connectionName}
-        </span>
-      </button>
+      {/* Connection Section */}
+      <div className="px-3 mt-3">
+        <button
+          onClick={() => setConnOpen(true)}
+          className="flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors w-full text-[var(--fg-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg)]"
+        >
+          <span className={`shrink-0 ${getStatusColor()}`}>
+            <ConnectionIcon size={18} />
+          </span>
+          <span className="truncate flex-1 text-left">{connectionName}</span>
+        </button>
+      </div>
 
       <div className="border-t border-[var(--border)] mx-3 my-2" />
 
@@ -63,10 +82,6 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
         />
       </nav>
       <div className="flex-1" />
-
-      <div className="p-3 border-t border-[var(--border)]">
-        <ThemeToggle />
-      </div>
 
       <ConnectionManager open={connOpen} onClose={() => setConnOpen(false)} />
     </div>

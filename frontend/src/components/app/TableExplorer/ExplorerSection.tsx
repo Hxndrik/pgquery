@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react'
 import { SearchIcon } from '../../icons'
 import { Input } from '../../ui/Input'
+import { useResizableWidth } from '../../../hooks/useResizableWidth'
 
 interface ExplorerSectionProps<T> {
   title: string
@@ -13,7 +14,8 @@ interface ExplorerSectionProps<T> {
   searchable?: boolean
   loading?: boolean
   emptyMessage?: string
-  width?: string
+  storageKey: string
+  initialWidth?: number
 }
 
 export function ExplorerSection<T>({
@@ -27,9 +29,16 @@ export function ExplorerSection<T>({
   searchable = false,
   loading = false,
   emptyMessage = 'No items',
-  width = 'w-[180px]',
+  storageKey,
+  initialWidth = 180,
 }: ExplorerSectionProps<T>) {
   const [search, setSearch] = useState('')
+  const { width, onMouseDown } = useResizableWidth({ 
+    storageKey, 
+    initialWidth,
+    minWidth: 120,
+    maxWidth: 400
+  })
 
   const filteredItems = searchable
     ? items.filter((item) => {
@@ -39,7 +48,11 @@ export function ExplorerSection<T>({
     : items
 
   return (
-    <div className={`${width} shrink-0 border-r border-[var(--border)] bg-[var(--bg-raised)] overflow-hidden flex flex-col`}>
+    <div style={{ width }} className="shrink-0 border-r border-[var(--border)] bg-[var(--bg-raised)] overflow-hidden flex flex-col relative">
+      <div 
+        onMouseDown={onMouseDown}
+        className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-[var(--accent)] transition-colors z-10"
+      />
       {/* Header */}
       <div className="px-3 py-2.5 border-b border-[var(--border)] flex items-center gap-2">
         <span className="text-[var(--fg-subtle)] opacity-70 shrink-0">{icon}</span>

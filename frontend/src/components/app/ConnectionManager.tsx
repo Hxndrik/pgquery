@@ -144,20 +144,17 @@ export function ConnectionManager({ open, onClose }: ConnectionManagerProps) {
         // Update existing connection
         updateConnection(editing, name, url)
         
-        // If it's the active connection, reconnect
-        if (editing === activeConnectionId) {
-          setStatus('connecting')
-          const result = await testConnection(url)
-          if (result.ok) {
-            setActiveConnection(editing, url)
-            setStatus('connected')
-            toast.success(`Updated and reconnected to ${result.database}`)
-          } else {
-            setStatus('error')
-            toast.error(result.error ?? 'Connection failed')
-          }
+        // Always connect after updating
+        setStatus('connecting')
+        const result = await testConnection(url)
+        if (result.ok) {
+          setActiveConnection(editing, url)
+          setStatus('connected')
+          toast.success(`Updated and connected to ${result.database}`)
+          onClose()
         } else {
-          toast.success('Connection updated')
+          setStatus('error')
+          toast.error(result.error ?? 'Connection failed')
         }
         setEditing(null)
       } else {

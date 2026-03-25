@@ -7,15 +7,15 @@ interface IconProps {
 
 export function LogoMark({ size = 28, className = '' }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" className={className}>
-      <defs>
-        <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#a78bfa"/>
-          <stop offset="100%" stopColor="#7c3aed"/>
-        </linearGradient>
-      </defs>
-      <rect width="28" height="28" rx="8" fill="url(#logo-grad)"/>
-      <text x="14" y="19" textAnchor="middle" fontFamily="monospace" fontSize="12" fontWeight="700" fill="white">pq</text>
+    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" className={className}>
+      <rect width="200" height="200" rx="40" fill="#f8fafc"/>
+      
+      <path d="M60 70C60 58.9543 68.9543 50 80 50H130C141.046 50 150 58.9543 150 70V130C150 141.046 141.046 150 130 150H80C68.9543 150 60 141.046 60 130V70Z" stroke="#336791" strokeWidth="12"/>
+      
+      <path d="M85 100L105 120L145 80" stroke="#336791" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+      
+      <rect x="75" y="65" width="15" height="4" rx="2" fill="#336791"/>
+      <rect x="95" y="65" width="15" height="4" rx="2" fill="#94a3b8"/>
     </svg>
   )
 }

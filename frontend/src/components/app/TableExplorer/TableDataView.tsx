@@ -84,6 +84,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     const result = await executeQuery(connectionUrl, query, params)
     if (result.success) {
       setRows(result.data.rows)
+      setError(null)
     } else {
       setError(result.error.error)
     }
@@ -119,6 +120,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
   useEffect(() => {
     setPage(0)
     setTotalCount(null)
+    setRows([])
     setSelectedRows(new Set())
     setSelectAllMode(false)
     setLastSelectedIndex(null)
@@ -398,10 +400,10 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
         <span className="text-[var(--fg-subtle)] opacity-70 shrink-0">
           <TableGridIcon size={14} />
         </span>
-        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-          <span className="text-[12px] font-mono text-[var(--fg-muted)] truncate">{schemaName}</span>
-          <span className="text-[var(--fg-faint)] shrink-0">/</span>
-          <span className="text-[12px] font-mono font-semibold text-[var(--fg)] truncate">{tableName}</span>
+        <div className="flex items-center gap-1 flex-1 min-w-0">
+          <span className="text-[11px] font-mono text-[var(--fg-muted)] truncate">{schemaName}</span>
+          <span className="text-[11px] text-[var(--fg-faint)] shrink-0">/</span>
+          <span className="text-[11px] font-mono font-semibold text-[var(--fg)] truncate">{tableName}</span>
         </div>
         {totalCount !== null && (
           <span className="text-[10px] text-[var(--fg-faint)] shrink-0">
@@ -439,18 +441,18 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
         </div>
       )}
 
-      {/* Loading */}
-      {loading && (
-        <div className="px-4 py-3 text-[12px] text-[var(--fg-subtle)]">Loading…</div>
-      )}
-
       {/* Data grid */}
-      {!loading && !error && rows.length === 0 && (
+      {!error && rows.length === 0 && !loading && (
         <EmptyState title="No rows" description="This table is empty" hint="" />
       )}
 
-      {!loading && !error && rows.length > 0 && (
-        <div className="flex-1 overflow-auto">
+      {!error && rows.length > 0 && (
+        <div className="flex-1 overflow-auto relative">
+          {loading && (
+            <div className="absolute top-2 right-2 z-20 px-2 py-1 bg-[var(--bg-card)] border border-[var(--border)] rounded text-[10px] text-[var(--fg-subtle)] shadow-sm">
+              Loading…
+            </div>
+          )}
           <table className="w-full border-collapse text-[12px]">
             <thead>
               <tr className="bg-[var(--bg-raised)] sticky top-0 z-10">

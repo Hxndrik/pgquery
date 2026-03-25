@@ -4,6 +4,7 @@ import { useHistoryStore } from '../../stores/historyStore'
 import { useSavedStore } from '../../stores/savedStore'
 import { useTabStore } from '../../stores/tabStore'
 import { toast } from 'sonner'
+import { useResizableWidth } from '../../hooks/useResizableWidth'
 
 function formatTime(ts: number): string {
   const d = new Date(ts)
@@ -17,9 +18,18 @@ export function QuerySidebar() {
   const { entries: historyEntries, clear: clearHistory } = useHistoryStore()
   const { queries: savedQueries, delete: deleteSaved } = useSavedStore()
   const { activeTabId, updateSql } = useTabStore()
+  
+  const { width, onMouseDown } = useResizableWidth({ 
+    storageKey: 'query-sidebar-width', 
+    initialWidth: 280 
+  })
 
   return (
-    <div className="w-[280px] shrink-0 border-r border-[var(--border)] bg-[var(--bg-raised)] h-full flex flex-col overflow-hidden">
+    <div style={{ width }} className="shrink-0 border-r border-[var(--border)] bg-[var(--bg-raised)] h-full flex flex-col overflow-hidden relative">
+      <div 
+        onMouseDown={onMouseDown}
+        className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-[var(--accent)] transition-colors z-10"
+      />
       {/* Saved Queries Section */}
       <div className="border-b border-[var(--border)]">
         <button

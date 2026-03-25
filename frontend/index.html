@@ -2,10 +2,76 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pgquery — Browser-based PostgreSQL client</title>
-    <meta name="description" content="A free, open-source PostgreSQL client that runs in your browser. No accounts, no subscriptions." />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Primary Meta -->
+    <title>pgquery — Free Browser-Based PostgreSQL Client</title>
+    <meta
+      name="description"
+      content="A free, open-source PostgreSQL client that runs in your browser. No accounts, no installs, no subscriptions. Connect, query, and export in seconds."
+    />
+    <meta
+      name="keywords"
+      content="PostgreSQL client, SQL editor, browser database tool, free postgres GUI, web SQL client, database explorer, pgadmin alternative"
+    />
+    <meta name="theme-color" content="#336791" />
+    <link rel="canonical" href="https://pgquery.io/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pgquery.io/" />
+    <meta property="og:site_name" content="pgquery" />
+    <meta
+      property="og:title"
+      content="pgquery — Free Browser-Based PostgreSQL Client"
+    />
+    <meta
+      property="og:description"
+      content="Connect to any PostgreSQL database instantly. No setup, no account, no waiting. Free forever, MIT licensed."
+    />
+    <meta property="og:image" content="https://pgquery.io/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="pgquery — browser-based PostgreSQL client"
+    />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="pgquery — Free Browser-Based PostgreSQL Client"
+    />
+    <meta
+      name="twitter:description"
+      content="Connect to any PostgreSQL database instantly. No setup, no account, no waiting."
+    />
+    <meta name="twitter:image" content="https://pgquery.io/og-image.png" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "pgquery",
+        "url": "https://pgquery.io",
+        "description": "A free, open-source PostgreSQL client that runs in your browser. No accounts, no installs, no subscriptions.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "license": "https://opensource.org/licenses/MIT"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

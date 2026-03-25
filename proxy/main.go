@@ -12,7 +12,7 @@ func main() {
 	port := getEnv("PORT", "28001")
 	staticDir := getEnv("STATIC_DIR", "../frontend/dist")
 
-	rateLimitRPM := 60
+	rateLimitRPM := 600
 	if v := os.Getenv("RATE_LIMIT_RPM"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
 			rateLimitRPM = n
