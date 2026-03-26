@@ -20,139 +20,159 @@ function MonacoIllustration() {
   )
 }
 
-function TabsIllustration() {
+function SchemaVisualizerIllustration() {
   return (
     <svg viewBox="0 0 120 80" fill="none" className="w-full opacity-70">
       <rect x="0" y="0" width="120" height="80" rx="6" fill="var(--bg-hover)"/>
-      {/* Tab bar */}
-      <rect x="0" y="0" width="120" height="24" rx="6" fill="var(--bg-active)"/>
-      <rect x="8" y="6" width="28" height="12" rx="4" fill="var(--bg-card)"/>
-      <rect x="40" y="6" width="28" height="12" rx="4" fill="transparent"/>
-      <rect x="72" y="6" width="28" height="12" rx="4" fill="transparent"/>
-      {/* Tab text */}
-      <rect x="12" y="10" width="14" height="3" rx="1.5" fill="var(--fg)"/>
-      <rect x="44" y="10" width="14" height="3" rx="1.5" fill="var(--fg-faint)"/>
-      <rect x="76" y="10" width="14" height="3" rx="1.5" fill="var(--fg-faint)"/>
-      {/* Content */}
-      <rect x="8" y="32" width="50" height="3" rx="1.5" fill="var(--fg-faint)"/>
-      <rect x="8" y="40" width="35" height="3" rx="1.5" fill="var(--fg-faint)"/>
+      {/* Table node 1 */}
+      <rect x="8" y="10" width="40" height="30" rx="4" fill="var(--bg-card)" stroke="var(--border-mid)" strokeWidth="1"/>
+      <rect x="8" y="10" width="40" height="10" rx="4" fill="var(--accent-bg)"/>
+      <rect x="8" y="17" width="40" height="3" fill="var(--accent-bg)"/>
+      <rect x="13" y="13" width="20" height="3" rx="1.5" fill="var(--accent)"/>
+      <rect x="13" y="25" width="12" height="2" rx="1" fill="var(--fg-faint)"/>
+      <rect x="28" y="25" width="16" height="2" rx="1" fill="var(--fg-faint)" opacity=".5"/>
+      <rect x="13" y="31" width="10" height="2" rx="1" fill="var(--fg-faint)"/>
+      <rect x="28" y="31" width="12" height="2" rx="1" fill="var(--fg-faint)" opacity=".5"/>
+      {/* Table node 2 */}
+      <rect x="72" y="20" width="40" height="30" rx="4" fill="var(--bg-card)" stroke="var(--border-mid)" strokeWidth="1"/>
+      <rect x="72" y="20" width="40" height="10" rx="4" fill="var(--accent-bg)"/>
+      <rect x="72" y="27" width="40" height="3" fill="var(--accent-bg)"/>
+      <rect x="77" y="23" width="18" height="3" rx="1.5" fill="var(--accent)"/>
+      <rect x="77" y="35" width="14" height="2" rx="1" fill="var(--fg-faint)"/>
+      <rect x="77" y="41" width="10" height="2" rx="1" fill="var(--fg-faint)"/>
+      {/* FK line */}
+      <path d="M48 30 C 60 30, 60 35, 72 35" stroke="var(--accent)" strokeWidth="1.5" fill="none" opacity=".5"/>
+      <circle cx="72" cy="35" r="2.5" fill="var(--accent)" opacity=".5"/>
+      {/* Table node 3 */}
+      <rect x="72" y="56" width="40" height="18" rx="4" fill="var(--bg-card)" stroke="var(--border-mid)" strokeWidth="1"/>
+      <rect x="72" y="56" width="40" height="10" rx="4" fill="var(--accent-bg)"/>
+      <rect x="72" y="63" width="40" height="3" fill="var(--accent-bg)"/>
+      <rect x="77" y="59" width="22" height="3" rx="1.5" fill="var(--accent)"/>
+      {/* FK line 2 */}
+      <path d="M48 35 C 55 35, 55 65, 72 65" stroke="var(--fg-subtle)" strokeWidth="1" fill="none" opacity=".4"/>
     </svg>
   )
 }
 
-function SchemaIllustration() {
+function DatabaseManagementIllustration() {
   return (
     <svg viewBox="0 0 120 80" fill="none" className="w-full opacity-70">
       <rect x="0" y="0" width="120" height="80" rx="6" fill="var(--bg-hover)"/>
-      {/* Schema tree */}
-      <circle cx="16" cy="16" r="5" fill="var(--accent-bg)" stroke="var(--accent-border)" strokeWidth="1"/>
-      <rect x="24" y="13" width="40" height="6" rx="3" fill="var(--fg-faint)"/>
-      <line x1="16" y1="21" x2="16" y2="32" stroke="var(--border-mid)" strokeWidth="1"/>
-      <line x1="16" y1="32" x2="24" y2="32" stroke="var(--border-mid)" strokeWidth="1"/>
-      <circle cx="16" cy="32" r="3" fill="var(--bg-active)" stroke="var(--border-mid)" strokeWidth="1"/>
-      <rect x="24" y="29" width="32" height="6" rx="3" fill="var(--fg-faint)"/>
-      <line x1="16" y1="35" x2="16" y2="46" stroke="var(--border-mid)" strokeWidth="1"/>
-      <line x1="16" y1="46" x2="24" y2="46" stroke="var(--border-mid)" strokeWidth="1"/>
-      <circle cx="16" cy="46" r="3" fill="var(--bg-active)" stroke="var(--border-mid)" strokeWidth="1"/>
-      <rect x="24" y="43" width="44" height="6" rx="3" fill="var(--fg-faint)"/>
-      {/* Column details */}
-      <rect x="30" y="56" width="20" height="4" rx="2" fill="var(--fg-faint)" opacity=".5"/>
-      <rect x="54" y="56" width="16" height="4" rx="2" fill="var(--success)" opacity=".3"/>
-    </svg>
-  )
-}
-
-function DarkLightIllustration() {
-  return (
-    <svg viewBox="0 0 120 80" fill="none" className="w-full opacity-70">
-      {/* Dark half */}
-      <rect x="0" y="0" width="60" height="80" rx="6" fill="#0c0e14"/>
-      <rect x="8" y="12" width="32" height="4" rx="2" fill="rgba(167,139,250,0.5)"/>
-      <rect x="8" y="22" width="44" height="3" rx="1.5" fill="rgba(255,255,255,0.1)"/>
-      <rect x="8" y="30" width="36" height="3" rx="1.5" fill="rgba(255,255,255,0.07)"/>
-      <rect x="8" y="38" width="28" height="3" rx="1.5" fill="rgba(255,255,255,0.07)"/>
-      {/* Light half */}
-      <rect x="60" y="0" width="60" height="80" rx="6" fill="#f5f5f3"/>
-      <rect x="68" y="12" width="32" height="4" rx="2" fill="rgba(124,92,191,0.5)"/>
-      <rect x="68" y="22" width="44" height="3" rx="1.5" fill="rgba(0,0,0,0.12)"/>
-      <rect x="68" y="30" width="36" height="3" rx="1.5" fill="rgba(0,0,0,0.08)"/>
-      <rect x="68" y="38" width="28" height="3" rx="1.5" fill="rgba(0,0,0,0.08)"/>
-      {/* Divider */}
-      <line x1="60" y1="0" x2="60" y2="80" stroke="var(--border-mid)" strokeWidth="1"/>
-    </svg>
-  )
-}
-
-function HistoryIllustration() {
-  return (
-    <svg viewBox="0 0 120 80" fill="none" className="w-full opacity-70">
-      <rect x="0" y="0" width="120" height="80" rx="6" fill="var(--bg-hover)"/>
-      {[0, 1, 2, 3].map((i) => (
-        <g key={i} transform={`translate(0, ${i * 16})`}>
-          <rect x="8" y="10" width="4" height="4" rx="2" fill="var(--fg-faint)"/>
-          <rect x="18" y="10" width="52" height="3" rx="1.5" fill="var(--fg-faint)"/>
-          <rect x="18" y="15" width="30" height="2" rx="1" fill="var(--fg-faint)" opacity=".5"/>
-          <rect x="90" y="10" width="22" height="4" rx="2" fill={i === 0 ? "var(--success-bg)" : "var(--bg-active)"} stroke={i === 0 ? "var(--success-border)" : "none"}/>
+      {/* Sidebar nav items */}
+      <rect x="6" y="6" width="32" height="68" rx="3" fill="var(--bg-active)"/>
+      <rect x="10" y="10" width="24" height="4" rx="2" fill="var(--accent)" opacity=".6"/>
+      <rect x="10" y="18" width="20" height="3" rx="1.5" fill="var(--fg-faint)"/>
+      <rect x="10" y="24" width="22" height="3" rx="1.5" fill="var(--fg-faint)"/>
+      <rect x="10" y="30" width="18" height="3" rx="1.5" fill="var(--fg-faint)"/>
+      <rect x="10" y="36" width="24" height="3" rx="1.5" fill="var(--fg-faint)"/>
+      <rect x="10" y="44" width="16" height="2" rx="1" fill="var(--fg-faint)" opacity=".5"/>
+      <rect x="10" y="49" width="20" height="3" rx="1.5" fill="var(--fg-faint)"/>
+      <rect x="10" y="55" width="18" height="3" rx="1.5" fill="var(--fg-faint)"/>
+      <rect x="10" y="63" width="14" height="2" rx="1" fill="var(--fg-faint)" opacity=".5"/>
+      <rect x="10" y="68" width="22" height="3" rx="1.5" fill="var(--fg-faint)"/>
+      {/* Main content - table */}
+      <rect x="42" y="6" width="72" height="68" rx="3" fill="var(--bg-card)"/>
+      <rect x="42" y="6" width="72" height="10" rx="3" fill="var(--bg-active)"/>
+      <rect x="46" y="10" width="20" height="3" rx="1.5" fill="var(--fg-subtle)"/>
+      <rect x="70" y="10" width="16" height="3" rx="1.5" fill="var(--fg-subtle)"/>
+      <rect x="90" y="10" width="20" height="3" rx="1.5" fill="var(--fg-subtle)"/>
+      {[1,2,3,4].map(i => (
+        <g key={i}>
+          <rect x="46" y={6 + i*12 + 6} width="18" height="2.5" rx="1.25" fill="var(--fg-faint)"/>
+          <rect x="70" y={6 + i*12 + 6} width="14" height="2.5" rx="1.25" fill="var(--fg-faint)"/>
+          <rect x="90" y={6 + i*12 + 6} width="18" height="2.5" rx="1.25" fill="var(--fg-faint)"/>
         </g>
       ))}
     </svg>
   )
 }
 
-function ExportIllustration() {
+function SecurityIllustration() {
   return (
     <svg viewBox="0 0 120 80" fill="none" className="w-full opacity-70">
       <rect x="0" y="0" width="120" height="80" rx="6" fill="var(--bg-hover)"/>
-      {/* Table */}
-      <rect x="8" y="8" width="70" height="52" rx="3" fill="var(--bg-active)"/>
-      <rect x="8" y="8" width="70" height="12" rx="3" fill="var(--bg-card)"/>
-      <rect x="12" y="12" width="16" height="4" rx="2" fill="var(--fg-subtle)"/>
-      <rect x="32" y="12" width="20" height="4" rx="2" fill="var(--fg-subtle)"/>
-      {[1,2,3].map(r => (
-        <g key={r}>
-          <rect x="12" y={8 + r*12 + 6} width="16" height="3" rx="1.5" fill="var(--fg-faint)"/>
-          <rect x="32" y={8 + r*12 + 6} width="20" height="3" rx="1.5" fill="var(--fg-faint)"/>
+      {/* Shield */}
+      <path d="M60 12 L40 22 V42 C40 54 48 62 60 66 C72 62 80 54 80 42 V22 L60 12Z" fill="var(--accent-bg)" stroke="var(--accent)" strokeWidth="1.5" opacity=".6"/>
+      <path d="M52 38 L57 43 L68 32" stroke="var(--success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Score bar */}
+      <rect x="20" y="72" width="80" height="4" rx="2" fill="var(--bg-active)"/>
+      <rect x="20" y="72" width="64" height="4" rx="2" fill="var(--success)" opacity=".6"/>
+    </svg>
+  )
+}
+
+function PerformanceIllustration() {
+  return (
+    <svg viewBox="0 0 120 80" fill="none" className="w-full opacity-70">
+      <rect x="0" y="0" width="120" height="80" rx="6" fill="var(--bg-hover)"/>
+      {/* Gauge */}
+      <path d="M30 55 A 30 30 0 0 1 90 55" stroke="var(--border-mid)" strokeWidth="3" fill="none"/>
+      <path d="M30 55 A 30 30 0 0 1 82 32" stroke="var(--success)" strokeWidth="3" fill="none" opacity=".7"/>
+      {/* Needle */}
+      <line x1="60" y1="55" x2="78" y2="37" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="60" cy="55" r="3" fill="var(--accent)"/>
+      {/* Metric cards */}
+      <rect x="8" y="64" width="32" height="10" rx="3" fill="var(--success-bg)" stroke="var(--success-border)" strokeWidth=".5"/>
+      <rect x="12" y="68" width="14" height="2" rx="1" fill="var(--success)" opacity=".6"/>
+      <rect x="44" y="64" width="32" height="10" rx="3" fill="var(--bg-active)" stroke="var(--border-mid)" strokeWidth=".5"/>
+      <rect x="48" y="68" width="14" height="2" rx="1" fill="var(--fg-faint)"/>
+      <rect x="80" y="64" width="32" height="10" rx="3" fill="var(--bg-active)" stroke="var(--border-mid)" strokeWidth=".5"/>
+      <rect x="84" y="68" width="14" height="2" rx="1" fill="var(--fg-faint)"/>
+    </svg>
+  )
+}
+
+function RolesIllustration() {
+  return (
+    <svg viewBox="0 0 120 80" fill="none" className="w-full opacity-70">
+      <rect x="0" y="0" width="120" height="80" rx="6" fill="var(--bg-hover)"/>
+      {/* Role badges */}
+      {[0, 1, 2].map(i => (
+        <g key={i} transform={`translate(0, ${i * 22})`}>
+          <circle cx="24" cy="18" r="8" fill="var(--accent-bg)" stroke="var(--accent-border)" strokeWidth="1"/>
+          <circle cx="24" cy="16" r="3" fill="var(--accent)" opacity=".5"/>
+          <path d="M19 24 C19 21 21 19 24 19 S29 21 29 24" fill="var(--accent)" opacity=".3"/>
+          <rect x="38" y="14" width="28" height="3" rx="1.5" fill="var(--fg-faint)"/>
+          <rect x="38" y="20" width="40" height="2" rx="1" fill="var(--fg-faint)" opacity=".5"/>
+          {/* Attribute badges */}
+          <rect x="82" y="13" width="16" height="6" rx="3" fill={i === 0 ? "var(--accent-bg)" : "var(--bg-active)"} stroke={i === 0 ? "var(--accent-border)" : "var(--border-mid)"} strokeWidth=".5"/>
+          <rect x="100" y="13" width="12" height="6" rx="3" fill="var(--bg-active)" stroke="var(--border-mid)" strokeWidth=".5"/>
         </g>
       ))}
-      {/* Export buttons */}
-      <rect x="85" y="20" width="28" height="14" rx="4" fill="var(--accent-bg)" stroke="var(--accent-border)" strokeWidth="1"/>
-      <rect x="89" y="26" width="12" height="2" rx="1" fill="var(--accent)"/>
-      <rect x="85" y="40" width="28" height="14" rx="4" fill="var(--bg-active)" stroke="var(--border-mid)" strokeWidth="1"/>
-      <rect x="89" y="46" width="12" height="2" rx="1" fill="var(--fg-faint)"/>
     </svg>
   )
 }
 
 const features = [
   {
-    title: 'Monaco Editor with SQL intelligence',
-    desc: 'Write SQL in the same editor that powers VS Code. Syntax highlighting, autocompletion from your schema, and keyboard shortcuts.',
+    title: 'SQL Editor with Monaco intelligence',
+    desc: 'Write SQL in the same editor that powers VS Code. Schema-aware autocompletion, multi-tab queries, history, saved queries, and CSV/JSON export.',
     Illustration: MonacoIllustration,
   },
   {
-    title: 'Multi-tab queries',
-    desc: 'Open multiple queries in parallel tabs. Each tab maintains its own SQL and results. Switch instantly with no re-fetching.',
-    Illustration: TabsIllustration,
+    title: 'Interactive Schema Visualizer',
+    desc: 'See your entire database structure as an ER diagram. Drag tables, pan and zoom, and trace foreign key relationships visually.',
+    Illustration: SchemaVisualizerIllustration,
   },
   {
-    title: 'Schema browser',
-    desc: 'Explore your database structure. Browse tables, columns, types, and row estimates. Expandable tree with instant search.',
-    Illustration: SchemaIllustration,
+    title: 'Full Database Management',
+    desc: 'Manage functions, triggers, enum types, extensions, indexes, and publications. Create, alter, and drop with DDL preview before execution.',
+    Illustration: DatabaseManagementIllustration,
   },
   {
-    title: 'Dark & light mode',
-    desc: 'Crafted for both modes. The same premium feel in light as in dark. Persisted to your preferences.',
-    Illustration: DarkLightIllustration,
+    title: 'Security Advisor',
+    desc: 'Audit your database security posture. Check RLS status, superuser roles, public schema exposure, SSL, and password encryption with a scored report.',
+    Illustration: SecurityIllustration,
   },
   {
-    title: 'Query history & saved queries',
-    desc: 'Every query you run is saved. Name and bookmark queries you reuse. All stored locally — never leaves your browser.',
-    Illustration: HistoryIllustration,
+    title: 'Performance Advisor',
+    desc: 'Identify bottlenecks with cache hit ratio, unused indexes, table bloat, sequential scan analysis, and connection utilization monitoring.',
+    Illustration: PerformanceIllustration,
   },
   {
-    title: 'Export anywhere',
-    desc: 'Download results as CSV or JSON with one click. Clean files, proper escaping, null handling included.',
-    Illustration: ExportIllustration,
+    title: 'Roles, Policies & Configuration',
+    desc: 'Manage database roles and permissions, Row Level Security policies, and PostgreSQL settings. Full RBAC and RLS management from the browser.',
+    Illustration: RolesIllustration,
   },
 ]
 
@@ -187,7 +207,7 @@ export function Features() {
         viewport={{ once: true }}
         transition={{ delay: 0.1, duration: 0.5 }}
       >
-        Everything you need, nothing you don't.
+        A complete database explorer. Zero backend.
       </motion.h2>
 
       <motion.div
