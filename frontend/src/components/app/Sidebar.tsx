@@ -1,107 +1,27 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, Suspense } from "react";
 import { NavItem } from "./NavItem";
 import { ConnectionManager } from "./ConnectionManager";
 import {
-  QueryIcon,
-  ExplorerIcon,
-  ConnectionIcon,
   PlusIcon,
   EditIcon,
-  FunctionIcon,
-  TriggerIcon,
-  EnumIcon,
-  ExtensionIcon,
-  IndexIcon,
-  PublicationIcon,
-  RoleIcon,
-  PolicyIcon,
-  SettingsIcon,
-  SecurityIcon,
-  PerformanceIcon,
-  QueryStatsIcon,
-  SchemaVisualizerIcon,
   ChevronDownIcon,
-  ReplicationIcon,
-  WrapperIcon,
 } from "../icons";
 import { useConnectionStore } from "../../stores/connectionStore";
 import { useResizableWidth } from "../../hooks/useResizableWidth";
 import { STORAGE_KEYS } from "../../lib/storageKeys";
-import { testConnection } from "../../lib/api";
 import { toast } from "sonner";
+import { getConnectionType, getRegisteredTypes } from "../../lib/connectionRegistry";
+import type { NavSection } from "../../lib/connectionRegistry";
+import { isPostgresConfig } from "../../lib/connectionTypes";
+import { testConnection } from "../../lib/api";
 
-export type SidebarView =
-  | "queries"
-  | "explorer"
-  | "functions"
-  | "triggers"
-  | "enums"
-  | "extensions"
-  | "indexes"
-  | "publications"
-  | "roles"
-  | "policies"
-  | "settings"
-  | "security-advisor"
-  | "performance-advisor"
-  | "query-performance"
-  | "schema-visualizer"
-  | "replication"
-  | "wrappers";
+// Import registrations
+import "../../lib/connectionTypes";
 
 interface SidebarProps {
-  activeView: SidebarView;
-  onViewChange: (view: SidebarView) => void;
+  activeView: string;
+  onViewChange: (view: string) => void;
 }
-
-interface NavSection {
-  label: string;
-  storageKey: string;
-  items: { view: SidebarView; icon: React.ReactNode; label: string }[];
-}
-
-const NAV_SECTIONS: NavSection[] = [
-  {
-    label: "Database",
-    storageKey: "nav-db-open",
-    items: [
-      { view: "explorer", icon: <ExplorerIcon size={16} />, label: "Tables" },
-      { view: "schema-visualizer", icon: <SchemaVisualizerIcon size={16} />, label: "Schema Visualizer" },
-      { view: "functions", icon: <FunctionIcon size={16} />, label: "Functions" },
-      { view: "triggers", icon: <TriggerIcon size={16} />, label: "Triggers" },
-      { view: "enums", icon: <EnumIcon size={16} />, label: "Enumerated Types" },
-      { view: "extensions", icon: <ExtensionIcon size={16} />, label: "Extensions" },
-      { view: "indexes", icon: <IndexIcon size={16} />, label: "Indexes" },
-      { view: "publications", icon: <PublicationIcon size={16} />, label: "Publications" },
-    ],
-  },
-  {
-    label: "Configuration",
-    storageKey: "nav-config-open",
-    items: [
-      { view: "roles", icon: <RoleIcon size={16} />, label: "Roles" },
-      { view: "policies", icon: <PolicyIcon size={16} />, label: "Policies" },
-      { view: "settings", icon: <SettingsIcon size={16} />, label: "Settings" },
-    ],
-  },
-  {
-    label: "Platform",
-    storageKey: "nav-platform-open",
-    items: [
-      { view: "replication", icon: <ReplicationIcon size={16} />, label: "Replication" },
-      { view: "wrappers", icon: <WrapperIcon size={16} />, label: "Wrappers" },
-    ],
-  },
-  {
-    label: "Tools",
-    storageKey: "nav-tools-open",
-    items: [
-      { view: "security-advisor", icon: <SecurityIcon size={16} />, label: "Security Advisor" },
-      { view: "performance-advisor", icon: <PerformanceIcon size={16} />, label: "Performance Advisor" },
-      { view: "query-performance", icon: <QueryStatsIcon size={16} />, label: "Query Performance" },
-    ],
-  },
-];
 
 function CollapsibleSection({
   label,
@@ -155,25 +75,41 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const { connections, activeConnectionId, status, setActiveConnection, setStatus } =
     useConnectionStore();
 
+  const activeConnection = connections.find((c) => c.id === activeConnectionId);
+  const activeType = activeConnection?.type;
+  const descriptor = activeType ? getConnectionType(activeType) : undefined;
+  const sections: NavSection[] = descriptor?.sidebarSections ?? [];
+
   const handleConnectionClick = useCallback(
-    async (id: string, url: string) => {
+    async (id: string) => {
+      const conn = connections.find((c) => c.id === id);
+      if (!conn) return;
+
       if (id === activeConnectionId) {
         setEditingId(id);
         setConnOpen(true);
       } else {
         setStatus("connecting");
-        const result = await testConnection(url);
+        const desc = getConnectionType(conn.type);
+        if (!desc) {
+          setStatus("error");
+          toast.error("Unknown connection type");
+          return;
+        }
+        const result = await desc.testConnection(conn.config);
         if (result.ok) {
-          setActiveConnection(id, url);
+          setActiveConnection(id);
           setStatus("connected");
-          toast.success(`Connected to ${result.database}`);
+          // Switch to the default view for this connection type
+          onViewChange(desc.defaultView);
+          toast.success(`Connected to ${conn.name}`);
         } else {
           setStatus("error");
           toast.error(result.error ?? "Connection failed");
         }
       }
     },
-    [activeConnectionId, setActiveConnection, setStatus]
+    [activeConnectionId, connections, setActiveConnection, setStatus, onViewChange]
   );
 
   const handleAddNew = () => {
@@ -191,7 +127,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
         className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-[var(--accent)] transition-colors z-10"
       />
 
-      {/* Connection Section */}
+      {/* Connection Section -- always visible */}
       <div className="px-3 mt-3">
         <div className="flex items-center justify-between mb-1.5 px-1">
           <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-[var(--fg-subtle)]">
@@ -210,7 +146,6 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
             onClick={handleAddNew}
             className="flex items-center gap-2 px-3 py-1.5 rounded w-full text-[var(--fg-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg)] transition-colors"
           >
-            <ConnectionIcon size={14} className="shrink-0" />
             <span className="text-[13px]">Add connection…</span>
           </button>
         ) : (
@@ -218,10 +153,12 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
             {connections.map((c) => {
               const isActive = c.id === activeConnectionId;
               const isConnected = isActive && status === "connected";
+              const desc = getConnectionType(c.type);
+              const TypeIcon = desc?.icon;
               return (
                 <button
                   key={c.id}
-                  onClick={() => handleConnectionClick(c.id, c.url)}
+                  onClick={() => handleConnectionClick(c.id)}
                   title={isActive ? "Edit connection" : `Connect to ${c.name}`}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded w-full text-left transition-colors ${
                     isActive
@@ -238,7 +175,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
                         : "text-[var(--fg-subtle)]"
                     }`}
                   >
-                    <ConnectionIcon size={14} />
+                    {TypeIcon ? <TypeIcon size={14} /> : null}
                   </span>
                   <span className="truncate text-[13px] flex-1">{c.name}</span>
                   {isActive && (
@@ -253,37 +190,31 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
 
       <div className="border-t border-[var(--border)] mx-3 my-2" />
 
-      {/* SQL Editor nav item */}
-      <div className="px-2 mb-1">
-        <NavItem
-          icon={<QueryIcon size={16} />}
-          label="SQL Editor"
-          active={activeView === "queries"}
-          onClick={() => onViewChange("queries")}
-        />
-      </div>
-
-      <div className="border-t border-[var(--border)] mx-3 my-1" />
-
-      {/* Scrollable navigation sections */}
+      {/* Dynamic navigation sections -- driven by active connection type */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-4">
-        {NAV_SECTIONS.map((section) => (
-          <CollapsibleSection
-            key={section.label}
-            label={section.label}
-            storageKey={section.storageKey}
-          >
-            {section.items.map((item) => (
-              <NavItem
-                key={item.view}
-                icon={item.icon}
-                label={item.label}
-                active={activeView === item.view}
-                onClick={() => onViewChange(item.view)}
-              />
-            ))}
-          </CollapsibleSection>
-        ))}
+        {sections.length > 0 ? (
+          sections.map((section) => (
+            <CollapsibleSection
+              key={section.label}
+              label={section.label}
+              storageKey={section.storageKey}
+            >
+              {section.items.map((item) => (
+                <NavItem
+                  key={item.view}
+                  icon={item.icon}
+                  label={item.label}
+                  active={activeView === item.view}
+                  onClick={() => onViewChange(item.view)}
+                />
+              ))}
+            </CollapsibleSection>
+          ))
+        ) : (
+          <div className="px-4 py-6 text-center text-[12px] text-[var(--fg-faint)]">
+            Connect to get started
+          </div>
+        )}
       </div>
 
       <ConnectionManager

@@ -42,6 +42,15 @@ func main() {
 	mux.HandleFunc("/api/query", cfg.handleQuery)
 	mux.HandleFunc("/api/schema", cfg.handleSchema)
 	mux.HandleFunc("/api/test", cfg.handleTest)
+
+	// S3 routes
+	mux.HandleFunc("/api/s3/test", handleS3Test)
+	mux.HandleFunc("/api/s3/objects", handleS3Objects)
+	mux.HandleFunc("/api/s3/object/meta", handleS3ObjectMeta)
+	mux.HandleFunc("/api/s3/object/delete", handleS3ObjectDelete)
+	mux.HandleFunc("/api/s3/object/upload", handleS3ObjectUpload)
+	mux.HandleFunc("/api/s3/object/download", handleS3ObjectDownload)
+
 	mux.HandleFunc("/", staticHandler(staticDir))
 
 	rl := newRateLimiter(rateLimitRPM)

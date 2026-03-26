@@ -398,6 +398,33 @@ export function ConnectionIcon({ size = 20, className = '' }: IconProps) {
   )
 }
 
+export function FolderIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M2 4.5A1.5 1.5 0 0 1 3.5 3H6l1.5 1.5H12.5A1.5 1.5 0 0 1 14 6v5.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 11.5V4.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function FileIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M4 2h5l4 4v7.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M9 2v4h4" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function S3Icon({ size = 20, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className={className}>
+      <path d="M10 2C6 2 3 3.5 3 5.5v9C3 16.5 6 18 10 18s7-1.5 7-3.5v-9C17 3.5 14 2 10 2z" stroke="currentColor" strokeWidth="1.5"/>
+      <ellipse cx="10" cy="5.5" rx="7" ry="3.5" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M3 10c0 2 3 3.5 7 3.5s7-1.5 7-3.5" stroke="currentColor" strokeWidth="1.5"/>
+    </svg>
+  )
+}
+
 export function SchemaIcon({ size = 16, className = '' }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>

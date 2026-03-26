@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(go mod:*)",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(find /c/Users/hendr/workspace/pgquery/frontend/src -type f \\\\\\(-name *.tsx -o -name *.ts -o -name *.jsx -o -name *.js \\\\\\))",
+      "Bash(go get:*)"
     ]
   }
 }

@@ -5,6 +5,8 @@ interface UseResizableWidthOptions {
   initialWidth?: number
   minWidth?: number
   maxWidth?: number
+  /** 'right' = drag right edge (default), 'left' = drag left edge (panel on right side) */
+  direction?: 'right' | 'left'
 }
 
 export function useResizableWidth({
@@ -12,6 +14,7 @@ export function useResizableWidth({
   initialWidth = 280,
   minWidth = 200,
   maxWidth = 600,
+  direction = 'right',
 }: UseResizableWidthOptions) {
   const [width, setWidth] = useState(() => {
     const stored = localStorage.getItem(storageKey)
@@ -33,7 +36,10 @@ export function useResizableWidth({
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
       if (!dragging.current) return
-      const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidthRef.current + (e.clientX - startXRef.current)))
+      const delta = direction === 'left'
+        ? startXRef.current - e.clientX
+        : e.clientX - startXRef.current
+      const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidthRef.current + delta))
       setWidth((prev) => (newWidth === prev ? prev : newWidth))
     }
     const onMouseUp = () => {
@@ -48,7 +54,7 @@ export function useResizableWidth({
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('mouseup', onMouseUp)
     }
-  }, [minWidth, maxWidth, storageKey])
+  }, [minWidth, maxWidth, storageKey, direction])
 
   const reset = useCallback(() => {
     setWidth(initialWidth)
