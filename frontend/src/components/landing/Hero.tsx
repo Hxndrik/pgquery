@@ -39,8 +39,8 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          A modern PostgreSQL client that runs in your browser. No accounts, no
-          subscriptions, no nonsense.
+          A modern PostgreSQL database explorer that runs in your browser.
+          Manage tables, functions, roles, indexes, and more — no accounts, no backend, no nonsense.
         </motion.p>
 
         {/* CTA buttons */}

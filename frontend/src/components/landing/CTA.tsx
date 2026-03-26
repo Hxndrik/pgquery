@@ -23,7 +23,7 @@ export function CTA() {
         </div>
         <h2 className="font-display text-[36px] tracking-[-0.5px]">Ready to query?</h2>
         <p className="text-[15px] text-[var(--fg-muted)] leading-relaxed max-w-md">
-          Connect to any PostgreSQL database instantly. No setup, no account, no waiting.
+          Connect to any PostgreSQL database and get a full management UI instantly. No setup, no account, no waiting.
         </p>
         <Link to="/app">
           <Button size="lg" variant="solid" className="rounded-full px-8 font-semibold">

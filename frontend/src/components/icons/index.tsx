@@ -164,6 +164,166 @@ export function ExternalLinkIcon({ size = 16, className = '' }: IconProps) {
   )
 }
 
+// ── Database Management ───────────────────────────────────────
+
+export function FunctionIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M5 3c1 0 1.5.5 1.5 1.5S6 7 7 8c-1 1-1 2.5-.5 3.5s1 1.5 1.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M11 3c-1 0-1.5.5-1.5 1.5S10 7 9 8c1 1 1 2.5.5 3.5s-1 1.5-1.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M7 8h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function TriggerIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M9 2L5 9h3l-1 5 4-7H8l1-5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function EnumIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <circle cx="4.5" cy="4.5" r="1.25" stroke="currentColor" strokeWidth="1.5"/>
+      <circle cx="4.5" cy="8" r="1.25" stroke="currentColor" strokeWidth="1.5"/>
+      <circle cx="4.5" cy="11.5" r="1.25" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M7.5 4.5h5M7.5 8h5M7.5 11.5h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function ExtensionIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M6 3h4v2h3v4h-2v4H5v-4H3V5h3V3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function IndexIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M3 13V9M6 13V7M9 13V5M12 13V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function PublicationIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <circle cx="8" cy="12" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M5 9.5a4.24 4.24 0 0 1 6 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M3 7a7.07 7.07 0 0 1 10 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function RoleIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M3 14c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function PolicyIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M8 2L3 4.5v4c0 3 2.5 5 5 5.5 2.5-.5 5-2.5 5-5.5v-4L8 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function SettingsIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function SecurityIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M8 2L3 4.5v4c0 3 2.5 5 5 5.5 2.5-.5 5-2.5 5-5.5v-4L8 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M6 8l1.5 1.5L10 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function PerformanceIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M2 10a6 6 0 0 1 12 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M8 10l2.5-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <circle cx="8" cy="10" r="1" fill="currentColor"/>
+    </svg>
+  )
+}
+
+export function QueryStatsIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M3 13V8M6 13V5M9 13V7M12 13V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function SchemaVisualizerIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <rect x="1.5" y="3" width="4" height="4" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="10.5" y="1.5" width="4" height="4" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="10.5" y="10.5" width="4" height="4" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M5.5 4h5M5.5 6l5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+export function ReplicationIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M13 5.5A5 5 0 0 0 5.5 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M3 10.5A5 5 0 0 0 10.5 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M6.5 1L4.5 3l2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M9.5 15l2-2-2-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function WrapperIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <rect x="2" y="3" width="9" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M11 7h3M12 5l2 2-2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function ChevronDownIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+export function RefreshIcon({ size = 16, className = '' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className}>
+      <path d="M13 8a5 5 0 0 1-8.54 3.54" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M3 8a5 5 0 0 1 8.54-3.54" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M11 2v3h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5 14v-3H2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
 // ── Landing page illustrations ────────────────────────────────
 
 export function DatabaseIcon({ size = 40, className = '' }: IconProps) {
