@@ -1,6 +1,5 @@
 import { useState, useCallback, Suspense } from 'react'
 import { Modal } from '../ui/Modal'
-import { Button } from '../ui/Button'
 import { TrashIcon } from '../icons'
 import { useConnectionStore } from '../../stores/connectionStore'
 import { toast } from 'sonner'

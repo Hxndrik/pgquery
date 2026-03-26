@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import type { S3ObjectMeta } from '../../../lib/s3Api'
 import { downloadS3ObjectUrl } from '../../../lib/s3Api'
 import type { S3Config } from '../../../lib/connectionTypes'

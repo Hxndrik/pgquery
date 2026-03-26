@@ -1,4 +1,4 @@
-import { useState, useCallback, Suspense } from "react";
+import { useState, useCallback } from "react";
 import { NavItem } from "./NavItem";
 import { ConnectionManager } from "./ConnectionManager";
 import {
@@ -10,10 +10,8 @@ import { useConnectionStore } from "../../stores/connectionStore";
 import { useResizableWidth } from "../../hooks/useResizableWidth";
 import { STORAGE_KEYS } from "../../lib/storageKeys";
 import { toast } from "sonner";
-import { getConnectionType, getRegisteredTypes } from "../../lib/connectionRegistry";
+import { getConnectionType } from "../../lib/connectionRegistry";
 import type { NavSection } from "../../lib/connectionRegistry";
-import { isPostgresConfig } from "../../lib/connectionTypes";
-import { testConnection } from "../../lib/api";
 
 // Import registrations
 import "../../lib/connectionTypes";
