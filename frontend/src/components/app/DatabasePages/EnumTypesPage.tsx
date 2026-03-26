@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords, executeQuery } from '../../../lib/api'
 import { listEnumTypes, listSchemas } from '../../../lib/pgCatalogQueries'
 import { createEnum, alterEnumAddValue, dropType } from '../../../lib/ddlGenerators'
 import { ObjectListPage, DDLPreviewModal } from './shared'
@@ -72,13 +72,13 @@ export default function EnumTypesPage({ connectionUrl }: PageProps) {
       const enumQuery = listEnumTypes()
       const schemaQuery = listSchemas()
       const [enumResult, schemaResult] = await Promise.all([
-        executeQuery(connectionUrl, enumQuery.query, enumQuery.params),
-        executeQuery(connectionUrl, schemaQuery.query, schemaQuery.params),
+        queryRecords(connectionUrl, enumQuery.query, enumQuery.params ?? []),
+        queryRecords(connectionUrl, schemaQuery.query, schemaQuery.params ?? []),
       ])
 
       if (enumResult.success) {
-        const rows = enumResult.data.rows.map((row) => {
-          const rawValues = row[2]
+        const rows = enumResult.data.map((row) => {
+          const rawValues = row.values
           let values: string[] = []
           if (Array.isArray(rawValues)) {
             values = rawValues.map(String)
@@ -88,18 +88,18 @@ export default function EnumTypesPage({ connectionUrl }: PageProps) {
             values = trimmed ? trimmed.split(',').map((v) => v.trim()) : []
           }
           return {
-            schema: String(row[0] ?? ''),
-            name: String(row[1] ?? ''),
+            schema: String(row.schema ?? ''),
+            name: String(row.name ?? ''),
             values,
           }
         })
         setItems(rows)
       } else {
-        toast.error(`Failed to load enum types: ${enumResult.error.error}`)
+        toast.error(`Failed to load enum types: ${enumResult.error}`)
       }
 
       if (schemaResult.success) {
-        setSchemas(schemaResult.data.rows.map((row) => String(row[0] ?? '')))
+        setSchemas(schemaResult.data.map((row) => String(row.name ?? '')))
       }
     } catch {
       toast.error('Failed to load enum types')

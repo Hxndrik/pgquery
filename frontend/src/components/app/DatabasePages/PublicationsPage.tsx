@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords, executeQuery } from '../../../lib/api'
 import { listPublications } from '../../../lib/pgCatalogQueries'
 import { createPublication, dropPublication } from '../../../lib/ddlGenerators'
 import { ObjectListPage } from './shared/ObjectListPage'
@@ -49,21 +49,21 @@ export default function PublicationsPage({ connectionUrl }: PageProps) {
   const fetchData = useCallback(async () => {
     setLoading(true)
     const catalogQuery = listPublications()
-    const result = await executeQuery(connectionUrl, catalogQuery.query, catalogQuery.params)
+    const result = await queryRecords(connectionUrl, catalogQuery.query, catalogQuery.params ?? [])
     if (result.success) {
       setItems(
-        result.data.rows.map((row) => ({
-          name: String(row[0] ?? ''),
-          all_tables: row[1] === true || row[1] === 't',
-          insert: row[2] === true || row[2] === 't',
-          update: row[3] === true || row[3] === 't',
-          delete: row[4] === true || row[4] === 't',
-          truncate: row[5] === true || row[5] === 't',
-          tables: row[6] != null ? (Array.isArray(row[6]) ? (row[6] as string[]) : String(row[6]).replace(/[{}]/g, '').split(',').filter(Boolean)) : null,
+        result.data.map((row) => ({
+          name: String(row.name ?? ''),
+          all_tables: row.all_tables === true || row.all_tables === 't',
+          insert: row.insert === true || row.insert === 't',
+          update: row.update === true || row.update === 't',
+          delete: row.delete === true || row.delete === 't',
+          truncate: row.truncate === true || row.truncate === 't',
+          tables: row.tables != null ? (Array.isArray(row.tables) ? (row.tables as string[]) : String(row.tables).replace(/[{}]/g, '').split(',').filter(Boolean)) : null,
         }))
       )
     } else {
-      toast.error(`Failed to load publications: ${result.error.error}`)
+      toast.error(`Failed to load publications: ${result.error}`)
     }
     setLoading(false)
   }, [connectionUrl])

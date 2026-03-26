@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords, executeQuery } from '../../../lib/api'
 import { listAvailableExtensions } from '../../../lib/pgCatalogQueries'
 import { createExtension, dropExtension } from '../../../lib/ddlGenerators'
 import { ObjectListPage } from './shared/ObjectListPage'
@@ -34,18 +34,18 @@ export default function ExtensionsPage({ connectionUrl }: PageProps) {
   const fetchData = useCallback(async () => {
     setLoading(true)
     const catalogQuery = listAvailableExtensions()
-    const result = await executeQuery(connectionUrl, catalogQuery.query, catalogQuery.params)
+    const result = await queryRecords(connectionUrl, catalogQuery.query, catalogQuery.params ?? [])
     if (result.success) {
       setItems(
-        result.data.rows.map((row) => ({
-          name: String(row[0] ?? ''),
-          default_version: String(row[1] ?? ''),
-          installed_version: row[2] != null ? String(row[2]) : null,
-          comment: row[3] != null ? String(row[3]) : null,
+        result.data.map((row) => ({
+          name: String(row.name ?? ''),
+          default_version: String(row.default_version ?? ''),
+          installed_version: row.installed_version != null ? String(row.installed_version) : null,
+          comment: row.comment != null ? String(row.comment) : null,
         }))
       )
     } else {
-      toast.error(`Failed to load extensions: ${result.error.error}`)
+      toast.error(`Failed to load extensions: ${result.error}`)
     }
     setLoading(false)
   }, [connectionUrl])

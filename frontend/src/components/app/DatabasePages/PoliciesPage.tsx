@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords, executeQuery } from '../../../lib/api'
 import { listRlsStatusPerTable, listPoliciesForTable } from '../../../lib/pgCatalogQueries'
 import { createPolicy, dropPolicy, enableRls, disableRls } from '../../../lib/ddlGenerators'
 import { ObjectListPage } from './shared/ObjectListPage'
@@ -53,19 +53,19 @@ export default function PoliciesPage({ connectionUrl }: PageProps) {
   const fetchTables = useCallback(async () => {
     setLoading(true)
     const q = listRlsStatusPerTable()
-    const result = await executeQuery(connectionUrl, q.query, q.params)
+    const result = await queryRecords(connectionUrl, q.query, q.params ?? [])
     if (result.success) {
-      const rows = result.data.rows.map((row) => ({
-        schema: String(row[0] ?? ''),
-        table_name: String(row[1] ?? ''),
-        rls_enabled: Boolean(row[2]),
-        rls_forced: Boolean(row[3]),
+      const rows = result.data.map((row) => ({
+        schema: String(row.schema ?? ''),
+        table_name: String(row.table_name ?? ''),
+        rls_enabled: Boolean(row.rls_enabled),
+        rls_forced: Boolean(row.rls_forced),
       }))
       setTables(rows)
       const uniqueSchemas = [...new Set(rows.map((r) => r.schema))].sort()
       setSchemas(uniqueSchemas)
     } else {
-      toast.error('Failed to load tables: ' + result.error.error)
+      toast.error('Failed to load tables: ' + result.error)
     }
     setLoading(false)
   }, [connectionUrl])
@@ -77,20 +77,20 @@ export default function PoliciesPage({ connectionUrl }: PageProps) {
   const fetchPolicies = useCallback(async (schema: string, table: string) => {
     setPoliciesLoading(true)
     const q = listPoliciesForTable(schema, table)
-    const result = await executeQuery(connectionUrl, q.query, q.params)
+    const result = await queryRecords(connectionUrl, q.query, q.params ?? [])
     if (result.success) {
       setPolicies(
-        result.data.rows.map((row) => ({
-          name: String(row[0] ?? ''),
-          command: String(row[1] ?? 'ALL'),
-          permissive: Boolean(row[2]),
-          using_expr: row[3] != null ? String(row[3]) : null,
-          check_expr: row[4] != null ? String(row[4]) : null,
-          roles: row[5] != null ? (row[5] as string[]) : null,
+        result.data.map((row) => ({
+          name: String(row.name ?? ''),
+          command: String(row.command ?? 'ALL'),
+          permissive: Boolean(row.permissive),
+          using_expr: row.using_expr != null ? String(row.using_expr) : null,
+          check_expr: row.check_expr != null ? String(row.check_expr) : null,
+          roles: row.roles != null ? (row.roles as string[]) : null,
         }))
       )
     } else {
-      toast.error('Failed to load policies: ' + result.error.error)
+      toast.error('Failed to load policies: ' + result.error)
       setPolicies([])
     }
     setPoliciesLoading(false)

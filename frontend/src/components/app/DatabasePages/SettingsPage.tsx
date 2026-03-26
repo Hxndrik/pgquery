@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords, executeQuery } from '../../../lib/api'
 import { listSettings } from '../../../lib/pgCatalogQueries'
 import { setSession, alterSystemSet } from '../../../lib/ddlGenerators'
 import { DDLPreviewModal } from './shared/DDLPreviewModal'
@@ -46,26 +46,26 @@ export default function SettingsPage({ connectionUrl }: PageProps) {
   const fetchSettings = useCallback(async () => {
     setLoading(true)
     const q = listSettings()
-    const result = await executeQuery(connectionUrl, q.query, q.params)
+    const result = await queryRecords(connectionUrl, q.query, q.params ?? [])
     if (result.success) {
       setSettings(
-        result.data.rows.map((row) => ({
-          name: String(row[0] ?? ''),
-          setting: String(row[1] ?? ''),
-          unit: row[2] != null ? String(row[2]) : null,
-          category: String(row[3] ?? 'Uncategorized'),
-          short_desc: String(row[4] ?? ''),
-          context: String(row[5] ?? ''),
-          vartype: String(row[6] ?? 'string'),
-          min_val: row[7] != null ? String(row[7]) : null,
-          max_val: row[8] != null ? String(row[8]) : null,
-          enumvals: row[9] != null ? (row[9] as string[]) : null,
-          boot_val: row[10] != null ? String(row[10]) : null,
-          reset_val: row[11] != null ? String(row[11]) : null,
+        result.data.map((row) => ({
+          name: String(row.name ?? ''),
+          setting: String(row.setting ?? ''),
+          unit: row.unit != null ? String(row.unit) : null,
+          category: String(row.category ?? 'Uncategorized'),
+          short_desc: String(row.short_desc ?? ''),
+          context: String(row.context ?? ''),
+          vartype: String(row.vartype ?? 'string'),
+          min_val: row.min_val != null ? String(row.min_val) : null,
+          max_val: row.max_val != null ? String(row.max_val) : null,
+          enumvals: row.enumvals != null ? (row.enumvals as string[]) : null,
+          boot_val: row.boot_val != null ? String(row.boot_val) : null,
+          reset_val: row.reset_val != null ? String(row.reset_val) : null,
         }))
       )
     } else {
-      toast.error('Failed to load settings: ' + result.error.error)
+      toast.error('Failed to load settings: ' + result.error)
     }
     setLoading(false)
   }, [connectionUrl])
