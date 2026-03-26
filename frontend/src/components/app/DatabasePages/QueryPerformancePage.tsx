@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords, executeQuery } from '../../../lib/api'
 import { checkStatStatementsExtension, topQueriesByTime } from '../../../lib/pgCatalogQueries'
 import { QueryStatsIcon } from '../../icons'
 import { DDLPreviewModal } from './shared'
@@ -26,9 +26,9 @@ export default function QueryPerformancePage({ connectionUrl }: PageProps) {
 
   const checkExtension = useCallback(async () => {
     const q = checkStatStatementsExtension()
-    const r = await executeQuery(connectionUrl, q.query, q.params)
-    if (r.success && r.data.rows.length > 0) {
-      return Boolean(r.data.rows[0].installed)
+    const r = await queryRecords(connectionUrl, q.query, q.params ?? [])
+    if (r.success && r.data.length > 0) {
+      return Boolean(r.data[0].installed)
     }
     return false
   }, [connectionUrl])
@@ -41,9 +41,9 @@ export default function QueryPerformancePage({ connectionUrl }: PageProps) {
 
       if (ext) {
         const q = topQueriesByTime(50)
-        const r = await executeQuery(connectionUrl, q.query, q.params)
+        const r = await queryRecords(connectionUrl, q.query, q.params ?? [])
         if (r.success) {
-          setQueries(r.data.rows as unknown as QueryRow[])
+          setQueries(r.data as unknown as QueryRow[])
         }
       }
     } catch {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords } from '../../../lib/api'
 import { unusedIndexes, tableBloat, cacheHitRatio, seqScanStats } from '../../../lib/pgCatalogQueries'
 import { PerformanceIcon } from '../../icons'
 import { toast } from 'sonner'
@@ -26,9 +26,9 @@ export default function PerformanceAdvisorPage({ connectionUrl }: PageProps) {
     try {
       // Cache hit ratio
       const q1 = cacheHitRatio()
-      const r1 = await executeQuery(connectionUrl, q1.query, q1.params)
-      if (r1.success && r1.data.rows.length > 0) {
-        const ratio = Number(r1.data.rows[0].hit_ratio_pct ?? 0)
+      const r1 = await queryRecords(connectionUrl, q1.query, q1.params ?? [])
+      if (r1.success && r1.data.length > 0) {
+        const ratio = Number(r1.data[0].hit_ratio_pct ?? 0)
         results.push({
           title: 'Cache Hit Ratio',
           description: 'Percentage of data reads served from shared buffers. Should be above 95%.',
@@ -41,14 +41,14 @@ export default function PerformanceAdvisorPage({ connectionUrl }: PageProps) {
 
       // Unused indexes
       const q2 = unusedIndexes()
-      const r2 = await executeQuery(connectionUrl, q2.query, q2.params)
+      const r2 = await queryRecords(connectionUrl, q2.query, q2.params ?? [])
       if (r2.success) {
         results.push({
           title: 'Unused Indexes',
           description: 'Indexes that have never been used for scans. They waste disk space and slow down writes.',
-          status: r2.data.rows.length === 0 ? 'good' : r2.data.rows.length <= 3 ? 'warn' : 'bad',
-          metric: `${r2.data.rows.length} found`,
-          rows: r2.data.rows as Record<string, unknown>[],
+          status: r2.data.length === 0 ? 'good' : r2.data.length <= 3 ? 'warn' : 'bad',
+          metric: `${r2.data.length} found`,
+          rows: r2.data,
           columns: [
             { key: 'schema', header: 'Schema' },
             { key: 'table_name', header: 'Table' },
@@ -60,15 +60,15 @@ export default function PerformanceAdvisorPage({ connectionUrl }: PageProps) {
 
       // Table bloat
       const q3 = tableBloat()
-      const r3 = await executeQuery(connectionUrl, q3.query, q3.params)
+      const r3 = await queryRecords(connectionUrl, q3.query, q3.params ?? [])
       if (r3.success) {
-        const bloated = (r3.data.rows as Record<string, unknown>[]).filter((r) => Number(r.dead_ratio_pct) > 10)
+        const bloated = r3.data.filter((r) => Number(r.dead_ratio_pct) > 10)
         results.push({
           title: 'Table Bloat',
           description: 'Tables with significant dead tuple ratio. Consider running VACUUM or VACUUM FULL.',
           status: bloated.length === 0 ? 'good' : bloated.length <= 3 ? 'warn' : 'bad',
           metric: `${bloated.length} tables with >10% dead tuples`,
-          rows: r3.data.rows as Record<string, unknown>[],
+          rows: r3.data,
           columns: [
             { key: 'schema', header: 'Schema' },
             { key: 'table_name', header: 'Table' },
@@ -82,9 +82,9 @@ export default function PerformanceAdvisorPage({ connectionUrl }: PageProps) {
 
       // Sequential scans on large tables
       const q4 = seqScanStats()
-      const r4 = await executeQuery(connectionUrl, q4.query, q4.params)
+      const r4 = await queryRecords(connectionUrl, q4.query, q4.params ?? [])
       if (r4.success) {
-        const highSeq = (r4.data.rows as Record<string, unknown>[]).filter((r) => Number(r.seq_scan_pct) > 80 && Number(r.seq_tup_read) > 10000)
+        const highSeq = r4.data.filter((r) => Number(r.seq_scan_pct) > 80 && Number(r.seq_tup_read) > 10000)
         results.push({
           title: 'Sequential Scan Heavy Tables',
           description: 'Tables where >80% of reads are sequential scans. Consider adding indexes.',
@@ -102,10 +102,10 @@ export default function PerformanceAdvisorPage({ connectionUrl }: PageProps) {
       }
 
       // Connection count
-      const r5 = await executeQuery(connectionUrl, "SELECT count(*) as current, (SELECT setting::int FROM pg_settings WHERE name = 'max_connections') as max_conn FROM pg_stat_activity")
-      if (r5.success && r5.data.rows.length > 0) {
-        const current = Number(r5.data.rows[0].current)
-        const max = Number(r5.data.rows[0].max_conn)
+      const r5 = await queryRecords(connectionUrl, "SELECT count(*) as current, (SELECT setting::int FROM pg_settings WHERE name = 'max_connections') as max_conn FROM pg_stat_activity", [])
+      if (r5.success && r5.data.length > 0) {
+        const current = Number(r5.data[0].current)
+        const max = Number(r5.data[0].max_conn)
         const pct = max > 0 ? Math.round((current / max) * 100) : 0
         results.push({
           title: 'Connection Utilization',

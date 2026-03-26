@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords } from '../../../lib/api'
 import { listForeignServers, listForeignTables } from '../../../lib/pgCatalogQueries'
 import { WrapperIcon } from '../../icons'
 import { toast } from 'sonner'
@@ -28,11 +28,11 @@ export default function WrappersPage({ connectionUrl }: PageProps) {
     setLoading(true)
     try {
       const [r1, r2] = await Promise.all([
-        executeQuery(connectionUrl, listForeignServers().query),
-        executeQuery(connectionUrl, listForeignTables().query),
+        queryRecords(connectionUrl, listForeignServers().query, []),
+        queryRecords(connectionUrl, listForeignTables().query, []),
       ])
-      if (r1.success) setServers(r1.data.rows as unknown as ForeignServer[])
-      if (r2.success) setTables(r2.data.rows as unknown as ForeignTable[])
+      if (r1.success) setServers(r1.data as unknown as ForeignServer[])
+      if (r2.success) setTables(r2.data as unknown as ForeignTable[])
     } catch {
       toast.error('Failed to load foreign data wrappers')
     }

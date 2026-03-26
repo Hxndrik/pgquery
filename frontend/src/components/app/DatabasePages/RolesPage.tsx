@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords, executeQuery } from '../../../lib/api'
 import { listRoles } from '../../../lib/pgCatalogQueries'
 import { createRole, dropRole, grantRole, revokeRole } from '../../../lib/ddlGenerators'
 import { ObjectListPage } from './shared/ObjectListPage'
@@ -47,11 +47,11 @@ export default function RolesPage({ connectionUrl }: PageProps) {
   const fetchRoles = useCallback(async () => {
     setLoading(true)
     const q = listRoles()
-    const result = await executeQuery(connectionUrl, q.query, q.params)
+    const result = await queryRecords(connectionUrl, q.query, q.params ?? [])
     if (result.success) {
-      setRoles(result.data.rows as unknown as Role[])
+      setRoles(result.data as unknown as Role[])
     } else {
-      toast.error('Failed to load roles: ' + result.error.error)
+      toast.error('Failed to load roles: ' + result.error)
     }
     setLoading(false)
   }, [connectionUrl])

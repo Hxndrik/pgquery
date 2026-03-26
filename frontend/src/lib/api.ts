@@ -74,6 +74,29 @@ export async function executeQuery(
   }
 }
 
+/** Convert raw rows (unknown[][]) to Record<string, unknown>[] using column names */
+export function rowsToRecords(result: QueryResult): Record<string, unknown>[] {
+  const colNames = result.columns.map(c => c.name)
+  return result.rows.map(row => {
+    const record: Record<string, unknown> = {}
+    for (let i = 0; i < colNames.length; i++) {
+      record[colNames[i]] = row[i]
+    }
+    return record
+  })
+}
+
+/** Execute a query and return rows as named records (convenience wrapper) */
+export async function queryRecords(
+  connection: string,
+  query: string,
+  params: unknown[] = []
+): Promise<{ success: true; data: Record<string, unknown>[]; rowCount: number } | { success: false; error: string }> {
+  const result = await executeQuery(connection, query, params)
+  if (!result.success) return { success: false, error: result.error.error }
+  return { success: true, data: rowsToRecords(result.data), rowCount: result.data.rowCount }
+}
+
 export async function fetchSchema(connection: string): Promise<SchemaResponse | null> {
   try {
     const res = await fetch('/api/schema', {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords } from '../../../lib/api'
 import { listForeignKeyRelationships, listSchemas } from '../../../lib/pgCatalogQueries'
 import { useSchemaStore } from '../../../stores/schemaStore'
 import { SchemaVisualizerIcon } from '../../icons'
@@ -48,12 +48,12 @@ export default function SchemaVisualizerPage({ connectionUrl }: PageProps) {
     setLoading(true)
     try {
       const [fkRes, schemaRes] = await Promise.all([
-        executeQuery(connectionUrl, listForeignKeyRelationships().query),
-        executeQuery(connectionUrl, listSchemas().query),
+        queryRecords(connectionUrl, listForeignKeyRelationships().query, []),
+        queryRecords(connectionUrl, listSchemas().query, []),
       ])
-      if (fkRes.success) setFks(fkRes.data.rows as unknown as FKRelation[])
+      if (fkRes.success) setFks(fkRes.data as unknown as FKRelation[])
       if (schemaRes.success) {
-        const s = (schemaRes.data.rows as Record<string, unknown>[]).map(r => String(r.name))
+        const s = schemaRes.data.map(r => String(r.name))
         setSchemas(s)
         if (!selectedSchema && s.length > 0) setSelectedSchema(s[0])
       }

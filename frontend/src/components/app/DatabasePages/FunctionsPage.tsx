@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords, executeQuery } from '../../../lib/api'
 import { listFunctions, listSchemas } from '../../../lib/pgCatalogQueries'
 import { createFunction, dropFunction } from '../../../lib/ddlGenerators'
 import { ObjectListPage, DDLPreviewModal, DefinitionViewer } from './shared'
@@ -70,28 +70,28 @@ export default function FunctionsPage({ connectionUrl }: PageProps) {
       const fnQuery = listFunctions()
       const schemaQuery = listSchemas()
       const [fnResult, schemaResult] = await Promise.all([
-        executeQuery(connectionUrl, fnQuery.query, fnQuery.params),
-        executeQuery(connectionUrl, schemaQuery.query, schemaQuery.params),
+        queryRecords(connectionUrl, fnQuery.query, fnQuery.params ?? []),
+        queryRecords(connectionUrl, schemaQuery.query, schemaQuery.params ?? []),
       ])
 
       if (fnResult.success) {
-        const rows = fnResult.data.rows.map((row) => ({
-          name: String(row[0] ?? ''),
-          schema: String(row[1] ?? ''),
-          args: String(row[2] ?? ''),
-          return_type: String(row[3] ?? ''),
-          language: String(row[4] ?? ''),
-          volatility: String(row[5] ?? ''),
-          security_definer: Boolean(row[6]),
-          definition: String(row[7] ?? ''),
+        const rows = fnResult.data.map((row) => ({
+          name: String(row.name ?? ''),
+          schema: String(row.schema ?? ''),
+          args: String(row.args ?? ''),
+          return_type: String(row.return_type ?? ''),
+          language: String(row.language ?? ''),
+          volatility: String(row.volatility ?? ''),
+          security_definer: Boolean(row.security_definer),
+          definition: String(row.definition ?? ''),
         }))
         setItems(rows)
       } else {
-        toast.error(`Failed to load functions: ${fnResult.error.error}`)
+        toast.error(`Failed to load functions: ${fnResult.error}`)
       }
 
       if (schemaResult.success) {
-        setSchemas(schemaResult.data.rows.map((row) => String(row[0] ?? '')))
+        setSchemas(schemaResult.data.map((row) => String(row.name ?? '')))
       }
     } catch {
       toast.error('Failed to load functions')

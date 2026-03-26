@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords, executeQuery } from '../../../lib/api'
 import { listTriggers, listSchemas } from '../../../lib/pgCatalogQueries'
 import {
   createTrigger,
@@ -73,25 +73,25 @@ export default function TriggersPage({ connectionUrl }: PageProps) {
       const trgQuery = listTriggers()
       const schemaQuery = listSchemas()
       const [trgResult, schemaResult] = await Promise.all([
-        executeQuery(connectionUrl, trgQuery.query, trgQuery.params),
-        executeQuery(connectionUrl, schemaQuery.query, schemaQuery.params),
+        queryRecords(connectionUrl, trgQuery.query, trgQuery.params ?? []),
+        queryRecords(connectionUrl, schemaQuery.query, schemaQuery.params ?? []),
       ])
 
       if (trgResult.success) {
-        const rows = trgResult.data.rows.map((row) => ({
-          name: String(row[0] ?? ''),
-          table_name: String(row[1] ?? ''),
-          schema: String(row[2] ?? ''),
-          definition: String(row[3] ?? ''),
-          enabled: String(row[4] ?? ''),
+        const rows = trgResult.data.map((row) => ({
+          name: String(row.name ?? ''),
+          table_name: String(row.table_name ?? ''),
+          schema: String(row.schema ?? ''),
+          definition: String(row.definition ?? ''),
+          enabled: String(row.enabled ?? ''),
         }))
         setItems(rows)
       } else {
-        toast.error(`Failed to load triggers: ${trgResult.error.error}`)
+        toast.error(`Failed to load triggers: ${trgResult.error}`)
       }
 
       if (schemaResult.success) {
-        setSchemas(schemaResult.data.rows.map((row) => String(row[0] ?? '')))
+        setSchemas(schemaResult.data.map((row) => String(row.name ?? '')))
       }
     } catch {
       toast.error('Failed to load triggers')

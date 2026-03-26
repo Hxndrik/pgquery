@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords } from '../../../lib/api'
 import { listReplicationSlots, listSubscriptions } from '../../../lib/pgCatalogQueries'
 import { ReplicationIcon } from '../../icons'
 import { toast } from 'sonner'
@@ -35,15 +35,15 @@ export default function ReplicationPage({ connectionUrl }: PageProps) {
     setSubError(null)
     try {
       const q1 = listReplicationSlots()
-      const r1 = await executeQuery(connectionUrl, q1.query)
-      if (r1.success) setSlots(r1.data.rows as unknown as ReplicationSlot[])
+      const r1 = await queryRecords(connectionUrl, q1.query, [])
+      if (r1.success) setSlots(r1.data as unknown as ReplicationSlot[])
 
       const q2 = listSubscriptions()
-      const r2 = await executeQuery(connectionUrl, q2.query)
+      const r2 = await queryRecords(connectionUrl, q2.query, [])
       if (r2.success) {
-        setSubscriptions(r2.data.rows as unknown as Subscription[])
+        setSubscriptions(r2.data as unknown as Subscription[])
       } else {
-        setSubError(r2.error.error)
+        setSubError(r2.error)
       }
     } catch {
       toast.error('Failed to load replication data')

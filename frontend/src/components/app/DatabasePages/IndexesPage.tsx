@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords, executeQuery } from '../../../lib/api'
 import { listIndexes, listSchemas } from '../../../lib/pgCatalogQueries'
 import { createIndex, dropIndex } from '../../../lib/ddlGenerators'
 import { ObjectListPage } from './shared/ObjectListPage'
@@ -56,39 +56,36 @@ export default function IndexesPage({ connectionUrl }: PageProps) {
   const [ddlLoading, setDdlLoading] = useState(false)
   const [ddlError, setDdlError] = useState<string | null>(null)
 
-  // Drop options
-  const [dropConcurrently, setDropConcurrently] = useState(false)
-
   const fetchData = useCallback(async () => {
     setLoading(true)
     const catalogQuery = listIndexes()
-    const result = await executeQuery(connectionUrl, catalogQuery.query, catalogQuery.params)
+    const result = await queryRecords(connectionUrl, catalogQuery.query, catalogQuery.params ?? [])
     if (result.success) {
       setItems(
-        result.data.rows.map((row) => ({
-          schema: String(row[0] ?? ''),
-          table_name: String(row[1] ?? ''),
-          index_name: String(row[2] ?? ''),
-          definition: String(row[3] ?? ''),
-          size: String(row[4] ?? ''),
-          index_type: String(row[5] ?? ''),
-          is_unique: row[6] === true || row[6] === 't',
-          idx_scan: Number(row[7] ?? 0),
-          idx_tup_read: Number(row[8] ?? 0),
-          idx_tup_fetch: Number(row[9] ?? 0),
+        result.data.map((row) => ({
+          schema: String(row.schema ?? ''),
+          table_name: String(row.table_name ?? ''),
+          index_name: String(row.index_name ?? ''),
+          definition: String(row.definition ?? ''),
+          size: String(row.size ?? ''),
+          index_type: String(row.index_type ?? ''),
+          is_unique: row.is_unique === true || row.is_unique === 't',
+          idx_scan: Number(row.idx_scan ?? 0),
+          idx_tup_read: Number(row.idx_tup_read ?? 0),
+          idx_tup_fetch: Number(row.idx_tup_fetch ?? 0),
         }))
       )
     } else {
-      toast.error(`Failed to load indexes: ${result.error.error}`)
+      toast.error(`Failed to load indexes: ${result.error}`)
     }
     setLoading(false)
   }, [connectionUrl])
 
   const fetchSchemas = useCallback(async () => {
     const catalogQuery = listSchemas()
-    const result = await executeQuery(connectionUrl, catalogQuery.query, catalogQuery.params)
+    const result = await queryRecords(connectionUrl, catalogQuery.query, catalogQuery.params ?? [])
     if (result.success) {
-      setSchemas(result.data.rows.map((row) => String(row[0] ?? '')))
+      setSchemas(result.data.map((row) => String(row.name ?? '')))
     }
   }, [connectionUrl])
 
@@ -137,7 +134,6 @@ export default function IndexesPage({ connectionUrl }: PageProps) {
   }
 
   const handleDrop = (idx: IndexRow) => {
-    setDropConcurrently(false)
     const sql = dropIndex({
       schema: idx.schema,
       name: idx.index_name,
@@ -148,16 +144,6 @@ export default function IndexesPage({ connectionUrl }: PageProps) {
     setDdlTitle(`Drop Index: ${idx.schema}.${idx.index_name}`)
     setDdlSql(sql)
     setDdlOpen(true)
-  }
-
-  const handleDropWithConcurrent = (idx: IndexRow, concurrent: boolean) => {
-    const sql = dropIndex({
-      schema: idx.schema,
-      name: idx.index_name,
-      ifExists: true,
-      concurrently: concurrent,
-    })
-    setDdlSql(sql)
   }
 
   const handleExecute = async () => {

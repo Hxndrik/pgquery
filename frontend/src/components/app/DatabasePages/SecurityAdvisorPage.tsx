@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { executeQuery } from '../../../lib/api'
+import { queryRecords } from '../../../lib/api'
 import { tablesWithoutRls, superuserRoles, publicSchemaTables } from '../../../lib/pgCatalogQueries'
 import { SecurityIcon } from '../../icons'
 import { toast } from 'sonner'
@@ -24,9 +24,9 @@ export default function SecurityAdvisorPage({ connectionUrl }: PageProps) {
     try {
       // Check 1: Tables without RLS
       const q1 = tablesWithoutRls()
-      const r1 = await executeQuery(connectionUrl, q1.query, q1.params)
+      const r1 = await queryRecords(connectionUrl, q1.query, q1.params ?? [])
       if (r1.success) {
-        const tables = r1.data.rows.map((r: Record<string, unknown>) => `${r.schema}.${r.table_name}`)
+        const tables = r1.data.map((r: Record<string, unknown>) => `${r.schema}.${r.table_name}`)
         results.push({
           label: 'Row Level Security',
           description: 'Tables without RLS enabled are accessible to any role with table-level permissions.',
@@ -39,9 +39,9 @@ export default function SecurityAdvisorPage({ connectionUrl }: PageProps) {
 
       // Check 2: Superuser roles
       const q2 = superuserRoles()
-      const r2 = await executeQuery(connectionUrl, q2.query, q2.params)
+      const r2 = await queryRecords(connectionUrl, q2.query, q2.params ?? [])
       if (r2.success) {
-        const roles = r2.data.rows.map((r: Record<string, unknown>) => String(r.name))
+        const roles = r2.data.map((r: Record<string, unknown>) => String(r.name))
         results.push({
           label: 'Superuser Roles',
           description: 'Superuser roles bypass all permission checks. Minimize their use.',
@@ -52,9 +52,9 @@ export default function SecurityAdvisorPage({ connectionUrl }: PageProps) {
 
       // Check 3: Public schema objects
       const q3 = publicSchemaTables()
-      const r3 = await executeQuery(connectionUrl, q3.query, q3.params)
+      const r3 = await queryRecords(connectionUrl, q3.query, q3.params ?? [])
       if (r3.success) {
-        const objs = r3.data.rows.map((r: Record<string, unknown>) => `${r.table_name} (${r.type})`)
+        const objs = r3.data.map((r: Record<string, unknown>) => `${r.table_name} (${r.type})`)
         results.push({
           label: 'Public Schema Usage',
           description: 'Objects in the public schema are accessible by default. Consider using dedicated schemas.',
@@ -66,9 +66,9 @@ export default function SecurityAdvisorPage({ connectionUrl }: PageProps) {
       }
 
       // Check 4: SSL connection
-      const r4 = await executeQuery(connectionUrl, "SHOW ssl")
+      const r4 = await queryRecords(connectionUrl, "SHOW ssl", [])
       if (r4.success) {
-        const sslEnabled = r4.data.rows[0]?.ssl === 'on'
+        const sslEnabled = r4.data[0]?.ssl === 'on'
         results.push({
           label: 'SSL Connection',
           description: 'SSL encrypts data in transit between client and server.',
@@ -78,9 +78,9 @@ export default function SecurityAdvisorPage({ connectionUrl }: PageProps) {
       }
 
       // Check 5: Password encryption
-      const r5 = await executeQuery(connectionUrl, "SHOW password_encryption")
+      const r5 = await queryRecords(connectionUrl, "SHOW password_encryption", [])
       if (r5.success) {
-        const enc = String(r5.data.rows[0]?.password_encryption ?? '')
+        const enc = String(r5.data[0]?.password_encryption ?? '')
         results.push({
           label: 'Password Encryption',
           description: 'scram-sha-256 is recommended over md5 for password hashing.',
