@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar, type SidebarView } from "./Sidebar";
 import { QuerySidebar } from "./QuerySidebar";
@@ -21,6 +21,39 @@ import { STORAGE_KEYS } from "../../lib/storageKeys";
 import { toast } from "sonner";
 import { Button } from "../ui/Button";
 import { ThemeToggle } from "../ui/ThemeToggle";
+
+// Lazy-load database pages
+const FunctionsPage = lazy(() => import("./DatabasePages/FunctionsPage"));
+const TriggersPage = lazy(() => import("./DatabasePages/TriggersPage"));
+const EnumTypesPage = lazy(() => import("./DatabasePages/EnumTypesPage"));
+const ExtensionsPage = lazy(() => import("./DatabasePages/ExtensionsPage"));
+const IndexesPage = lazy(() => import("./DatabasePages/IndexesPage"));
+const PublicationsPage = lazy(() => import("./DatabasePages/PublicationsPage"));
+const RolesPage = lazy(() => import("./DatabasePages/RolesPage"));
+const PoliciesPage = lazy(() => import("./DatabasePages/PoliciesPage"));
+const SettingsPage = lazy(() => import("./DatabasePages/SettingsPage"));
+const SecurityAdvisorPage = lazy(() => import("./DatabasePages/SecurityAdvisorPage"));
+const PerformanceAdvisorPage = lazy(() => import("./DatabasePages/PerformanceAdvisorPage"));
+const QueryPerformancePage = lazy(() => import("./DatabasePages/QueryPerformancePage"));
+const SchemaVisualizerPage = lazy(() => import("./DatabasePages/SchemaVisualizerPage"));
+const ReplicationPage = lazy(() => import("./DatabasePages/ReplicationPage"));
+const WrappersPage = lazy(() => import("./DatabasePages/WrappersPage"));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center h-full text-[13px] text-[var(--fg-faint)]">
+      Loading…
+    </div>
+  );
+}
+
+function NotConnected() {
+  return (
+    <div className="flex items-center justify-center h-full text-[13px] text-[var(--fg-faint)]">
+      Connect to a database to get started
+    </div>
+  );
+}
 
 export default function AppLayout() {
   const [view, setView] = useState<SidebarView>("explorer");
@@ -112,10 +145,40 @@ export default function AppLayout() {
     onCloseTab: () => closeTab(activeTabId),
   });
 
+  const renderDatabasePage = () => {
+    if (!activeConnectionUrl) return <NotConnected />;
+
+    const pageProps = { connectionUrl: activeConnectionUrl };
+
+    const pages: Record<string, React.ReactNode> = {
+      functions: <FunctionsPage {...pageProps} />,
+      triggers: <TriggersPage {...pageProps} />,
+      enums: <EnumTypesPage {...pageProps} />,
+      extensions: <ExtensionsPage {...pageProps} />,
+      indexes: <IndexesPage {...pageProps} />,
+      publications: <PublicationsPage {...pageProps} />,
+      roles: <RolesPage {...pageProps} />,
+      policies: <PoliciesPage {...pageProps} />,
+      settings: <SettingsPage {...pageProps} />,
+      "security-advisor": <SecurityAdvisorPage {...pageProps} />,
+      "performance-advisor": <PerformanceAdvisorPage {...pageProps} />,
+      "query-performance": <QueryPerformancePage {...pageProps} />,
+      "schema-visualizer": <SchemaVisualizerPage {...pageProps} />,
+      replication: <ReplicationPage {...pageProps} />,
+      wrappers: <WrappersPage {...pageProps} />,
+    };
+
+    return pages[view] ?? null;
+  };
+
+  const isQueryView = view === "queries";
+  const isExplorerView = view === "explorer";
+  const isDatabasePage = !isQueryView && !isExplorerView;
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[var(--bg)]">
       {/* Header Nav */}
-      <nav className="flex items-center justify-between px-8 h-16 border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-md shrink-0 z-50">
+      <nav className="flex items-center justify-between px-8 h-14 border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-md shrink-0 z-50">
         <Link to="/" className="hover:opacity-80 transition-opacity">
           <span className="text-[15px] font-semibold tracking-tight text-[var(--fg)]">
             pgquery
@@ -140,11 +203,11 @@ export default function AppLayout() {
         <Sidebar activeView={view} onViewChange={setView} />
 
         {/* Query Sidebar (History + Saved) - Only show in queries view */}
-        {view === "queries" && <QuerySidebar />}
+        {isQueryView && <QuerySidebar />}
 
         {/* Main area */}
         <div className="flex flex-col flex-1 overflow-hidden">
-          {view === "queries" && (
+          {isQueryView && (
             <>
               {/* Tab bar */}
               <TabBar />
@@ -189,8 +252,13 @@ export default function AppLayout() {
               </div>
             </>
           )}
-          {view === "explorer" && (
+          {isExplorerView && (
             <TableExplorer connectionUrl={activeConnectionUrl} />
+          )}
+          {isDatabasePage && (
+            <Suspense fallback={<PageLoader />}>
+              {renderDatabasePage()}
+            </Suspense>
           )}
         </div>
       </div>
