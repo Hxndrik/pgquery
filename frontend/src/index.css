@@ -39,34 +39,34 @@ html.dark {
 
 /* ── Light mode ──────────────────────────────────────────── */
 html.light {
-  --bg:           #f5f5f3;
+  --bg:           #fdfdfd;
   --bg-raised:    #ffffff;
   --bg-card:      #ffffff;
-  --bg-hover:     #eeeee9;
-  --bg-active:    #e4e4df;
+  --bg-hover:     #f5f5f5;
+  --bg-active:    #ebebeb;
 
-  --fg:           #111110;
-  --fg-muted:     #6b6b68;
-  --fg-subtle:    #9a9a96;
-  --fg-faint:     #c4c4bf;
+  --fg:           #0f0f0f;
+  --fg-muted:     #555555;
+  --fg-subtle:    #909090;
+  --fg-faint:     #c0c0c0;
 
-  --border:       rgba(0,0,0,0.07);
-  --border-mid:   rgba(0,0,0,0.12);
-  --border-strong:rgba(0,0,0,0.18);
+  --border:       rgba(0,0,0,0.06);
+  --border-mid:   rgba(0,0,0,0.10);
+  --border-strong:rgba(0,0,0,0.16);
 
   --accent:        #2563eb;
-  --accent-bg:     rgba(37,99,235,0.08);
-  --accent-border: rgba(37,99,235,0.20);
+  --accent-bg:     rgba(37,99,235,0.07);
+  --accent-border: rgba(37,99,235,0.18);
 
   --success:        #16a34a;
-  --success-bg:     rgba(22,163,74,0.08);
-  --success-border: rgba(22,163,74,0.15);
+  --success-bg:     rgba(22,163,74,0.07);
+  --success-border: rgba(22,163,74,0.14);
 
   --warning:     #d97706;
-  --warning-bg:  rgba(217,119,6,0.08);
+  --warning-bg:  rgba(217,119,6,0.07);
 
   --error:       #dc2626;
-  --error-bg:    rgba(220,38,38,0.08);
+  --error-bg:    rgba(220,38,38,0.07);
 }
 
 /* ── Base styles ─────────────────────────────────────────── */
