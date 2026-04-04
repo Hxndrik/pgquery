@@ -3,7 +3,7 @@ import { Modal } from '../../ui/Modal'
 import { Button } from '../../ui/Button'
 import { Input } from '../../ui/Input'
 import type { SchemaColumn } from '../../../lib/api'
-import { NUMERIC_TYPES } from '../../../lib/typeUtils'
+import { NUMERIC_TYPES, isJSONType, stringifyValue } from '../../../lib/typeUtils'
 
 interface RowFormProps {
   open: boolean
@@ -46,7 +46,7 @@ export function RowForm({ open, onClose, onSubmit, columns, initial, mode, focus
     const init: Record<string, string> = {}
     editableCols.forEach((c) => {
       const v = initial?.[c.name]
-      init[c.name] = v === null || v === undefined ? '' : String(v)
+      init[c.name] = v === null || v === undefined ? '' : stringifyValue(v)
     })
     return init
   })
@@ -116,6 +116,24 @@ export function RowForm({ open, onClose, onSubmit, columns, initial, mode, focus
                   {isReadOnly && <span className="ml-2 text-[10px] text-[var(--warning)]">read-only</span>}
                 </div>
               </label>
+            )
+          }
+
+          if (isJSONType(col.type)) {
+            const label = `${col.name} · ${col.type}${col.isPrimary ? ' · PK' : ''}${col.isUnique ? ' · UNIQUE' : ''}${col.nullable ? '' : ' · required'}${isReadOnly ? ' · read-only' : ''}`
+            return (
+              <div key={col.name} className="flex flex-col gap-1">
+                <label className="text-[12px] text-[var(--fg-muted)] font-medium">{label}</label>
+                <textarea
+                  className="w-full rounded-md border border-[var(--border)] bg-[var(--bg-input)] px-3 py-2 text-[13px] text-[var(--fg)] font-mono resize-y min-h-[80px] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  value={values[col.name] ?? ''}
+                  onChange={(e) => setValues((v) => ({ ...v, [col.name]: e.target.value }))}
+                  placeholder={col.nullable ? 'NULL' : ''}
+                  ref={col.name === focusColumn ? focusRef as React.Ref<HTMLTextAreaElement> : undefined}
+                  disabled={isReadOnly}
+                  rows={4}
+                />
+              </div>
             )
           }
 

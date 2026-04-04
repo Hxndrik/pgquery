@@ -1,8 +1,9 @@
 import type { ColumnInfo } from '../stores/tabStore'
+import { stringifyValue } from './typeUtils'
 
 function escapeCSV(value: unknown): string {
   if (value === null || value === undefined) return ''
-  const str = String(value)
+  const str = stringifyValue(value)
   if (str.includes(',') || str.includes('"') || str.includes('\n')) {
     return `"${str.replace(/"/g, '""')}"`
   }
