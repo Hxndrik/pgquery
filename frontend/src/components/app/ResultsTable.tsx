@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import type { ColumnInfo } from '../../stores/tabStore'
 import { ChevronIcon } from '../icons'
-import { isNumericType } from '../../lib/typeUtils'
+import { isNumericType, stringifyValue } from '../../lib/typeUtils'
 
 interface ResultsTableProps {
   columns: ColumnInfo[]
@@ -15,7 +15,7 @@ function CellValue({ value, maxLength }: { value: unknown; maxLength?: number })
   if (value === null || value === undefined) {
     return <span className="italic text-[var(--fg-faint)]">NULL</span>
   }
-  const str = String(value)
+  const str = stringifyValue(value)
   if (maxLength && str.length > maxLength) return <>{str.slice(0, maxLength)}<span className="text-[var(--fg-faint)]">…</span></>
   return <>{str}</>
 }
@@ -43,7 +43,7 @@ export function ResultsTable({ columns, rows, truncated }: ResultsTableProps) {
       const bv = b[sortCol]
       if (av === null) return 1
       if (bv === null) return -1
-      const cmp = String(av).localeCompare(String(bv), undefined, { numeric: true })
+      const cmp = stringifyValue(av).localeCompare(stringifyValue(bv), undefined, { numeric: true })
       return sortDir === 'asc' ? cmp : -cmp
     })
   }, [rows, sortCol, sortDir])

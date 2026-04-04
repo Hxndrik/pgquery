@@ -9,7 +9,7 @@ import { EditIcon, TrashIcon, PlusIcon, ChevronIcon, TableGridIcon, SearchIcon }
 import { executeQuery } from '../../../lib/api'
 import type { SchemaColumn } from '../../../lib/api'
 import { toast } from 'sonner'
-import { isNumericType } from '../../../lib/typeUtils'
+import { isNumericType, stringifyValue } from '../../../lib/typeUtils'
 
 interface TableDataViewProps {
   connectionUrl: string
@@ -35,7 +35,7 @@ function CellValue({ value, maxLength = 120 }: { value: unknown; maxLength?: num
   if (value === null || value === undefined) {
     return <span className="italic text-[var(--fg-faint)]">NULL</span>
   }
-  const str = String(value)
+  const str = stringifyValue(value)
   if (str.length > maxLength) return <>{str.slice(0, maxLength)}<span className="text-[var(--fg-faint)]">…</span></>
   return <>{str}</>
 }
