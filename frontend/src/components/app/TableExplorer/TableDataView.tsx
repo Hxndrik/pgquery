@@ -1,13 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { RowForm } from './RowForm'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
+import { DropTableModal } from './DropTableModal'
+import { Pagination } from './Pagination'
 import { BulkActionsBar } from './BulkActionsBar'
 import { EmptyState } from '../EmptyState'
 import { Button } from '../../ui/Button'
 import { Input } from '../../ui/Input'
-import { EditIcon, TrashIcon, PlusIcon, ChevronIcon, TableGridIcon, SearchIcon } from '../../icons'
+import { EditIcon, TrashIcon, PlusIcon, TableGridIcon, SearchIcon } from '../../icons'
 import { executeQuery } from '../../../lib/api'
 import type { SchemaColumn } from '../../../lib/api'
+import { useSchemaStore } from '../../../stores/schemaStore'
 import { toast } from 'sonner'
 import { isNumericType, stringifyValue } from '../../../lib/typeUtils'
 
@@ -16,9 +19,11 @@ interface TableDataViewProps {
   schemaName: string
   tableName: string
   columns: SchemaColumn[]
+  onTableDropped?: () => void
 }
 
-const PAGE_SIZE = 100
+const DEFAULT_PAGE_SIZE = 100
+const PAGE_SIZE_STORAGE_KEY = 'pgquery-table-page-size'
 
 type SortDir = 'asc' | 'desc' | null
 
@@ -66,10 +71,14 @@ function CellValue({ value, maxLength = 120 }: { value: unknown; maxLength?: num
   return <>{str}</>
 }
 
-export function TableDataView({ connectionUrl, schemaName, tableName, columns }: TableDataViewProps) {
+export function TableDataView({ connectionUrl, schemaName, tableName, columns, onTableDropped }: TableDataViewProps) {
   const [rows, setRows] = useState<unknown[][]>([])
   const [totalCount, setTotalCount] = useState<number | null>(null)
   const [page, setPage] = useState(0)
+  const [pageSize, setPageSize] = useState<number>(() => {
+    const stored = Number(localStorage.getItem(PAGE_SIZE_STORAGE_KEY))
+    return Number.isFinite(stored) && stored > 0 ? stored : DEFAULT_PAGE_SIZE
+  })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -79,30 +88,41 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
   const [addOpen, setAddOpen] = useState(false)
   const [editRow, setEditRow] = useState<Record<string, unknown> | null>(null)
   const [editFocusColumn, setEditFocusColumn] = useState<string | undefined>(undefined)
-  
+
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
   const [selectAllMode, setSelectAllMode] = useState(false)
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null)
-  
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<'single' | 'bulk' | null>(null)
   const [singleDeleteRow, setSingleDeleteRow] = useState<Record<string, unknown> | null>(null)
+
+  const [dropOpen, setDropOpen] = useState(false)
+  const [dropping, setDropping] = useState(false)
+
+  const loadSchema = useSchemaStore((s) => s.loadSchema)
 
   const pkCol = columns.find((c) => c.isPrimary)
   const pkIdx = columns.findIndex((c) => c.isPrimary)
   const tableRef = `${quote(schemaName)}.${quote(tableName)}`
 
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size)
+    setPage(0)
+    localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(size))
+  }
+
   const loadData = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const offset = page * PAGE_SIZE
+    const offset = page * pageSize
     const clause = buildWhereClause(columns, searchQuery)
     const where = clause ? ` WHERE ${clause.where}` : ''
     const orderBy =
       sortColumn && sortDir && columns.some((c) => c.name === sortColumn)
         ? ` ORDER BY ${quote(sortColumn)} ${sortDir === 'asc' ? 'ASC' : 'DESC'} NULLS LAST`
         : ''
-    const query = `SELECT * FROM ${tableRef}${where}${orderBy} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
+    const query = `SELECT * FROM ${tableRef}${where}${orderBy} LIMIT ${pageSize} OFFSET ${offset}`
     const result = await executeQuery(connectionUrl, query, clause?.params ?? [])
     if (result.success) {
       setRows(result.data.rows)
@@ -111,7 +131,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
       setError(result.error.error)
     }
     setLoading(false)
-  }, [connectionUrl, tableRef, page, searchQuery, columns, sortColumn, sortDir])
+  }, [connectionUrl, tableRef, page, pageSize, searchQuery, columns, sortColumn, sortDir])
 
   const loadCount = useCallback(async () => {
     const clause = buildWhereClause(columns, searchQuery)
@@ -405,7 +425,21 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     }
   }
 
-  const totalPages = totalCount !== null ? Math.ceil(totalCount / PAGE_SIZE) : null
+  const handleDropTable = async (cascade: boolean) => {
+    setDropping(true)
+    const sql = `DROP TABLE ${tableRef}${cascade ? ' CASCADE' : ''}`
+    const result = await executeQuery(connectionUrl, sql)
+    setDropping(false)
+    if (result.success) {
+      toast.success(`Dropped ${schemaName}.${tableName}`)
+      setDropOpen(false)
+      loadSchema(connectionUrl)
+      onTableDropped?.()
+    } else {
+      toast.error(result.error.error)
+    }
+  }
+
   const selectionCount = getSelectionCount()
   const hasSelection = selectionCount > 0
 
@@ -444,6 +478,16 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
           <Button size="sm" onClick={() => setAddOpen(true)} className="gap-1.5 shrink-0">
             <PlusIcon size={12} />
             Add
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setDropOpen(true)}
+            className="gap-1.5 shrink-0 text-[var(--fg-subtle)] hover:text-[var(--error)] hover:bg-[var(--error-bg)]"
+            title={`Drop table ${schemaName}.${tableName}`}
+          >
+            <TrashIcon size={12} />
+            Drop
           </Button>
         </div>
       </div>
@@ -605,34 +649,15 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
           onClear={clearSelection}
         />
       ) : (
-        totalPages !== null && totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-2 bg-[var(--bg-raised)] border-t border-[var(--border)] shrink-0">
-            <span className="text-[11px] text-[var(--fg-subtle)]">
-              Page {page + 1} of {totalPages} · {rows.length} shown
-            </span>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setPage((p) => p - 1)}
-                disabled={page === 0}
-                className="gap-1"
-              >
-                <ChevronIcon size={12} direction="left" />
-                Prev
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setPage((p) => p + 1)}
-                disabled={page >= totalPages - 1}
-                className="gap-1"
-              >
-                Next
-                <ChevronIcon size={12} direction="right" />
-              </Button>
-            </div>
-          </div>
+        (totalCount ?? 0) > 0 && (
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            rowsShown={rows.length}
+            onPageChange={setPage}
+            onPageSizeChange={handlePageSizeChange}
+          />
         )
       )}
 
@@ -676,6 +701,16 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
         count={deleteTarget === 'bulk' ? selectionCount : 1}
         isAll={selectAllMode && deleteTarget === 'bulk'}
         totalCount={totalCount ?? undefined}
+      />
+
+      {/* Drop table modal */}
+      <DropTableModal
+        open={dropOpen}
+        schemaName={schemaName}
+        tableName={tableName}
+        loading={dropping}
+        onClose={() => setDropOpen(false)}
+        onConfirm={handleDropTable}
       />
     </div>
   )
