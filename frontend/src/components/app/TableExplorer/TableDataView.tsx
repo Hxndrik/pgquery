@@ -20,8 +20,34 @@ interface TableDataViewProps {
 
 const PAGE_SIZE = 100
 
+type SortDir = 'asc' | 'desc' | null
+
 function quote(id: string) {
   return `"${id.replace(/"/g, '""')}"`
+}
+
+function SortIndicator({ dir }: { dir: SortDir }) {
+  return (
+    <span className="inline-flex flex-col leading-none ml-0.5 -my-0.5" aria-hidden="true">
+      <svg
+        width="8"
+        height="5"
+        viewBox="0 0 8 5"
+        className={dir === 'asc' ? 'text-[var(--accent)]' : 'text-[var(--fg-faint)] opacity-50'}
+      >
+        <path d="M1 4 L4 1 L7 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      </svg>
+      <svg
+        width="8"
+        height="5"
+        viewBox="0 0 8 5"
+        className={dir === 'desc' ? 'text-[var(--accent)]' : 'text-[var(--fg-faint)] opacity-50'}
+        style={{ marginTop: '1px' }}
+      >
+        <path d="M1 1 L4 4 L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      </svg>
+    </span>
+  )
 }
 
 function buildWhereClause(columns: SchemaColumn[], searchQuery: string): { where: string; params: unknown[] } | null {
@@ -47,6 +73,8 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortColumn, setSortColumn] = useState<string | null>(null)
+  const [sortDir, setSortDir] = useState<SortDir>(null)
 
   const [addOpen, setAddOpen] = useState(false)
   const [editRow, setEditRow] = useState<Record<string, unknown> | null>(null)
@@ -69,9 +97,12 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     setError(null)
     const offset = page * PAGE_SIZE
     const clause = buildWhereClause(columns, searchQuery)
-    const query = clause
-      ? `SELECT * FROM ${tableRef} WHERE ${clause.where} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
-      : `SELECT * FROM ${tableRef} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
+    const where = clause ? ` WHERE ${clause.where}` : ''
+    const orderBy =
+      sortColumn && sortDir && columns.some((c) => c.name === sortColumn)
+        ? ` ORDER BY ${quote(sortColumn)} ${sortDir === 'asc' ? 'ASC' : 'DESC'} NULLS LAST`
+        : ''
+    const query = `SELECT * FROM ${tableRef}${where}${orderBy} LIMIT ${PAGE_SIZE} OFFSET ${offset}`
     const result = await executeQuery(connectionUrl, query, clause?.params ?? [])
     if (result.success) {
       setRows(result.data.rows)
@@ -80,7 +111,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
       setError(result.error.error)
     }
     setLoading(false)
-  }, [connectionUrl, tableRef, page, searchQuery, columns])
+  }, [connectionUrl, tableRef, page, searchQuery, columns, sortColumn, sortDir])
 
   const loadCount = useCallback(async () => {
     const clause = buildWhereClause(columns, searchQuery)
@@ -105,7 +136,23 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
     setSelectAllMode(false)
     setLastSelectedIndex(null)
     setSearchQuery('')
+    setSortColumn(null)
+    setSortDir(null)
   }, [schemaName, tableName])
+
+  const handleSort = (colName: string) => {
+    // 3-way cycle: off → desc → asc → off
+    if (sortColumn !== colName) {
+      setSortColumn(colName)
+      setSortDir('desc')
+    } else if (sortDir === 'desc') {
+      setSortDir('asc')
+    } else {
+      setSortColumn(null)
+      setSortDir(null)
+    }
+    setPage(0)
+  }
 
   useEffect(() => {
     if (!selectAllMode) {
@@ -433,22 +480,41 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns }:
                     />
                   </div>
                 </th>
-                {columns.map((col) => (
-                  <th
-                    key={col.name}
-                    className={`
-                      px-3 py-2 border-b border-r border-[var(--border)] whitespace-nowrap
-                      text-[10px] font-semibold uppercase tracking-[0.3px] text-[var(--fg-subtle)] text-left
-                      ${isNumericType(col.type) ? 'text-right' : ''}
-                    `}
-                  >
-                    <div className={`flex items-center gap-1.5 ${isNumericType(col.type) ? 'justify-end' : ''}`}>
-                      {col.isPrimary && <span className="text-[9px] font-bold text-[var(--warning)]">PK</span>}
-                      <span>{col.name}</span>
-                      <span className="text-[var(--fg-faint)] font-mono font-normal normal-case tracking-normal text-[9px]">{col.type}</span>
-                    </div>
-                  </th>
-                ))}
+                {columns.map((col) => {
+                  const active = sortColumn === col.name
+                  const dir = active ? sortDir : null
+                  const ariaSort = active
+                    ? sortDir === 'asc' ? 'ascending' : sortDir === 'desc' ? 'descending' : 'none'
+                    : 'none'
+                  return (
+                    <th
+                      key={col.name}
+                      aria-sort={ariaSort}
+                      onClick={() => handleSort(col.name)}
+                      title={
+                        active
+                          ? sortDir === 'desc'
+                            ? 'Sorted descending — click for ascending'
+                            : 'Sorted ascending — click to clear'
+                          : 'Click to sort descending'
+                      }
+                      className={`
+                        px-3 py-2 border-b border-r border-[var(--border)] whitespace-nowrap
+                        text-[10px] font-semibold uppercase tracking-[0.3px] text-left
+                        ${active ? 'text-[var(--fg)] bg-[var(--bg-hover)]' : 'text-[var(--fg-subtle)]'}
+                        cursor-pointer hover:bg-[var(--bg-hover)] hover:text-[var(--fg)] transition-colors select-none
+                        ${isNumericType(col.type) ? 'text-right' : ''}
+                      `}
+                    >
+                      <div className={`flex items-center gap-1.5 ${isNumericType(col.type) ? 'justify-end' : ''}`}>
+                        {col.isPrimary && <span className="text-[9px] font-bold text-[var(--warning)]">PK</span>}
+                        <span>{col.name}</span>
+                        <span className="text-[var(--fg-faint)] font-mono font-normal normal-case tracking-normal text-[9px]">{col.type}</span>
+                        <SortIndicator dir={dir} />
+                      </div>
+                    </th>
+                  )
+                })}
                 {/* Action column */}
                 <th className="px-2 py-2 border-b border-[var(--border)] w-20 shrink-0 text-[10px] font-semibold uppercase tracking-[0.3px] text-[var(--fg-subtle)]">
                   Actions
