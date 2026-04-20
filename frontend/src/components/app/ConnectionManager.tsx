@@ -32,17 +32,25 @@ export function ConnectionManager({ open, onClose, editingId }: ConnectionManage
 
       if (editingId) {
         updateConnection(editingId, name, config)
+        const isActive = useConnectionStore.getState().activeConnectionId === editingId
+        // Only attempt to re-test when editing the currently active connection.
+        // For non-active ones, just save so users can edit unavailable connections.
+        if (!isActive) {
+          toast.success(`Saved ${name}`)
+          onClose()
+          return
+        }
         setStatus('connecting')
         const result = await descriptor.testConnection(config)
         if (result.ok) {
           setActiveConnection(editingId)
           setStatus('connected')
           toast.success(`Updated and connected to ${name}`)
-          onClose()
         } else {
           setStatus('error')
-          toast.error(result.error ?? 'Connection failed')
+          toast.error(`Saved, but connection failed: ${result.error ?? 'unknown error'}`)
         }
+        onClose()
       } else {
         const conn = addConnection(name, effectiveType, config)
         setStatus('connecting')

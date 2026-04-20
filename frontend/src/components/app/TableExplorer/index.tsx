@@ -102,6 +102,7 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
             schemaName={selectedSchema}
             tableName={selectedTable}
             columns={activeColumns}
+            onTableDropped={() => setSelectedTable(null)}
           />
         ) : (
           <div className="flex items-center justify-center h-full text-[13px] text-[var(--fg-faint)]">

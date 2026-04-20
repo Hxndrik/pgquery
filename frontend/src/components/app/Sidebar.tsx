@@ -154,32 +154,48 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
               const desc = getConnectionType(c.type);
               const TypeIcon = desc?.icon;
               return (
-                <button
+                <div
                   key={c.id}
-                  onClick={() => handleConnectionClick(c.id)}
-                  title={isActive ? "Edit connection" : `Connect to ${c.name}`}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded w-full text-left transition-colors ${
+                  className={`group flex items-center gap-2 pl-3 pr-1 py-1.5 rounded w-full transition-colors ${
                     isActive
                       ? "bg-[var(--bg-active)] text-[var(--fg)]"
                       : "text-[var(--fg-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg)]"
                   }`}
                 >
-                  <span
-                    className={`shrink-0 ${
-                      isConnected
-                        ? "text-[var(--success)]"
-                        : isActive
-                        ? "text-[var(--warning)]"
-                        : "text-[var(--fg-subtle)]"
+                  <button
+                    onClick={() => handleConnectionClick(c.id)}
+                    title={isActive ? "Edit connection" : `Connect to ${c.name}`}
+                    className="flex items-center gap-2 flex-1 min-w-0 text-left cursor-pointer"
+                  >
+                    <span
+                      className={`shrink-0 ${
+                        isConnected
+                          ? "text-[var(--success)]"
+                          : isActive
+                          ? "text-[var(--warning)]"
+                          : "text-[var(--fg-subtle)]"
+                      }`}
+                    >
+                      {TypeIcon ? <TypeIcon size={14} /> : null}
+                    </span>
+                    <span className="truncate text-[13px] flex-1">{c.name}</span>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingId(c.id);
+                      setConnOpen(true);
+                    }}
+                    title="Edit connection"
+                    className={`shrink-0 p-1 rounded transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--fg)] ${
+                      isActive
+                        ? "text-[var(--fg-subtle)]"
+                        : "text-[var(--fg-subtle)] opacity-0 group-hover:opacity-100 focus:opacity-100"
                     }`}
                   >
-                    {TypeIcon ? <TypeIcon size={14} /> : null}
-                  </span>
-                  <span className="truncate text-[13px] flex-1">{c.name}</span>
-                  {isActive && (
-                    <EditIcon size={12} className="shrink-0 text-[var(--fg-subtle)]" />
-                  )}
-                </button>
+                    <EditIcon size={12} />
+                  </button>
+                </div>
               );
             })}
           </div>
