@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
-import { parseConnectionUrl, buildConnectionUrl, extractDbName, type ConnectionFields } from '../../lib/connectionParser'
+import { parseConnectionUrl, buildConnectionUrl, extractDbName, normalizeConnectionString, type ConnectionFields } from '../../lib/connectionParser'
 import { testConnection } from '../../lib/api'
 import { toast } from 'sonner'
 import type { ConnectionFormProps } from '../../lib/connectionRegistry'
@@ -67,9 +67,18 @@ export default function PostgresConnectionForm({ onConnect, initial, isEdit }: C
       {mode === 'url' ? (
         <Input
           label="Connection URL"
-          placeholder="postgres://user:pass@host:5432/db"
+          placeholder="postgres://user:pass@host:5432/db or Host=…;Database=…"
           value={url}
           onChange={(e) => syncFromUrl(e.target.value)}
+          onPaste={(e) => {
+            const pasted = e.clipboardData.getData('text')
+            const normalized = normalizeConnectionString(pasted)
+            if (normalized !== pasted) {
+              e.preventDefault()
+              syncFromUrl(normalized)
+            }
+          }}
+          onBlur={(e) => syncFromUrl(normalizeConnectionString(e.target.value))}
           type="text"
         />
       ) : (
