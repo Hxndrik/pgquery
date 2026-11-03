@@ -183,9 +183,11 @@ export function renderHome(o: SiteOptions) {
     <h1 class="display">The Postgres studio you can read cover to cover.</h1>
     <p class="lede">pgquery is a free, open-source database GUI that runs in your browser. It ships as <span class="mark">one Docker container</span>, needs no account, and shows you every statement before it runs.</p>
     <div class="actions">
-      <a class="btn" href="/app/?demo">Open the demo →</a>
-      <a class="btn ghost" href="${REPO}">Read the source</a>
+      <a class="btn" href="/app/">Open the app →</a>
+      <a class="btn ghost" href="/app/?demo">Try the demo</a>
+      <a class="link" href="${REPO}">Source on GitHub</a>
     </div>
+    <p class="hint">Connect your own database in the browser, or look around a read-only sample store first. Nothing to install.</p>
   </div>
   <figure class="figure">
     <div class="plate">${tuple(440, 'Tuple the elephant, drawn as a 1-bit dithered figure', 'cv')}</div>
@@ -296,7 +298,7 @@ export function renderGuide(o: SiteOptions, g: Guide) {
     <p class="eyebrow">${esc(g.eyebrow)}</p>
     <h1 class="display">${esc(g.h1)}</h1>
     <p class="lede">${esc(g.lede)}</p>
-    <div class="actions"><a class="btn" href="/app/?demo">Try it on the demo database →</a><a class="btn ghost" href="${REPO}">Source on GitHub</a></div>
+    <div class="actions"><a class="btn" href="/app/">Open the app →</a><a class="btn ghost" href="/app/?demo">Try the demo</a><a class="link" href="${REPO}">Source on GitHub</a></div>
   </header>
 </div>
 <div class="dither" aria-hidden="true"></div>

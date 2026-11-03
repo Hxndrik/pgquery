@@ -6,3 +6,6 @@ proxy/pgquery-proxy.exe
 .env
 .DS_Store
 *.log
+
+# Personal Claude Code settings (shared settings would go in .claude/settings.json)
+.claude/settings.local.json

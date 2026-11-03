@@ -37,10 +37,15 @@ cd frontend && npm run build    # type-checks and builds
 cd proxy && go vet ./... && go test ./...
 ```
 
+- Use [conventional commit](https://www.conventionalcommits.org) prefixes in commit messages and PR titles: `fix:` (patch release), `feat:` (minor release), `docs:`, `chore:`, `refactor:`, `test:`. Add `!` (e.g. `feat!:`) for breaking changes.
 - Keep changes focused; one feature or fix per pull request.
 - Anything that changes the database must show its SQL before it runs.
 - New screens use the design tokens in `frontend/src/index.css`, not hard-coded colors.
 - If you change the pixel art, run `node scripts/assets/build.ts` and commit the regenerated files.
+
+## Releases
+
+Releases are automated with [release-please](https://github.com/googleapis/release-please). After changes land on `main`, a bot keeps a pull request titled `chore(main): release x.y.z` open with the next version and changelog. Merging it tags the release, publishes it on GitHub and builds the `latest` and versioned Docker images.
 
 ## Good first issues
 
