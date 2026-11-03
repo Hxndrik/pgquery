@@ -5,12 +5,11 @@ import { isS3Config } from './types'
 import { testS3Connection } from '../s3Api'
 import { createElement } from 'react'
 
-// We'll use existing icons that fit S3 semantics
-import { ExplorerIcon, SchemaIcon } from '../../components/icons'
-// S3Icon will be added to the icons file
 import { S3Icon } from '../../components/icons'
+import { PixelIcon } from '../../brand/Pixel'
+import type { IconName } from '../../brand/pixels'
 
-const icon = (Icon: typeof ExplorerIcon, size = 16) => createElement(Icon, { size })
+const icon = (name: IconName) => createElement(PixelIcon, { name, size: 15 })
 
 registerConnectionType({
   type: 's3',
@@ -26,8 +25,8 @@ registerConnectionType({
       label: 'Storage',
       storageKey: 'nav-s3-storage-open',
       items: [
-        { view: 's3-browser', icon: icon(ExplorerIcon), label: 'Object Browser' },
-        { view: 's3-bucket-info', icon: icon(SchemaIcon), label: 'Bucket Info' },
+        { view: 's3-browser', icon: icon('bucket'), label: 'Object Browser' },
+        { view: 's3-bucket-info', icon: icon('lens'), label: 'Bucket Info' },
       ],
     },
   ],

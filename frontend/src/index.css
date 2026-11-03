@@ -1,79 +1,108 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import '@fontsource-variable/archivo/wdth.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/600.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── Dark mode (default) ─────────────────────────────────── */
+/*
+  pgquery — "Operator's Manual"
+  Ink on paper. One blue ink for links and focus, one highlighter yellow for
+  selection. Dither patterns instead of gradients and shadows.
+*/
+
+/* ── Light (default): paper ───────────────────────────────── */
 :root,
-html.dark {
-  --bg:           #0c0e14;
-  --bg-raised:    #12141c;
-  --bg-card:      #13151e;
-  --bg-hover:     #191c26;
-  --bg-active:    #1f2230;
+html.light {
+  --bg:           #e7e9e2;   /* paper */
+  --bg-raised:    #f3f4ef;   /* raised paper: panels, editor */
+  --bg-card:      #f7f8f4;
+  --bg-hover:     #dcdfd6;
+  --bg-active:    #d0d4c9;
 
-  --fg:           #f0f0f2;
-  --fg-muted:     #b3b3bb;
-  --fg-subtle:    #6b6b78;
-  --fg-faint:     #44445a;
+  --fg:           #16181d;   /* ink */
+  --fg-muted:     #3f433b;
+  --fg-subtle:    #5f645a;
+  --fg-faint:     #8a8f84;
 
-  --border:       rgba(255,255,255,0.06);
-  --border-mid:   rgba(255,255,255,0.10);
-  --border-strong:rgba(255,255,255,0.15);
+  --border:       rgba(22,24,29,0.14);
+  --border-mid:   rgba(22,24,29,0.28);
+  --border-strong:#16181d;
 
-  --accent:        #3b82f6;
-  --accent-bg:     rgba(59,130,246,0.08);
-  --accent-border: rgba(59,130,246,0.20);
+  --accent:        #2340d9;  /* blue ink */
+  --accent-fg:     #ffffff;
+  --accent-bg:     rgba(35,64,217,0.08);
+  --accent-border: rgba(35,64,217,0.35);
 
-  --success:        #4ade80;
-  --success-bg:     rgba(74,222,128,0.08);
-  --success-border: rgba(74,222,128,0.15);
+  --highlight:     #ffe94d;  /* highlighter */
+  --highlight-fg:  #16181d;
 
-  --warning:     #fbbf24;
-  --warning-bg:  rgba(251,191,36,0.08);
+  --band:          #16181d;  /* the big black bar */
+  --band-fg:       #e7e9e2;
 
-  --error:       #f87171;
-  --error-bg:    rgba(248,113,113,0.08);
+  --success:        #11803d;
+  --success-bg:     rgba(17,128,61,0.09);
+  --success-border: rgba(17,128,61,0.30);
+
+  --warning:     #9a5b00;
+  --warning-bg:  rgba(214,140,0,0.14);
+
+  --error:       #c22a1f;
+  --error-bg:    rgba(194,42,31,0.09);
+
+  --dither-ink:  rgba(22,24,29,0.55);
+  color-scheme: light;
 }
 
-/* ── Light mode ──────────────────────────────────────────── */
-html.light {
-  --bg:           #fdfdfd;
-  --bg-raised:    #ffffff;
-  --bg-card:      #ffffff;
-  --bg-hover:     #f5f5f5;
-  --bg-active:    #ebebeb;
+/* ── Dark: ink ────────────────────────────────────────────── */
+html.dark {
+  --bg:           #111316;
+  --bg-raised:    #17191d;
+  --bg-card:      #1b1e22;
+  --bg-hover:     #22252a;
+  --bg-active:    #2b2f35;
 
-  --fg:           #0f0f0f;
-  --fg-muted:     #555555;
-  --fg-subtle:    #909090;
-  --fg-faint:     #c0c0c0;
+  --fg:           #eceee7;
+  --fg-muted:     #c2c5bc;
+  --fg-subtle:    #969a90;
+  --fg-faint:     #686c64;
 
-  --border:       rgba(0,0,0,0.06);
-  --border-mid:   rgba(0,0,0,0.10);
-  --border-strong:rgba(0,0,0,0.16);
+  --border:       rgba(236,238,231,0.10);
+  --border-mid:   rgba(236,238,231,0.20);
+  --border-strong:#eceee7;
 
-  --accent:        #2563eb;
-  --accent-bg:     rgba(37,99,235,0.07);
-  --accent-border: rgba(37,99,235,0.18);
+  --accent:        #8ea2ff;
+  --accent-fg:     #111316;
+  --accent-bg:     rgba(142,162,255,0.10);
+  --accent-border: rgba(142,162,255,0.35);
 
-  --success:        #16a34a;
-  --success-bg:     rgba(22,163,74,0.07);
-  --success-border: rgba(22,163,74,0.14);
+  --highlight:     #ffe94d;
+  --highlight-fg:  #111316;
 
-  --warning:     #d97706;
-  --warning-bg:  rgba(217,119,6,0.07);
+  --band:          #eceee7;
+  --band-fg:       #111316;
 
-  --error:       #dc2626;
-  --error-bg:    rgba(220,38,38,0.07);
+  --success:        #5fd38a;
+  --success-bg:     rgba(95,211,138,0.10);
+  --success-border: rgba(95,211,138,0.28);
+
+  --warning:     #ffc24d;
+  --warning-bg:  rgba(255,194,77,0.10);
+
+  --error:       #ff7a6e;
+  --error-bg:    rgba(255,122,110,0.10);
+
+  --dither-ink:  rgba(236,238,231,0.45);
+  color-scheme: dark;
 }
 
 /* ── Base styles ─────────────────────────────────────────── */
 html {
   background-color: var(--bg);
   color: var(--fg);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Archivo Variable', 'Helvetica Neue', Arial, sans-serif;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -89,24 +118,70 @@ body {
   box-sizing: border-box;
 }
 
+::selection {
+  background: var(--highlight);
+  color: var(--highlight-fg);
+}
+
 /* ── Scrollbars ──────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: var(--border-mid);
-  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-strong);
+  background: var(--fg-faint);
 }
 
 /* ── Focus styles ────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* ── Manual vocabulary ───────────────────────────────────── */
+@layer components {
+  /* Dither fills: 25% and 50% ink. Used for strips, markers and empty states. */
+  .dither-25 {
+    background-image: radial-gradient(var(--dither-ink) 0.9px, transparent 1.1px);
+    background-size: 4px 4px;
+  }
+  .dither-50 {
+    background-image:
+      radial-gradient(var(--dither-ink) 0.9px, transparent 1.1px),
+      radial-gradient(var(--dither-ink) 0.9px, transparent 1.1px);
+    background-size: 4px 4px;
+    background-position: 0 0, 2px 2px;
+  }
+  /* A dotted leader rule, like a table of contents. */
+  .rule-dotted {
+    background-image: radial-gradient(var(--fg-faint) 1px, transparent 1.2px);
+    background-size: 6px 4px;
+    background-repeat: repeat-x;
+    background-position: left center;
+    min-height: 4px;
+  }
+  /* Small uppercase label set in mono. */
+  .label {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+  /* Highlighter mark for selected text. */
+  .mark {
+    background: linear-gradient(transparent 14%, var(--highlight) 14%, var(--highlight) 90%, transparent 90%);
+    color: var(--highlight-fg);
+    padding: 0 3px;
+  }
+  .pixel {
+    shape-rendering: crispEdges;
+    image-rendering: pixelated;
+  }
 }

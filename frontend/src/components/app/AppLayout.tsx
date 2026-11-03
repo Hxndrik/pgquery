@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, Suspense } from "react";
-import { Link } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { useConnectionStore } from "../../stores/connectionStore";
 import { useSchemaStore } from "../../stores/schemaStore";
@@ -8,6 +7,10 @@ import { Button } from "../ui/Button";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { getConnectionType } from "../../lib/connectionRegistry";
 import { isPostgresConfig } from "../../lib/connectionTypes";
+import { Tuple } from "../../brand/Pixel";
+import { WelcomePanel } from "./WelcomePanel";
+import { connectDemo } from "../../lib/demo";
+import { toast } from "sonner";
 
 // Ensure connection types are registered
 import "../../lib/connectionTypes";
@@ -16,14 +19,6 @@ function PageLoader() {
   return (
     <div className="flex items-center justify-center h-full text-[13px] text-[var(--fg-faint)]">
       Loading…
-    </div>
-  );
-}
-
-function NotConnected() {
-  return (
-    <div className="flex items-center justify-center h-full text-[13px] text-[var(--fg-faint)]">
-      Connect to a database to get started
     </div>
   );
 }
@@ -45,16 +40,28 @@ export default function AppLayout() {
     }
   }, [activeConnectionUrl, loadSchema, clearSchema]);
 
+  // /app?demo (the landing page's "Open the demo" link) connects straight away.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("demo")) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    connectDemo().then((error) => {
+      if (error) toast.error(error);
+      else setView("queries");
+    });
+  }, []);
+
   const resetLayout = useCallback(() => {
     Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
     window.location.reload();
   }, []);
 
   const renderContent = () => {
-    if (!activeConnection || !descriptor) return <NotConnected />;
+    const welcome = <WelcomePanel onConnected={() => setView("queries")} />;
+    if (!activeConnection || !descriptor) return welcome;
 
     const ViewComponent = descriptor.viewComponents[view];
-    if (!ViewComponent) return <NotConnected />;
+    if (!ViewComponent) return welcome;
 
     // Build props based on connection type
     const viewProps: Record<string, unknown> = { config: activeConnection.config };
@@ -71,23 +78,34 @@ export default function AppLayout() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[var(--bg)]">
-      {/* Header Nav */}
-      <nav className="flex items-center justify-between px-8 h-14 border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-md shrink-0 z-50">
-        <Link to="/" className="hover:opacity-80 transition-opacity">
-          <span className="text-[15px] font-semibold tracking-tight text-[var(--fg)]">
+      {/* Header */}
+      <nav className="flex items-center justify-between gap-4 pl-4 pr-3 h-12 border-b-[1.5px] border-[var(--border-strong)] bg-[var(--bg)] shrink-0 z-50">
+        <a href="/" className="flex items-center gap-2.5 group" aria-label="pgquery home">
+          <Tuple style="dither" width={33} />
+          <span className="text-[17px] font-black tracking-[-0.02em] [font-stretch:125%] text-[var(--fg)] group-hover:text-[var(--accent)] transition-colors">
             pgquery
           </span>
-        </Link>
+        </a>
 
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={resetLayout}
-            className="text-[13px]"
+        {activeConnection && (
+          <div className="hidden md:flex items-center gap-2 min-w-0 font-mono text-[12px] text-[var(--fg-muted)]">
+            <span className="label">Connected</span>
+            <span className="truncate text-[var(--fg)]">{activeConnection.name}</span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-1">
+          <a
+            href="https://github.com/Hxndrik/pgquery"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-2.5 py-1 text-[12px] font-semibold text-[var(--fg-muted)] hover:text-[var(--fg)]"
           >
-            Reset Layout
+            GitHub
+          </a>
+          <ThemeToggle />
+          <Button variant="ghost" size="sm" onClick={resetLayout}>
+            Reset layout
           </Button>
         </div>
       </nav>

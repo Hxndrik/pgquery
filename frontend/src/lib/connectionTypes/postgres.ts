@@ -3,29 +3,12 @@ import { registerConnectionType } from '../connectionRegistry'
 import type { ConnectionConfig } from './types'
 import { isPostgresConfig } from './types'
 import { testConnection } from '../api'
-import {
-  QueryIcon,
-  ExplorerIcon,
-  SchemaVisualizerIcon,
-  FunctionIcon,
-  TriggerIcon,
-  EnumIcon,
-  ExtensionIcon,
-  IndexIcon,
-  PublicationIcon,
-  RoleIcon,
-  PolicyIcon,
-  SettingsIcon,
-  SecurityIcon,
-  PerformanceIcon,
-  QueryStatsIcon,
-  ReplicationIcon,
-  WrapperIcon,
-  DatabaseIcon,
-} from '../../components/icons'
+import { DatabaseIcon } from '../../components/icons'
 import { createElement } from 'react'
+import { PixelIcon } from '../../brand/Pixel'
+import type { IconName } from '../../brand/pixels'
 
-const icon = (Icon: typeof QueryIcon, size = 16) => createElement(Icon, { size })
+const icon = (name: IconName) => createElement(PixelIcon, { name, size: 15 })
 
 registerConnectionType({
   type: 'postgres',
@@ -41,41 +24,41 @@ registerConnectionType({
       label: 'Database',
       storageKey: 'nav-db-open',
       items: [
-        { view: 'queries', icon: icon(QueryIcon), label: 'SQL Editor' },
-        { view: 'explorer', icon: icon(ExplorerIcon), label: 'Tables' },
-        { view: 'schema-visualizer', icon: icon(SchemaVisualizerIcon), label: 'Schema Visualizer' },
-        { view: 'functions', icon: icon(FunctionIcon), label: 'Functions' },
-        { view: 'triggers', icon: icon(TriggerIcon), label: 'Triggers' },
-        { view: 'enums', icon: icon(EnumIcon), label: 'Enumerated Types' },
-        { view: 'extensions', icon: icon(ExtensionIcon), label: 'Extensions' },
-        { view: 'indexes', icon: icon(IndexIcon), label: 'Indexes' },
-        { view: 'publications', icon: icon(PublicationIcon), label: 'Publications' },
+        { view: 'queries', icon: icon('editor'), label: 'SQL Editor' },
+        { view: 'explorer', icon: icon('table'), label: 'Tables' },
+        { view: 'schema-visualizer', icon: icon('schema'), label: 'Schema Visualizer' },
+        { view: 'functions', icon: icon('fn'), label: 'Functions' },
+        { view: 'triggers', icon: icon('trigger'), label: 'Triggers' },
+        { view: 'enums', icon: icon('enum'), label: 'Enumerated Types' },
+        { view: 'extensions', icon: icon('plug'), label: 'Extensions' },
+        { view: 'indexes', icon: icon('index'), label: 'Indexes' },
+        { view: 'publications', icon: icon('replica'), label: 'Publications' },
       ],
     },
     {
       label: 'Configuration',
       storageKey: 'nav-config-open',
       items: [
-        { view: 'roles', icon: icon(RoleIcon), label: 'Roles' },
-        { view: 'policies', icon: icon(PolicyIcon), label: 'Policies' },
-        { view: 'settings', icon: icon(SettingsIcon), label: 'Settings' },
+        { view: 'roles', icon: icon('roles'), label: 'Roles' },
+        { view: 'policies', icon: icon('key'), label: 'Policies' },
+        { view: 'settings', icon: icon('gear'), label: 'Settings' },
       ],
     },
     {
       label: 'Platform',
       storageKey: 'nav-platform-open',
       items: [
-        { view: 'replication', icon: icon(ReplicationIcon), label: 'Replication' },
-        { view: 'wrappers', icon: icon(WrapperIcon), label: 'Wrappers' },
+        { view: 'replication', icon: icon('replica'), label: 'Replication' },
+        { view: 'wrappers', icon: icon('cube'), label: 'Wrappers' },
       ],
     },
     {
       label: 'Tools',
       storageKey: 'nav-tools-open',
       items: [
-        { view: 'security-advisor', icon: icon(SecurityIcon), label: 'Security Advisor' },
-        { view: 'performance-advisor', icon: icon(PerformanceIcon), label: 'Performance Advisor' },
-        { view: 'query-performance', icon: icon(QueryStatsIcon), label: 'Query Performance' },
+        { view: 'security-advisor', icon: icon('shield'), label: 'Security Advisor' },
+        { view: 'performance-advisor', icon: icon('lens'), label: 'Performance Advisor' },
+        { view: 'query-performance', icon: icon('bolt'), label: 'Query Performance' },
       ],
     },
   ],

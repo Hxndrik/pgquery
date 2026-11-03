@@ -11,17 +11,16 @@ export function NavItem({ icon, label, active, onClick }: NavItemProps) {
   return (
     <button
       onClick={onClick}
+      aria-current={active ? 'page' : undefined}
       className={`
-        flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors w-full
-        ${active 
-          ? 'bg-[var(--accent-bg)] text-[var(--accent)] font-medium' 
+        flex items-center gap-2.5 px-2.5 py-[7px] text-[13px] w-full text-left transition-colors
+        ${active
+          ? 'bg-[var(--highlight)] text-[var(--highlight-fg)] font-semibold'
           : 'text-[var(--fg-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg)]'}
       `}
     >
-      <span className={`shrink-0 ${active ? 'text-[var(--accent)]' : 'text-[var(--fg-subtle)]'}`}>
-        {icon}
-      </span>
-      <span>{label}</span>
+      <span className={`shrink-0 flex ${active ? '' : 'text-[var(--fg-subtle)]'}`}>{icon}</span>
+      <span className="truncate">{label}</span>
     </button>
   )
 }

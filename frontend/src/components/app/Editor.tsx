@@ -23,24 +23,29 @@ export function Editor({ tabId, onRun }: EditorProps) {
   }, [])
 
   const handleMount: OnMount = (editor, monaco) => {
+    // Ink on paper: bold ink keywords, blue-ink functions, highlighter selection.
     monaco.editor.defineTheme('pgquery-dark', {
       base: 'vs-dark',
       inherit: true,
       rules: [
-        { token: 'keyword', foreground: 'a78bfa', fontStyle: 'bold' },
-        { token: 'string', foreground: '4ade80' },
-        { token: 'number', foreground: 'fbbf24' },
-        { token: 'comment', foreground: '6b6b78', fontStyle: 'italic' },
+        { token: 'keyword', foreground: 'ffffff', fontStyle: 'bold' },
+        { token: 'predefined', foreground: '8ea2ff' },
+        { token: 'predefined.sql', foreground: '8ea2ff' },
+        { token: 'operator', foreground: 'c2c5bc' },
+        { token: 'operator.sql', foreground: 'ffffff', fontStyle: 'bold' }, // JOIN, AND, IN, LIKE …
+        { token: 'string', foreground: '5fd38a' },
+        { token: 'number', foreground: 'ffc24d' },
+        { token: 'comment', foreground: '7a7e75', fontStyle: 'italic' },
       ],
       colors: {
-        'editor.background': '#0c0e14',
-        'editor.foreground': '#f0f0f2',
-        'editor.lineHighlightBackground': '#13151e',
-        'editorLineNumber.foreground': '#44445a',
-        'editorLineNumber.activeForeground': '#b3b3bb',
-        'editor.selectionBackground': '#a78bfa33',
-        'editorCursor.foreground': '#a78bfa',
-        'editor.inactiveSelectionBackground': '#a78bfa1a',
+        'editor.background': '#17191d',
+        'editor.foreground': '#eceee7',
+        'editor.lineHighlightBackground': '#1e2125',
+        'editorLineNumber.foreground': '#4d5149',
+        'editorLineNumber.activeForeground': '#c2c5bc',
+        'editor.selectionBackground': '#ffe94d40',
+        'editor.inactiveSelectionBackground': '#ffe94d1f',
+        'editorCursor.foreground': '#ffe94d',
       },
     })
 
@@ -48,17 +53,24 @@ export function Editor({ tabId, onRun }: EditorProps) {
       base: 'vs',
       inherit: true,
       rules: [
-        { token: 'keyword', foreground: '7c5cbf', fontStyle: 'bold' },
-        { token: 'string', foreground: '16a34a' },
-        { token: 'number', foreground: 'd97706' },
-        { token: 'comment', foreground: '9a9a96', fontStyle: 'italic' },
+        { token: 'keyword', foreground: '16181d', fontStyle: 'bold' },
+        { token: 'predefined', foreground: '2340d9' },
+        { token: 'predefined.sql', foreground: '2340d9' },
+        { token: 'operator', foreground: '3f433b' },
+        { token: 'operator.sql', foreground: '16181d', fontStyle: 'bold' }, // JOIN, AND, IN, LIKE …
+        { token: 'string', foreground: '11803d' },
+        { token: 'number', foreground: '9a5b00' },
+        { token: 'comment', foreground: '7d8277', fontStyle: 'italic' },
       ],
       colors: {
-        'editor.background': '#f5f5f3',
-        'editor.foreground': '#111110',
-        'editor.lineHighlightBackground': '#eeeee9',
-        'editorLineNumber.foreground': '#c4c4bf',
-        'editorLineNumber.activeForeground': '#6b6b68',
+        'editor.background': '#f3f4ef',
+        'editor.foreground': '#16181d',
+        'editor.lineHighlightBackground': '#eceee6',
+        'editorLineNumber.foreground': '#a6aaa0',
+        'editorLineNumber.activeForeground': '#16181d',
+        'editor.selectionBackground': '#ffe94dcc',
+        'editor.inactiveSelectionBackground': '#ffe94d66',
+        'editorCursor.foreground': '#16181d',
       },
     })
 
@@ -184,7 +196,7 @@ export function Editor({ tabId, onRun }: EditorProps) {
         lineNumbers: 'on',
         folding: true,
         fontSize: 13,
-        fontFamily: '"JetBrains Mono", monospace',
+        fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
         fontLigatures: true,
         scrollBeyondLastLine: false,
         smoothScrolling: true,
