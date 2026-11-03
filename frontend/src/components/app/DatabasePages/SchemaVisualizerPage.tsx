@@ -5,6 +5,9 @@ import { useSchemaStore } from '../../../stores/schemaStore'
 import { SchemaVisualizerIcon } from '../../icons'
 import { SchemaFilter } from './shared'
 import { toast } from 'sonner'
+import { buildPlateSvg, downloadPlatePng, downloadPlateSvg } from '../../../lib/plate'
+import { extractDbName } from '../../../lib/connectionParser'
+import { DEMO_URL } from '../../../lib/demo'
 
 interface PageProps { connectionUrl: string }
 
@@ -31,6 +34,20 @@ const NODE_HEADER = 28
 const NODE_ROW = 22
 const PADDING = 40
 
+// Postgres' long type names don't fit a 200px node; use the familiar aliases.
+const TYPE_ALIASES: Record<string, string> = {
+  'timestamp with time zone': 'timestamptz',
+  'timestamp without time zone': 'timestamp',
+  'time with time zone': 'timetz',
+  'time without time zone': 'time',
+  'double precision': 'float8',
+  'character varying': 'varchar',
+  'character': 'char',
+  'boolean': 'bool',
+}
+const shortType = (t: string) =>
+  TYPE_ALIASES[t] ?? t.replace(/^character varying/, 'varchar').replace(/^timestamp\((\d+)\) with time zone$/, 'timestamptz($1)')
+
 export default function SchemaVisualizerPage({ connectionUrl }: PageProps) {
   const { schema: schemaData } = useSchemaStore()
   const [fks, setFks] = useState<FKRelation[]>([])
@@ -55,7 +72,7 @@ export default function SchemaVisualizerPage({ connectionUrl }: PageProps) {
       if (schemaRes.success) {
         const s = schemaRes.data.map(r => String(r.name))
         setSchemas(s)
-        if (!selectedSchema && s.length > 0) setSelectedSchema(s[0])
+        if (!selectedSchema && s.length > 0) setSelectedSchema(s.includes('public') ? 'public' : s[0])
       }
     } catch {
       toast.error('Failed to load schema data')
@@ -71,17 +88,22 @@ export default function SchemaVisualizerPage({ connectionUrl }: PageProps) {
     const schemaObj = schemaData.schemas.find(s => s.name === selectedSchema)
     if (!schemaObj) return []
 
+    // Masonry layout: each table goes into the currently shortest column, so
+    // tall tables never overlap the ones below them.
     const cols = 4
-    return schemaObj.tables.map((t, i) => {
+    const colY = Array.from({ length: cols }, () => PADDING)
+    return schemaObj.tables.map((t) => {
       const saved = nodePositions[`${schemaObj.name}.${t.name}`]
-      const col = i % cols
-      const row = Math.floor(i / cols)
+      const col = colY.indexOf(Math.min(...colY))
+      const x = PADDING + col * (NODE_WIDTH + 60)
+      const y = colY[col]
+      colY[col] += NODE_HEADER + t.columns.length * NODE_ROW + 4 + 48
       return {
         schema: schemaObj.name,
         name: t.name,
-        columns: t.columns.map(c => ({ name: c.name, type: c.type, isPrimary: c.isPrimary })),
-        x: saved?.x ?? PADDING + col * (NODE_WIDTH + 60),
-        y: saved?.y ?? PADDING + row * 200,
+        columns: t.columns.map(c => ({ name: c.name, type: shortType(c.type), isPrimary: c.isPrimary })),
+        x: saved?.x ?? x,
+        y: saved?.y ?? y,
       }
     })
   })()
@@ -101,6 +123,38 @@ export default function SchemaVisualizerPage({ connectionUrl }: PageProps) {
     const tx = target.x
     const ty = target.y + th / 2
     return { sx, sy, tx, ty }
+  }
+
+  const plate = () => {
+    const placed = tables.map(t => ({ ...t, ...(nodePositions[`${t.schema}.${t.name}`] ?? {}) }))
+    const edges = filteredFks.flatMap(fk => {
+      const src = placed.find(t => t.name === fk.source_table && t.schema === fk.source_schema)
+      const tgt = placed.find(t => t.name === fk.target_table && t.schema === fk.target_schema)
+      return src && tgt ? [getEdgePoints(src, tgt)] : []
+    })
+    const database = connectionUrl === DEMO_URL ? 'record_store' : extractDbName(connectionUrl).split('?')[0] || 'database'
+    return {
+      name: `${database}.${selectedSchema}`,
+      ...buildPlateSvg({
+        database,
+        schema: selectedSchema ?? 'public',
+        tables: placed.map(t => ({ ...t, width: NODE_WIDTH, height: nodeHeight(t) })),
+        edges,
+        header: NODE_HEADER,
+        row: NODE_ROW,
+      }),
+    }
+  }
+
+  const exportPlate = async (format: 'svg' | 'png') => {
+    if (tables.length === 0) return
+    const { name, svg, width, height } = plate()
+    try {
+      if (format === 'svg') downloadPlateSvg(svg, `${name}.plate.svg`)
+      else await downloadPlatePng(svg, width, height, `${name}.plate.png`)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Export failed')
+    }
   }
 
   const handleMouseDown = (e: React.MouseEvent, tableKey: string, node: TableNode) => {
@@ -154,6 +208,10 @@ export default function SchemaVisualizerPage({ connectionUrl }: PageProps) {
           <span className="font-mono">{Math.round(zoom * 100)}%</span>
           <button onClick={() => setZoom(z => Math.max(z * 0.8, 0.2))} className="px-2 py-1 rounded hover:bg-[var(--bg-hover)]">-</button>
           <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }) }} className="px-2 py-1 rounded hover:bg-[var(--bg-hover)]">Reset</button>
+          <span className="w-px h-5 bg-[var(--border-mid)] mx-1" aria-hidden="true" />
+          <span className="label">Export plate</span>
+          <button onClick={() => exportPlate('svg')} disabled={tables.length === 0} className="px-2.5 py-1 rounded-sm border border-[var(--border-strong)] text-[var(--fg)] font-semibold hover:bg-[var(--fg)] hover:text-[var(--bg)] disabled:opacity-40">SVG</button>
+          <button onClick={() => exportPlate('png')} disabled={tables.length === 0} className="px-2.5 py-1 rounded-sm border border-[var(--border-strong)] text-[var(--fg)] font-semibold hover:bg-[var(--fg)] hover:text-[var(--bg)] disabled:opacity-40">PNG</button>
         </div>
       </div>
 
@@ -190,12 +248,12 @@ export default function SchemaVisualizerPage({ connectionUrl }: PageProps) {
                   <path
                     d={`M ${sx} ${sy} C ${mx} ${sy}, ${mx} ${ty}, ${tx} ${ty}`}
                     fill="none"
-                    stroke="var(--fg-subtle)"
+                    stroke="var(--fg)"
                     strokeWidth={1.5}
-                    opacity={0.5}
+                    opacity={0.7}
                   />
-                  {/* Arrow */}
-                  <circle cx={tx} cy={ty} r={3} fill="var(--fg-subtle)" opacity={0.5} />
+                  {/* Target marker */}
+                  <rect x={tx - 3.5} y={ty - 3.5} width={7} height={7} fill="var(--fg)" />
                 </g>
               )
             })}
@@ -216,24 +274,22 @@ export default function SchemaVisualizerPage({ connectionUrl }: PageProps) {
                   <rect
                     width={NODE_WIDTH}
                     height={h}
-                    rx={6}
                     fill="var(--bg-raised)"
-                    stroke="var(--border)"
-                    strokeWidth={1}
+                    stroke="var(--border-strong)"
+                    strokeWidth={1.5}
                   />
                   {/* Header */}
-                  <rect width={NODE_WIDTH} height={NODE_HEADER} rx={6} fill="var(--accent-bg)" />
-                  <rect y={NODE_HEADER - 6} width={NODE_WIDTH} height={6} fill="var(--accent-bg)" />
-                  <text x={10} y={18} fontSize={12} fontWeight={600} fill="var(--accent)" fontFamily="monospace">
+                  <rect width={NODE_WIDTH} height={NODE_HEADER} fill="var(--fg)" />
+                  <text x={10} y={18} fontSize={12} fontWeight={600} fill="var(--bg)" fontFamily="'IBM Plex Mono', monospace">
                     {t.name}
                   </text>
                   {/* Columns */}
                   {t.columns.map((col, ci) => (
                     <g key={ci} transform={`translate(0, ${NODE_HEADER + ci * NODE_ROW})`}>
-                      <text x={10} y={16} fontSize={11} fill={col.isPrimary ? 'var(--accent)' : 'var(--fg)'} fontFamily="monospace">
-                        {col.isPrimary ? '🔑 ' : ''}{col.name}
+                      <text x={10} y={16} fontSize={11} fill={col.isPrimary ? 'var(--accent)' : 'var(--fg)'} fontFamily="'IBM Plex Mono', monospace">
+                        {col.isPrimary ? '◆ ' : ''}{col.name}
                       </text>
-                      <text x={NODE_WIDTH - 10} y={16} fontSize={10} fill="var(--fg-subtle)" fontFamily="monospace" textAnchor="end">
+                      <text x={NODE_WIDTH - 10} y={16} fontSize={10} fill="var(--fg-subtle)" fontFamily="'IBM Plex Mono', monospace" textAnchor="end">
                         {col.type}
                       </text>
                     </g>

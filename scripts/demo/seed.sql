@@ -10,7 +10,10 @@
 \set ON_ERROR_STOP on
 BEGIN;
 
-CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+-- Extensions live in their own schema so `public` holds only the sample tables.
+CREATE SCHEMA IF NOT EXISTS extensions;
+DROP EXTENSION IF EXISTS pg_stat_statements;
+CREATE EXTENSION pg_stat_statements SCHEMA extensions;
 
 DROP TABLE IF EXISTS playlist_tracks, playlists, order_items, orders, plays,
   customers, tracks, albums, genres, artists CASCADE;
@@ -224,12 +227,16 @@ DO $$ BEGIN
   EXECUTE format('GRANT CONNECT ON DATABASE %I TO demo', current_database());
 END $$;
 REVOKE ALL ON ALL TABLES IN SCHEMA public FROM demo;
-GRANT USAGE ON SCHEMA public TO demo;
+GRANT USAGE ON SCHEMA public, extensions TO demo;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO demo;
 GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO demo;
+GRANT SELECT ON ALL TABLES IN SCHEMA extensions TO demo;
 GRANT pg_read_all_stats TO demo;   -- lets the advisors read pg_stat_* views
 
 COMMIT;
 
 ANALYZE;
-SELECT pg_stat_statements_reset();
+SELECT extensions.pg_stat_statements_reset();
+
+-- Let the advisors find pg_stat_statements without a schema prefix.
+ALTER ROLE demo SET search_path = public, extensions;
