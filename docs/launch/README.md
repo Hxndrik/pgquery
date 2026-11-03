@@ -64,7 +64,9 @@ What's in it: SQL editor with schema-aware autocomplete, a table editor (JSONB t
 
 There's a read-only demo database (a small record store, reset daily): https://pgquery.dev/app/?demo
 
-Limits, honestly: there's no built-in login, so on a shared server put it behind a VPN or an auth proxy. No SSH tunnels, Postgres only, and pgAdmin still does more admin work (backup/restore, a PL/pgSQL debugger). I wrote up where it wins and loses against pgAdmin, CloudBeaver, Adminer and Supabase Studio here: https://pgquery.dev/postgres-client-comparison/
+Limits, honestly: there's no built-in login, so on a shared server put it behind a VPN or an auth proxy. No SSH tunnels, Postgres only, and pgAdmin still does more admin work (backup/restore, a PL/pgSQL debugger). I wrote up where it wins and loses against pgweb, DbGate, pgAdmin, CloudBeaver, Adminer and Supabase Studio here: https://pgquery.dev/postgres-client-comparison/
+
+If you know pgweb: it's a great, lean query explorer (one binary, SSH tunnels, ten years old). pgquery goes further into administration: RLS policies, roles, indexes, functions and triggers, advisors, an EXPLAIN tree and an ER diagram. DbGate is the strong multi-database option.
 
 I'd love feedback on the plan viewer and on which advisor checks you'd want next. Source: https://github.com/Hxndrik/pgquery
 ```
@@ -140,7 +142,7 @@ Everything is plain pg_catalog queries and generated DDL behind a small stateles
 Read-only demo: https://pgquery.dev/app/?demo
 Source: https://github.com/Hxndrik/pgquery
 
-There's also an honest comparison with pgAdmin, CloudBeaver, Adminer and Supabase Studio (including where pgquery loses): https://pgquery.dev/postgres-client-comparison/
+There's also an honest comparison with pgweb, DbGate, pgAdmin, CloudBeaver, Adminer and Supabase Studio (including where pgquery loses): https://pgquery.dev/postgres-client-comparison/
 
 Which advisor checks would you add? I'm collecting ideas.
 ```
@@ -212,7 +214,7 @@ Export your schema as a printable "plate": an ER diagram with a title block, as 
 **5/6**
 
 ```text
-I also wrote an honest comparison with pgAdmin, CloudBeaver, Adminer and Supabase Studio. Including the parts where pgquery loses (no login, no SSH tunnels, Postgres only).
+I also wrote an honest comparison with pgweb, DbGate, pgAdmin, CloudBeaver, Adminer and Supabase Studio. Including the parts where pgquery loses (no login, no SSH tunnels, Postgres only).
 
 pgquery.dev/postgres-client-comparison
 ```
@@ -297,7 +299,7 @@ PostgreSQL, Database GUI, SQL Editor, Database Management, Self-Hosted, Web-base
 **Alternative to**
 
 ```text
-pgAdmin, DBeaver, TablePlus, Adminer, Beekeeper Studio, DataGrip, Supabase Studio
+pgweb, DbGate, pgAdmin, DBeaver, TablePlus, Adminer, Beekeeper Studio, DataGrip, Supabase Studio
 ```
 
 ## Product Hunt (optional)

@@ -82,14 +82,16 @@ Schema changes made through forms (CREATE, ALTER, GRANT, CREATE POLICY …) are 
 
 ## How it compares
 
-| | pgquery | pgAdmin 4 | CloudBeaver | Adminer | Supabase Studio |
-|---|---|---|---|---|---|
-| Runs in the browser | yes | yes (server mode) | yes | yes | yes |
-| Self-hosted as | one Go container | Python web app | Java web app | one PHP file | part of the Supabase stack |
-| Databases | PostgreSQL | PostgreSQL | many | many | PostgreSQL (Supabase) |
-| License | MIT | PostgreSQL License | Apache 2.0 | Apache 2.0 or GPL 2 | Apache 2.0 |
+| | pgquery | pgweb | DbGate | pgAdmin 4 | CloudBeaver | Adminer | Supabase Studio |
+|---|---|---|---|---|---|---|---|
+| Runs in the browser | yes | yes | yes (also desktop) | yes (server mode) | yes | yes | yes |
+| Self-hosted as | one Go container | one Go binary | Node.js server | Python web app | Java web app | one PHP file | part of the Supabase stack |
+| Databases | PostgreSQL | PostgreSQL | many | PostgreSQL | many | many | PostgreSQL (Supabase) |
+| SSH tunnel | no | yes | yes | yes | yes | no | no |
+| RLS editor, advisors | yes | no | not listed | partly | no | no | yes |
+| License | MIT | MIT | GPL-3.0 | PostgreSQL License | Apache 2.0 | Apache 2.0 or GPL 2 | Apache 2.0 |
 
-pgAdmin does more administration (backup and restore, a PL/pgSQL debugger, user accounts), and DBeaver and Adminer speak many databases. pgquery has no login of its own and no SSH tunnels. The [full, honest comparison](https://pgquery.dev/postgres-client-comparison/) lists where it wins and where it loses.
+pgweb is a lean, mature query explorer in one binary; DbGate covers many databases with import / export and schema compare; pgAdmin does the most administration (backup and restore, a PL/pgSQL debugger, user accounts). pgquery has no login of its own and no SSH tunnels. The [full, honest comparison](https://pgquery.dev/postgres-client-comparison/) lists where it wins and where it loses.
 
 ## How it works
 
@@ -99,6 +101,7 @@ Browser (React app) ──HTTP──▶ Go proxy ──Postgres protocol──�
 
 - The proxy is stateless. It opens a connection per request, runs the query and returns rows.
 - Saved connections, tabs and history live in your browser's localStorage.
+- Connections use SSL when the server offers it (`sslmode=prefer`); the app warns when one isn't encrypted. Add `?sslmode=require` to refuse plain connections.
 - pgquery has no login of its own. On a shared server, put it behind your VPN or an authenticating reverse proxy (oauth2-proxy, Authelia, Cloudflare Access).
 
 ## Configuration

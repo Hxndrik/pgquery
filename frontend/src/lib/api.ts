@@ -1,3 +1,4 @@
+import { useConnectionHealth } from '../stores/connectionHealthStore'
 import type { QueryResult, QueryError } from '../stores/tabStore'
 
 export interface SchemaColumn {
@@ -27,6 +28,8 @@ export interface TestResponse {
   ok: boolean
   version?: string
   database?: string
+  /** Whether the proxy's connection to Postgres uses TLS. */
+  encrypted?: boolean
   error?: string
 }
 
@@ -118,7 +121,11 @@ export async function testConnection(connection: string): Promise<TestResponse> 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ connection }),
     })
-    return (await res.json()) as TestResponse
+    const result = (await res.json()) as TestResponse
+    if (result.ok && typeof result.encrypted === 'boolean') {
+      useConnectionHealth.getState().setEncrypted(connection, result.encrypted)
+    }
+    return result
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Network error' }
   }

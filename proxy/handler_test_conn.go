@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -16,7 +17,10 @@ type testResponse struct {
 	OK       bool   `json:"ok"`
 	Version  string `json:"version,omitempty"`
 	Database string `json:"database,omitempty"`
-	Error    string `json:"error,omitempty"`
+	// Encrypted reports whether the connection to Postgres negotiated TLS.
+	// pgx defaults to sslmode=prefer, which silently falls back to plain text.
+	Encrypted bool   `json:"encrypted"`
+	Error     string `json:"error,omitempty"`
 }
 
 func (cfg *config) handleTest(w http.ResponseWriter, r *http.Request) {
@@ -59,9 +63,11 @@ func (cfg *config) handleTest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	_, encrypted := conn.PgConn().Conn().(*tls.Conn)
 	json.NewEncoder(w).Encode(testResponse{
-		OK:       true,
-		Version:  version,
-		Database: database,
+		OK:        true,
+		Version:   version,
+		Database:  database,
+		Encrypted: encrypted,
 	})
 }

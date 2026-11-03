@@ -212,12 +212,12 @@ export function renderHome(o: SiteOptions) {
         <p class="eyebrow">Compared honestly</p>
         <h2 class="display" id="cmp-h">Where it wins. Where it doesn’t.</h2>
       </div>
-      <p class="muted">pgquery is ours, so the gaps are listed as carefully as the strengths. <a href="/postgres-client-comparison/">Full comparison</a> with Adminer, or <a href="/dbeaver-alternative/">vs DBeaver</a>.</p>
+      <p class="muted">pgquery is ours, so the gaps are listed as carefully as the strengths. <a href="/postgres-client-comparison/">Full comparison</a> with CloudBeaver and Adminer, or <a href="/dbeaver-alternative/">vs DBeaver</a>.</p>
     </div>
     ${matrix(
       subset(
         ROUNDUP,
-        [0, 1, 2, 4],
+        [0, 1, 2, 3, 6],
         ['Self-hosted as', 'Own login and user accounts', 'SSH tunnel', 'Visual EXPLAIN', 'Row Level Security editor', 'Performance and security advisors', 'Backup and restore', 'Import CSV', 'License', 'Maturity'],
         'pgquery and the main web-based alternatives',
       ),
@@ -264,6 +264,7 @@ export function renderHome(o: SiteOptions) {
       <tr><th>Accounts</th><td>None</td></tr>
       <tr><th>Where state lives</th><td>Your browser (localStorage). The server keeps nothing.</td></tr>
       <tr><th>Schema changes</th><td>Shown as SQL before they run; dropping a table asks first</td></tr>
+      <tr><th>Encryption</th><td>SSL when the server offers it, with a warning when it doesn’t</td></tr>
       <tr><th>Connection formats</th><td><code>postgres://</code> URI, Npgsql / ADO.NET key=value (<code>Host=…;Database=…</code>)</td></tr>
       <tr><th>Also browses</th><td>S3-compatible buckets</td></tr>
       <tr><th>License</th><td>MIT</td></tr>
