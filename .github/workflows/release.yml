@@ -1,9 +1,11 @@
 name: Release
 
-# release-please keeps a "chore(main): release x.y.z" pull request open with the
-# next version and changelog, built from conventional commit messages
-# (fix: → patch, feat: → minor). Merging it tags the release, publishes the
-# GitHub Release and builds the versioned Docker images.
+# release-please turns conventional commit messages (fix: → patch, feat: →
+# minor) into a "chore(main): release x.y.z" pull request with the next version
+# and changelog. This workflow merges that pull request right away, so every
+# feat: or fix: that lands on main is released: tagged, published as a GitHub
+# Release and built as versioned Docker images. chore:, docs: etc. don't
+# release on their own.
 
 on:
   push:
@@ -18,10 +20,33 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
+      release_created: ${{ steps.after-merge.outputs.release_created || steps.release.outputs.release_created }}
+      tag_name: ${{ steps.after-merge.outputs.tag_name || steps.release.outputs.tag_name }}
     steps:
       - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      # A merge made with GITHUB_TOKEN doesn't start a new workflow run, so the
+      # release is cut below, in this run. GitHub may need a moment to compute
+      # mergeability of a just-updated pull request, hence the retries.
+      - name: Merge the release pull request
+        if: steps.release.outputs.pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ fromJSON(steps.release.outputs.pr).number }}
+        run: |
+          for i in 1 2 3 4 5; do
+            gh pr merge "$PR" --squash --repo "$GITHUB_REPOSITORY" && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
+
+      - id: after-merge
+        name: Tag and publish the release
+        if: steps.release.outputs.pr
         uses: googleapis/release-please-action@v4
         with:
           config-file: release-please-config.json
