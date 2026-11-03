@@ -1,0 +1,26 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: pgquery version or image tag
+      placeholder: ghcr.io/hxndrik/pgquery:1.0.0
+  - type: input
+    id: postgres
+    attributes:
+      label: PostgreSQL version and host
+      placeholder: 16.4 on RDS
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      placeholder: Firefox 132

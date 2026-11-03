@@ -1,95 +1,146 @@
-# pgquery
+<p align="center">
+  <a href="https://pgquery.dev"><img src="docs/assets/banner.svg" alt="pgquery, with Tuple the pixel elephant" width="680"></a>
+</p>
 
-A free, open-source, browser-based PostgreSQL database explorer and management tool. Full Supabase-level database management — no accounts, no subscriptions, no backend required.
+<p align="center">
+  <b>A free, open-source Postgres studio that runs in your browser.</b><br>
+  One Docker container. No account. Every statement shown before it runs.
+</p>
 
-## Features
+<p align="center">
+  <a href="https://pgquery.dev/app/?demo"><b>Try the demo</b></a> ·
+  <a href="https://pgquery.dev">Website</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#features">Features</a> ·
+  <a href="https://pgquery.dev/self-hosted-postgres-gui-docker/">Self-hosting guide</a>
+</p>
 
-### SQL Editor
-- Monaco editor with SQL syntax highlighting and schema-aware autocompletion
-- Multi-tab queries with persistent state
-- Query history (500 entries) and saved queries
-- CSV and JSON export
-- Dark and light mode
+<p align="center">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-16181d?style=flat-square"></a>
+  <a href="https://github.com/Hxndrik/pgquery/pkgs/container/pgquery"><img alt="Docker image" src="https://img.shields.io/badge/ghcr.io-hxndrik%2Fpgquery-2340d9?style=flat-square&logo=docker&logoColor=white"></a>
+  <a href="https://github.com/Hxndrik/pgquery/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Hxndrik/pgquery/ci.yml?branch=main&style=flat-square&label=ci"></a>
+  <img alt="amd64 and arm64" src="https://img.shields.io/badge/arch-amd64%20%7C%20arm64-16181d?style=flat-square">
+</p>
 
-### Database Management
-- **Tables** — Browse, search, insert, edit, and delete rows with pagination and bulk actions
-- **Schema Visualizer** — Interactive ER diagram with drag-and-drop, pan/zoom, and foreign key relationships
-- **Functions** — List, view definitions, create, and drop PostgreSQL functions
-- **Triggers** — List, enable/disable, create, and drop triggers
-- **Enumerated Types** — List, create, add values, and drop enum types
-- **Extensions** — Browse available extensions, install and uninstall
-- **Indexes** — List with usage stats, create (btree/hash/gin/gist/brin), drop with concurrent support
-- **Publications** — Manage logical replication publications
-
-### Configuration
-- **Roles** — List roles with attributes, create, alter, grant/revoke membership
-- **Policies** — Enable/disable Row Level Security, create and manage RLS policies per table
-- **Settings** — Browse all PostgreSQL settings by category, edit session and system-level settings
-
-### Tools
-- **Security Advisor** — Audit RLS status, superuser roles, public schema exposure, SSL, and password encryption with a security score
-- **Performance Advisor** — Analyze cache hit ratio, unused indexes, table bloat, sequential scan patterns, and connection utilization
-- **Query Performance** — pg_stat_statements analysis with sorting by total time, mean time, or call count
-
-### Platform
-- **Replication** — View replication slots and subscriptions
-- **Foreign Data Wrappers** — Browse foreign servers and foreign tables
-
-## Architecture
-
-A single Docker container: a Go proxy serves the static frontend and bridges browser HTTP to Postgres TCP. No server-side state — all app state lives in localStorage. All database management features work through standard `pg_catalog` queries and DDL generation — no additional backend required.
-
-```
-Browser (React SPA) → Go proxy (:8080) → User's PostgreSQL
-```
-
-Every feature uses the same `/api/query` endpoint to execute introspection queries and DDL statements. The frontend generates all SQL, previews it before execution, and handles the results.
+<p align="center">
+  <img src="docs/assets/screenshot-editor.png" alt="pgquery: sidebar of tools, SQL editor with a JOIN query, results table" width="900">
+</p>
 
 ## Quick start
 
-### Docker (recommended)
-
 ```bash
-docker compose up --build
-# Open http://localhost:8080
+docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
 ```
 
-### Local development
+Open <http://localhost:54280> and paste a connection string. Both `postgres://user:pass@host:5432/db` URIs and key=value strings (libpq or Npgsql style) work.
 
-Requirements: Node 20+, Go 1.22+
+Or with Docker Compose:
 
-```bash
-# Terminal 1
-cd frontend && npm install && npm run dev
-
-# Terminal 2
-cd proxy && go run .
-
-# Open http://localhost:5173
+```yaml
+services:
+  pgquery:
+    image: ghcr.io/hxndrik/pgquery
+    ports:
+      - "54280:54280"
+    restart: unless-stopped
 ```
 
-Or with make:
+## Features
 
-```bash
-make dev
+| | |
+|---|---|
+| <img src="docs/assets/icons/editor.svg" width="16" alt=""> **SQL editor** | Monaco with schema-aware autocomplete, tabs that survive a reload, 500-entry history, saved queries, CSV and JSON export |
+| <img src="docs/assets/icons/plan.svg" width="16" alt=""> **EXPLAIN plan viewer** | `EXPLAIN (ANALYZE)` drawn as a tree, with each node's share of the time, the heaviest node highlighted and bad row estimates flagged |
+| <img src="docs/assets/icons/table.svg" width="16" alt=""> **Table editor** | Browse, sort, paginate, insert, edit and delete rows. JSONB opens as real JSON |
+| <img src="docs/assets/icons/schema.svg" width="16" alt=""> **Schema map** | ER diagram from your foreign keys. Export it as a printable SVG or PNG plate |
+| <img src="docs/assets/icons/key.svg" width="16" alt=""> **Policies (RLS)** | Turn Row Level Security on per table and manage its policies |
+| <img src="docs/assets/icons/roles.svg" width="16" alt=""> **Roles & grants** | Create roles, set attributes, grant and revoke membership |
+| <img src="docs/assets/icons/index.svg" width="16" alt=""> **Indexes** | Usage stats; create btree, hash, gin, gist or brin indexes, concurrently if you like |
+| <img src="docs/assets/icons/bolt.svg" width="16" alt=""> **Query performance** | `pg_stat_statements` ranked by total time, mean time or calls |
+| <img src="docs/assets/icons/lens.svg" width="16" alt=""> **Performance advisor** | Cache hit ratio, unused indexes, table bloat, sequential scans, connection use |
+| <img src="docs/assets/icons/shield.svg" width="16" alt=""> **Security advisor** | Scored audit of RLS coverage, superusers, public schema grants, SSL and password hashing |
+| <img src="docs/assets/icons/fn.svg" width="16" alt=""> **Functions, triggers, enums** | List, read, create and drop |
+| <img src="docs/assets/icons/plug.svg" width="16" alt=""> **Extensions, publications, FDW** | Install extensions, manage publications, browse foreign servers and tables |
+| <img src="docs/assets/icons/gear.svg" width="16" alt=""> **Settings** | Every server setting by category; change session or system values |
+| <img src="docs/assets/icons/bucket.svg" width="16" alt=""> **S3 browser** | Browse, preview, upload and delete objects in S3-compatible buckets |
+
+Every change made through a form (DROP, ALTER, GRANT, CREATE POLICY …) is shown as SQL first, and you run it yourself.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/assets/screenshot-plan.png" alt="EXPLAIN ANALYZE plan drawn as a tree with timing bars"></td>
+    <td width="50%"><img src="docs/assets/schema-plate.png" alt="Schema plate export: ER diagram of the record_store sample with a title block"></td>
+  </tr>
+  <tr>
+    <td><sub><b>FIG. 3</b> Explain analyze: the heaviest node is highlighted.</sub></td>
+    <td><sub><b>FIG. 4</b> A schema plate, exported from the schema map.</sub></td>
+  </tr>
+</table>
+
+## How it compares
+
+| | pgquery | pgAdmin 4 | CloudBeaver | Adminer | Supabase Studio |
+|---|---|---|---|---|---|
+| Runs in the browser | yes | yes (server mode) | yes | yes | yes |
+| Self-hosted as | one Go container | Python web app | Java web app | one PHP file | part of the Supabase stack |
+| Databases | PostgreSQL | PostgreSQL | many | many | PostgreSQL (Supabase) |
+| License | MIT | PostgreSQL License | Apache 2.0 | Apache 2.0 or GPL 2 | Apache 2.0 |
+
+pgAdmin does more administration (backup and restore, a PL/pgSQL debugger), and DBeaver and Adminer speak many databases. pgquery aims to be the quickest way to a good Postgres editor and the admin screens you use every week.
+
+## How it works
+
+```
+Browser (React app) ──HTTP──▶ Go proxy ──Postgres protocol──▶ your database
 ```
 
-## Environment variables
+- The proxy is stateless. It opens a connection per request, runs the query and returns rows.
+- Saved connections, tabs and history live in your browser's localStorage.
+- pgquery has no login of its own. On a shared server, put it behind your VPN or an authenticating reverse proxy (oauth2-proxy, Authelia, Cloudflare Access).
+
+## Configuration
 
 | Variable | Default | Description |
 |---|---|---|
-| `PORT` | `8080` | HTTP listen port |
-| `STATIC_DIR` | `../frontend/dist` | Path to built frontend |
-| `RATE_LIMIT_RPM` | `60` | Requests per minute per IP |
-| `MAX_QUERY_TIMEOUT` | `30s` | Max query execution time |
-| `MAX_ROWS` | `10000` | Max rows returned per query |
+| `PORT` | `54280` | HTTP listen port |
+| `STATIC_DIR` | `../frontend/dist` | Built frontend (set to `/app/static` in the image) |
+| `RATE_LIMIT_RPM` | `600` | Requests per minute per client IP |
+| `MAX_QUERY_TIMEOUT` | `30s` | Maximum query time |
+| `MAX_ROWS` | `10000` | Maximum rows returned per query |
+| `BLOCK_PRIVATE_HOSTS` | `false` | `true` refuses loopback, private and link-local targets. Use it on public instances |
+| `DEMO_DATABASE_URL` | – | Serves a demo database. The browser only ever sees a placeholder; see [`scripts/demo/seed.sql`](scripts/demo/seed.sql) |
 
-## Tech stack
+Build-time settings for the public website (Docker build args):
 
-- **Frontend**: React 19, Vite, TypeScript, Tailwind CSS, Monaco Editor, Zustand, Framer Motion
-- **Backend**: Go, pgx v5
-- **Deployment**: Docker, Coolify-compatible
+| Build arg | Default | Description |
+|---|---|---|
+| `VITE_SITE_URL` | `https://pgquery.dev` | Canonical URL for pages, sitemap and share images |
+| `VITE_GOATCOUNTER_CODE` | – | Optional GoatCounter site code for privacy-friendly page counts |
+
+## Development
+
+Requirements: Node 22+, Go 1.26+.
+
+```bash
+make dev    # Vite on :28000, proxy on :54280
+make build  # frontend/dist and the proxy binary
+```
+
+- `frontend/src`: the React app (served at `/app`)
+- `frontend/site`: the static website and guides, rendered at build time
+- `frontend/src/brand/pixels.ts`: Tuple and the pixel icons; `node scripts/assets/build.ts` regenerates the assets in `docs/assets` and `frontend/public`
+- `proxy`: the Go server
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## FAQ
+
+**Is it really free?** Yes. MIT licensed, no paid tier, no account.
+
+**Does my data go through your servers?** Only if you use the hosted demo at pgquery.dev. When you self-host, queries go from your browser to your container to your database.
+
+**Is this related to `pg_query`?** No. [pg_query](https://github.com/pganalyze/libpg_query) is pganalyze's Postgres query parser library; pgquery is a database GUI.
 
 ## License
 
-MIT
+[MIT](LICENSE). Tuple the elephant is part of this project and shares its license. PostgreSQL is a trademark of the PostgreSQL Community Association; pgquery is not affiliated with it.
