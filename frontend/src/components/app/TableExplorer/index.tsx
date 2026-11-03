@@ -5,6 +5,7 @@ import { type SchemaColumn } from '../../../lib/api'
 import { useSchemaStore } from '../../../stores/schemaStore'
 import { SchemaIcon, TableGridIcon } from '../../icons'
 import { STORAGE_KEYS } from '../../../lib/storageKeys'
+import { initialExplorerSelection, saveExplorerSelection } from '../../../lib/explorerSelection'
 
 interface TableExplorerProps {
   connectionUrl: string | null
@@ -21,18 +22,24 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
   const [selectedSchema, setSelectedSchema] = useState<string | null>(null)
   const [selectedTable, setSelectedTable] = useState<string | null>(null)
 
-  // Auto-select first schema/table when schema loads or connection changes
+  // When the schema loads or the connection changes, reopen the last table
+  // used on this connection, else public's first table.
   useEffect(() => {
     if (!connectionUrl) {
       setSelectedSchema(null)
       setSelectedTable(null)
       return
     }
-    if (schema?.schemas[0]) {
-      setSelectedSchema(schema.schemas[0].name)
-      setSelectedTable(schema.schemas[0].tables[0]?.name ?? null)
-    }
+    if (!schema) return
+    const initial = initialExplorerSelection(connectionUrl, schema.schemas)
+    setSelectedSchema(initial?.schema ?? null)
+    setSelectedTable(initial?.table ?? null)
   }, [connectionUrl, schema])
+
+  // Remember what the user opens.
+  useEffect(() => {
+    if (connectionUrl && selectedSchema) saveExplorerSelection(connectionUrl, { schema: selectedSchema, table: selectedTable })
+  }, [connectionUrl, selectedSchema, selectedTable])
 
   const activeSchemaData = schema?.schemas.find((s) => s.name === selectedSchema) ?? null
 

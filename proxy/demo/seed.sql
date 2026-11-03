@@ -7,12 +7,15 @@
 -- random password on that role and serves the demo through it only.
 
 -- Extensions live in their own schema so `public` holds only the sample tables.
--- pg_stat_statements is optional: skipped where the server doesn't ship it.
+-- pg_stat_statements is optional. Its views only work when the server preloads
+-- the library (shared_preload_libraries); otherwise every read errors, so the
+-- extension is only installed where it actually works.
 CREATE SCHEMA IF NOT EXISTS extensions;
+DROP EXTENSION IF EXISTS pg_stat_statements;
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = 'pg_stat_statements') THEN
-    DROP EXTENSION IF EXISTS pg_stat_statements;
+  IF current_setting('shared_preload_libraries') ~ '(^|[ ,])pg_stat_statements($|[ ,])'
+     AND EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = 'pg_stat_statements') THEN
     CREATE EXTENSION pg_stat_statements SCHEMA extensions;
   END IF;
 END $$;
