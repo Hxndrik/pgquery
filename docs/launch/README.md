@@ -84,7 +84,7 @@ pgquery: a Postgres GUI in a single container (SQL editor, ER diagram, RLS polic
 **Body**
 
 ```text
-I've been building a browser-based Postgres GUI and just released 1.0. It's one container, about as light as these things get:
+I've been building a browser-based Postgres GUI and just released v1.1. It's one container, about as light as these things get:
 
     docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
 

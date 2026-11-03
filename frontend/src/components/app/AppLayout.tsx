@@ -40,6 +40,14 @@ export default function AppLayout() {
     }
   }, [activeConnectionUrl, loadSchema, clearSchema]);
 
+  // Tab title: connection and screen, so several open tabs can be told apart.
+  useEffect(() => {
+    const label = descriptor?.sidebarSections.flatMap((s) => s.items).find((i) => i.view === view)?.label;
+    document.title = activeConnection
+      ? `${activeConnection.name}${label ? ` · ${label}` : ""} — pgquery`
+      : "Connect a database — pgquery";
+  }, [activeConnection, descriptor, view]);
+
   // /app?demo (the landing page's "Open the demo" link) connects straight away.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

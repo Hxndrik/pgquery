@@ -89,6 +89,7 @@ function doc(o: SiteOptions, m: Meta, body: string) {
 <meta name="description" content="${esc(m.description)}">
 ${m.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${url}">`}
 <meta name="theme-color" content="#16181d">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.json">
@@ -285,7 +286,7 @@ export function renderHome(o: SiteOptions) {
     o,
     {
       path: '/',
-      title: 'pgquery — free PostgreSQL client in your browser, one Docker container',
+      title: 'pgquery: free PostgreSQL client in your browser',
       description: DESCRIPTION,
       jsonLd: [softwareLd(o.siteUrl), faqLd(HOME_FAQ)],
     },
@@ -355,7 +356,7 @@ export function renderNotFound(o: SiteOptions) {
   </div>
   <figure class="figure"><div class="plate">${tuple(320, 'Tuple, looking for the page', 'nf')}</div><figcaption><b>FIG. 404</b> Tuple, looking for it too.</figcaption></figure>
 </section>`
-  return doc(o, { path: '/404', title: 'Page not found — pgquery', description: 'Page not found.', jsonLd: [], noindex: true }, body)
+  return doc(o, { path: '/404', title: 'Page not found · pgquery', description: 'Page not found.', jsonLd: [], noindex: true }, body)
 }
 
 // ── crawler files ─────────────────────────────────────────

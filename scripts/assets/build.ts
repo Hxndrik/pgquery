@@ -63,8 +63,14 @@ write(join(docs, 'tuple.svg'), tupleSvg('color', { ink: INK, paper: PAPER_2 }, {
 write(join(docs, 'tuple-dither.svg'), tupleSvg('dither', { ink: INK, paper: PAPER_2 }, { scale: 12 }))
 for (const name of Object.keys(ICONS) as IconName[]) write(join(docs, 'icons', `${name}.svg`), iconSvg(name, INK, 20))
 
-// ── favicon: Tuple's head in color
-write(join(pub, 'favicon.svg'), tupleSvg('color', { ink: INK, paper: PAPER_2 }, { grid: TUPLE_HEAD, scale: 2, title: 'pgquery' }))
+// ── favicon: Tuple's head in ink on a yellow tile (the app's one accent).
+// SVG for modern browsers, .ico (16/32/48) for the rest and for search results.
+const ACCENT = '#ffe94d'
+// Line art reads at 16 px where a filled silhouette turns into a blob: outline and ear in ink, face left open.
+const headLineArt = `<path d="${cells(TUPLE_HEAD, 'KD')}" fill="${INK}"/>`
+const iconTile = (size: number) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 20 20" width="${size}" height="${size}" shape-rendering="crispEdges"><title>pgquery</title><rect x="-2" y="-2" width="20" height="20" rx="3" fill="${ACCENT}"/>${headLineArt}</svg>`
+write(join(pub, 'favicon.svg'), iconTile(32))
 
 // ── PNGs via Playwright
 const require = createRequire(import.meta.url)
@@ -103,23 +109,52 @@ svg { shape-rendering: crispEdges; }
 </div></body></html>`
 }
 
+// iOS rounds the corners itself, so the touch icon is a full-bleed square.
 function touchIcon() {
-  return `<!doctype html><html><body style="margin:0;width:180px;height:180px;background:${PAPER};display:grid;place-items:center">
-<svg viewBox="0 0 16 16" width="136" height="136" style="shape-rendering:crispEdges">${tupleMarkup('color', { ink: INK, paper: PAPER_2 }, TUPLE_HEAD)}</svg></body></html>`
+  return `<!doctype html><html><body style="margin:0;width:180px;height:180px;background:${ACCENT};display:grid;place-items:center">
+<svg viewBox="0 0 16 16" width="132" height="132" style="shape-rendering:crispEdges">${headLineArt}</svg></body></html>`
+}
+
+const iconPage = (size: number) =>
+  `<!doctype html><html><body style="margin:0;width:${size}px;height:${size}px;background:transparent">${iconTile(size)}</body></html>`
+
+/** An .ico container holding PNG images (supported by every current browser). */
+function ico(pngs: { size: number; data: Buffer }[]): Buffer {
+  const header = Buffer.alloc(6 + 16 * pngs.length)
+  header.writeUInt16LE(0, 0)
+  header.writeUInt16LE(1, 2)
+  header.writeUInt16LE(pngs.length, 4)
+  let offset = header.length
+  pngs.forEach(({ size, data }, i) => {
+    const e = 6 + 16 * i
+    header.writeUInt8(size >= 256 ? 0 : size, e)
+    header.writeUInt8(size >= 256 ? 0 : size, e + 1)
+    header.writeUInt16LE(1, e + 4) // color planes
+    header.writeUInt16LE(32, e + 6) // bits per pixel
+    header.writeUInt32LE(data.length, e + 8)
+    header.writeUInt32LE(offset, e + 12)
+    offset += data.length
+  })
+  return Buffer.concat([header, ...pngs.map((p) => p.data)])
 }
 
 const browser = await chromium.launch()
-async function png(html: string, w: number, h: number, out: string) {
+async function render(html: string, w: number, h: number): Promise<Buffer> {
   const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 })
   // Load from a file so the file:// font URLs are allowed.
   const file = join(mkdtempSync(join(tmpdir(), 'pgquery-assets-')), 'card.html')
   writeFileSync(file, html)
   await page.goto(pathToFileURL(file).href, { waitUntil: 'load' })
   await page.evaluate(() => document.fonts.ready)
-  write(out, await page.screenshot({ type: 'png' }))
+  const data = await page.screenshot({ type: 'png', omitBackground: true })
   await page.close()
+  return data
 }
+const png = async (html: string, w: number, h: number, out: string) => write(out, await render(html, w, h))
 await png(card(1200, 630), 1200, 630, join(pub, 'og-image.png'))
 await png(card(1280, 640), 1280, 640, join(docs, 'social-preview.png'))
 await png(touchIcon(), 180, 180, join(pub, 'apple-touch-icon.png'))
+const sizes = [16, 32, 48]
+write(join(pub, 'favicon.ico'), ico(await Promise.all(sizes.map(async (size) => ({ size, data: await render(iconPage(size), size, size) })))))
+await png(iconPage(192), 192, 192, join(pub, 'icon-192.png'))
 await browser.close()
