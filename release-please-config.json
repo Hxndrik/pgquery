@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "e8c7f1f7f18ca87e17f0443af2e6aeba53f1e0e7",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "pgquery",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": false
+    }
+  }
+}

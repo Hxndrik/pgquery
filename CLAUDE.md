@@ -1,62 +1,39 @@
-## Workflow Orchestration
+# CLAUDE.md
 
-### 1. Plan Node Default
+Guidance for AI coding assistants (and humans) working in this repository.
 
-- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
-- If something goes sideways, STOP and re-plan immediately - don't keep pushing
-- Use plan mode for verification steps, not just building
-- Write detailed specs upfront to reduce ambiguity
+## What this is
 
-### 2. Subagent Strategy
+pgquery is a browser-based PostgreSQL GUI shipped as one Docker image:
 
-- Use subagents liberally to keep main context window clean
-- Offload research, exploration, and parallel analysis to subagents
-- For complex problems, throw more compute at it via subagents
-- One task per subagent for focused execution
+- `frontend/src`: the React 19 + Vite app, served at `/app`
+- `frontend/site`: the public website and guides, rendered to static HTML at build time by `site/plugin.ts`
+- `frontend/src/brand/pixels.ts`: the pixel art (Tuple the elephant, icons) everything else is drawn from
+- `proxy`: a stateless Go server that serves the build and forwards queries to Postgres (`/api/query`, `/api/schema`, `/api/test`); it also seeds the optional demo database (`proxy/demo.go`, `proxy/demo/seed.sql`)
 
-### 3. Self-Improvement Loop
+## Commands
 
-- After ANY correction from the user: update `tasks/lessons.md` with the pattern
-- Write rules for yourself that prevent the same mistake
-- Ruthlessly iterate on these lessons until mistake rate drops
-- Review lessons at session start for relevant project
+```bash
+make dev                                   # Vite on :28000, proxy on :54280
+cd frontend && npm run build               # type-check + build (CI runs this)
+cd frontend && npm run lint                # ESLint (some existing react-hooks findings)
+cd proxy && go vet ./... && go test ./...  # Go checks (CI runs these)
+node scripts/assets/build.ts               # regenerate brand assets after changing pixels.ts
+```
 
-### 4. Verification Before Done
+## House rules
 
-- Never mark a task complete without proving it works
-- Diff behavior between main and your changes when relevant
-- Ask yourself: "Would a staff engineer approve this?"
-- Run tests, check logs, demonstrate correctness
+- **SQL before it runs.** Any change made through a form must show the generated SQL and let the user run it. DDL lives in `frontend/src/lib/ddlGenerators.ts`, catalog queries in `frontend/src/lib/pgCatalogQueries.ts`.
+- **Design tokens only.** Colors, fonts and radii come from `frontend/src/index.css` / `tailwind.config.js`. No hard-coded hex values in components. Both light and dark themes must work.
+- **No server state.** Connections, tabs and history live in the browser (`pgquery-*` localStorage keys; don't rename them, users would lose data).
+- **Facts in copy.** Website, README and guide claims must match what the code does. No invented numbers.
+- **Safe defaults.** Default views should open on user data (prefer the `public` schema) and never on something that can error.
+- **Conventional commits.** Commit messages and PR titles start with `feat:`, `fix:`, `docs:`, `chore:`, `refactor:` or `test:`. Releases and the changelog are generated from them (release-please).
 
-### 5. Demand Elegance (Balanced)
+## Working style
 
-- For non-trivial changes: pause and ask "is there a more elegant way?"
-- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
-- Skip this for simple, obvious fixes - don't over-engineer
-- Challenge your own work before presenting it
-
-### 6. Autonomous Bug Fixing
-
-- When given a bug report: just fix it. Don't ask for hand-holding
-- Point at logs, errors, failing tests - then resolve them
-- Zero context switching required from the user
-- Go fix failing CI tests without being told how
-
----
-
-## Task Management
-
-1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
-2. **Verify Plan**: Check in before starting implementation
-3. **Track Progress**: Mark items complete as you go
-4. **Explain Changes**: High-level summary at each step
-5. **Document Results**: Add review section to `tasks/todo.md`
-6. **Capture Lessons**: Update `tasks/lessons.md` after corrections
-
----
-
-## Core Principles
-
-- **Simplicity First**: Make every change as simple as possible. Impact minimal code.
-- **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
-- **Minimal Impact**: Changes should only touch what's necessary. Avoid introducing bugs.
+- Plan first for anything non-trivial (3+ steps or an architectural choice); re-plan if something goes sideways.
+- Find root causes; no temporary workarounds.
+- Keep changes minimal and focused; one concern per PR.
+- Prove it works before calling it done: run the checks above, and for UI changes look at the result in the browser (light and dark, desktop and phone width).
+- Record recurring pitfalls in `tasks/lessons.md`; track larger work in `tasks/todo.md`.

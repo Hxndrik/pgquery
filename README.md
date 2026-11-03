@@ -32,6 +32,8 @@
 docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
 ```
 
+`latest` is the newest release; `main` follows the main branch. Pin a version with e.g. `ghcr.io/hxndrik/pgquery:1.0`.
+
 Open <http://localhost:54280> and paste a connection string. Both `postgres://user:pass@host:5432/db` URIs and key=value strings (libpq or Npgsql style) work.
 
 Or with Docker Compose:

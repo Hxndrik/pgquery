@@ -8,7 +8,7 @@ import (
 )
 
 func TestDemoRoleURL(t *testing.T) {
-	got, err := demoRoleURL("postgresql://postgres:s3cret@db.example.com:54281/postgres?sslmode=require", "pw123")
+	got, err := demoRoleURL("postgresql://postgres:s3cret@db.example.com:5432/postgres?sslmode=require", "pw123")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,7 +22,7 @@ func TestDemoRoleURL(t *testing.T) {
 	if strings.Contains(got, "s3cret") || strings.Contains(got, "postgres:") {
 		t.Errorf("admin credentials leaked into %q", got)
 	}
-	if u.Host != "db.example.com:54281" || u.Path != "/postgres" || u.Query().Get("sslmode") != "require" {
+	if u.Host != "db.example.com:5432" || u.Path != "/postgres" || u.Query().Get("sslmode") != "require" {
 		t.Errorf("host/db/params not preserved: %q", got)
 	}
 
