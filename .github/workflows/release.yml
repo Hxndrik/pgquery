@@ -33,11 +33,19 @@ jobs:
       # release is cut below, in this run. GitHub may need a moment to compute
       # mergeability of a just-updated pull request, hence the retries.
       - name: Merge the release pull request
-        if: steps.release.outputs.pr
+        if: steps.release.outputs.prs_created == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          PR: ${{ fromJSON(steps.release.outputs.pr).number }}
+          PR_JSON: ${{ steps.release.outputs.pr }}
         run: |
+          # Parse the JSON in the shell: fromJSON() in the workflow expression
+          # fails the whole step when the output is empty.
+          PR=$(jq -r '.number // empty' <<<"${PR_JSON:-null}")
+          if [ -z "$PR" ]; then
+            PR=$(gh pr list --repo "$GITHUB_REPOSITORY" --label "autorelease: pending" \
+              --state open --json number --jq '.[0].number // empty')
+          fi
+          [ -n "$PR" ] || { echo "No release pull request found"; exit 1; }
           for i in 1 2 3 4 5; do
             gh pr merge "$PR" --squash --repo "$GITHUB_REPOSITORY" && exit 0
             sleep $((i * 5))
@@ -46,7 +54,7 @@ jobs:
 
       - id: after-merge
         name: Tag and publish the release
-        if: steps.release.outputs.pr
+        if: steps.release.outputs.prs_created == 'true'
         uses: googleapis/release-please-action@v4
         with:
           config-file: release-please-config.json
