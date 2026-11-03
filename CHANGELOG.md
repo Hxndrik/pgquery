@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Hxndrik/pgquery/compare/v1.1.0...v1.2.0) (2026-11-03)
+
+
+### Features
+
+* compare with pgweb and DbGate, warn on unencrypted connections ([#12](https://github.com/Hxndrik/pgquery/issues/12)) ([ef70e9e](https://github.com/Hxndrik/pgquery/commit/ef70e9e47797d869329ded4613599f54264def49))
+
 ## [1.1.0](https://github.com/Hxndrik/pgquery/compare/v1.0.1...v1.1.0) (2026-11-03)
 
 
