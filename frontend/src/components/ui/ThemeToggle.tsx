@@ -5,7 +5,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
   const { theme, toggleTheme } = useSettingsStore()
 
   return (
-    <Tooltip content={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
+    <Tooltip side="bottom" content={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
       <button
         onClick={toggleTheme}
         className={`

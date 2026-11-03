@@ -11,6 +11,10 @@ import { Tuple } from "../../brand/Pixel";
 import { WelcomePanel } from "./WelcomePanel";
 import { connectDemo } from "../../lib/demo";
 import { toast } from "sonner";
+import { useConnectionHealth } from "../../stores/connectionHealthStore";
+import { isDemoUrl } from "../../lib/demo";
+import { testConnection } from "../../lib/api";
+import { Tooltip } from "../ui/Tooltip";
 
 // Ensure connection types are registered
 import "../../lib/connectionTypes";
@@ -39,6 +43,17 @@ export default function AppLayout() {
       clearSchema();
     }
   }, [activeConnectionUrl, loadSchema, clearSchema]);
+
+  // Unencrypted connections get a warning. The demo is exempt: it is public,
+  // read-only sample data reached from the server, not the user's database.
+  const encrypted = useConnectionHealth((s) => (activeConnectionUrl ? s.encrypted[activeConnectionUrl] : undefined));
+  const showUnencrypted = !!activeConnectionUrl && !isDemoUrl(activeConnectionUrl) && encrypted === false;
+  useEffect(() => {
+    // A connection restored from a previous visit hasn't been tested yet.
+    if (activeConnectionUrl && !isDemoUrl(activeConnectionUrl) && useConnectionHealth.getState().encrypted[activeConnectionUrl] === undefined) {
+      void testConnection(activeConnectionUrl);
+    }
+  }, [activeConnectionUrl]);
 
   // Tab title: connection and screen, so several open tabs can be told apart.
   useEffect(() => {
@@ -99,6 +114,13 @@ export default function AppLayout() {
           <div className="hidden md:flex items-center gap-2 min-w-0 font-mono text-[12px] text-[var(--fg-muted)]">
             <span className="label">Connected</span>
             <span className="truncate text-[var(--fg)]">{activeConnection.name}</span>
+            {showUnencrypted && (
+              <Tooltip side="bottom" content="No SSL: add ?sslmode=require to refuse unencrypted connections">
+                <span className="shrink-0 px-1.5 py-px rounded-sm border border-[var(--warning-border)] bg-[var(--warning-bg)] text-[var(--warning)] text-[10.5px] uppercase tracking-[0.08em]">
+                  Not encrypted
+                </span>
+              </Tooltip>
+            )}
           </div>
         )}
 

@@ -11,6 +11,7 @@
 - [x] Honest comparison pages (browser clients, pgAdmin, DBeaver, Supabase Studio) and connection guides (Supabase, Neon, RDS, local / Docker)
 - [x] One-accent app UI (yellow), semantic tokens only; Monaco and exports read brand/colors.ts
 - [x] Home: video hero, comparison right below
+- [x] pgweb and DbGate in the comparisons; warning when a connection isn't encrypted
 
 ## Next
 - [ ] Fix the existing `react-hooks/set-state-in-effect` lint findings, then make lint a required CI check

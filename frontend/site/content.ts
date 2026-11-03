@@ -214,5 +214,6 @@ export const HOME_FAQ: [string, string][] = [
   ['Where are my connection strings stored?', "In your browser's localStorage. The proxy forwards each query and keeps nothing."],
   ['How do I self-host it?', `Run ${DOCKER_RUN} and open http://localhost:${PORT}.`],
   ['Does it work with RDS, Supabase, Neon or a VPS?', 'Yes. Any PostgreSQL server the container can reach over the network.'],
+  ['How is it different from pgweb?', 'pgweb is a lean, mature query explorer shipped as one binary, with SSH tunnels. pgquery adds the administration side (RLS policies, roles, indexes, functions, triggers, extensions, settings), advisors, a visual EXPLAIN tree and an ER diagram; it has no SSH tunnels yet.'],
   ['Is pgquery related to the pg_query parser library?', 'No. pg_query by pganalyze is a Postgres query parser for developers; pgquery is a database GUI.'],
 ]

@@ -12,42 +12,44 @@ export const asOf = 'Checked against each project’s documentation, November 20
 /** The full browser-client roundup; the home page shows a slice of it. */
 export const ROUNDUP: Matrix = {
   caption: 'Web-based PostgreSQL clients',
-  tools: ['pgquery', 'pgAdmin 4', 'CloudBeaver CE', 'Adminer', 'Supabase Studio'],
+  tools: ['pgquery', 'pgweb', 'DbGate', 'pgAdmin 4', 'CloudBeaver CE', 'Adminer', 'Supabase Studio'],
   rows: [
-    { label: 'Self-hosted as', cells: ['One Go container', 'Python web app', 'Java web app', 'One PHP file', 'Part of the Supabase stack'] },
-    { label: 'Databases', cells: ['PostgreSQL', 'PostgreSQL', 'Many', 'Many', 'PostgreSQL'] },
-    { label: 'Own login and user accounts', cells: [['no', 'Put it behind a VPN or auth proxy'], 'yes', 'yes', ['partly', 'Database login only'], ['partly', 'Basic auth when self-hosted']] },
-    { label: 'SSH tunnel', cells: ['no', 'yes', 'yes', 'no', 'no'] },
-    { label: 'SQL editor with autocomplete', cells: ['yes', 'yes', 'yes', ['partly', 'Plain text area'], 'yes'] },
-    { label: 'Edit table rows', cells: ['yes', 'yes', 'yes', 'yes', 'yes'] },
-    { label: 'ER diagram', cells: [['yes', 'Exports SVG / PNG'], 'yes', ['partly', 'Depends on edition'], ['partly', 'Basic schema view'], 'yes'] },
-    { label: 'Visual EXPLAIN', cells: [['yes', 'Tree with time share'], 'yes', 'yes', ['partly', 'EXPLAIN as a table'], 'yes'] },
-    { label: 'Row Level Security editor', cells: ['yes', 'yes', ['no', 'Write the SQL'], 'no', 'yes'] },
-    { label: 'Performance and security advisors', cells: ['yes', ['partly', 'Activity dashboards'], 'no', 'no', ['yes', 'More checks than pgquery']] },
-    { label: 'Backup and restore', cells: [['no', 'Use pg_dump'], 'yes', ['partly', 'Data export'], ['partly', 'SQL export / import'], ['partly', 'Platform backups']] },
-    { label: 'Import CSV', cells: ['no', 'yes', 'yes', 'yes', 'yes'] },
-    { label: 'PL/pgSQL debugger', cells: ['no', 'yes', 'no', 'no', 'no'] },
-    { label: 'Previews SQL for schema changes', cells: [['yes', 'Every schema form'], ['yes', 'SQL tab in dialogs'], 'partly', 'partly', 'partly'] },
-    { label: 'License', cells: ['MIT', 'PostgreSQL License', 'Apache 2.0', 'Apache 2.0 or GPL 2', 'Apache 2.0'] },
-    { label: 'Maturity', cells: ['New (2026), one maintainer', '10+ years, PostgreSQL community', 'Mature, backed by DBeaver', 'Mature, slow-moving', 'Large company, very active'] },
+    { label: 'Self-hosted as', cells: ['One Go container', 'One Go binary or container', 'Node.js server (container or npm); also desktop', 'Python web app', 'Java web app', 'One PHP file', 'Part of the Supabase stack'] },
+    { label: 'Databases', cells: ['PostgreSQL', 'PostgreSQL', 'Many (some Premium)', 'PostgreSQL', 'Many', 'Many', 'PostgreSQL'] },
+    { label: 'Own login and user accounts', cells: [['no', 'Put it behind a VPN or auth proxy'], ['partly', 'HTTP basic auth'], 'yes', 'yes', 'yes', ['partly', 'Database login only'], ['partly', 'Basic auth when self-hosted']] },
+    { label: 'SSH tunnel', cells: ['no', 'yes', 'yes', 'yes', 'yes', 'no', 'no'] },
+    { label: 'SQL editor with autocomplete', cells: ['yes', 'yes', 'yes', 'yes', 'yes', ['partly', 'Plain text area'], 'yes'] },
+    { label: 'Edit table rows', cells: [['yes', 'Runs directly'], ['no', 'Write the UPDATE yourself'], ['yes', 'Previews the SQL'], 'yes', 'yes', 'yes', 'yes'] },
+    { label: 'ER diagram', cells: [['yes', 'Exports SVG / PNG'], 'no', 'yes', 'yes', ['partly', 'Depends on edition'], ['partly', 'Basic schema view'], 'yes'] },
+    { label: 'Visual EXPLAIN', cells: [['yes', 'Tree with time share'], ['partly', 'EXPLAIN as text'], 'Not in its feature list', 'yes', 'yes', ['partly', 'EXPLAIN as a table'], 'yes'] },
+    { label: 'Row Level Security editor', cells: ['yes', 'no', 'Not in its feature list', 'yes', ['no', 'Write the SQL'], 'no', 'yes'] },
+    { label: 'Performance and security advisors', cells: ['yes', ['partly', 'Activity and settings views'], 'no', ['partly', 'Activity dashboards'], 'no', 'no', ['yes', 'More checks than pgquery']] },
+    { label: 'Backup and restore', cells: [['no', 'Use pg_dump'], ['partly', 'pg_dump export, no restore'], ['partly', 'Import / export, NDJSON archives'], 'yes', ['partly', 'Data export'], ['partly', 'SQL export / import'], ['partly', 'Platform backups']] },
+    { label: 'Import CSV', cells: ['no', 'no', ['yes', 'Also Excel, JSON, XML'], 'yes', 'yes', 'yes', 'yes'] },
+    { label: 'Schema compare / diff', cells: ['no', 'no', 'yes', 'yes', 'no', 'no', 'no'] },
+    { label: 'PL/pgSQL debugger', cells: ['no', 'no', 'no', 'yes', 'no', 'no', 'no'] },
+    { label: 'Previews SQL for schema changes', cells: [['yes', 'Every schema form'], ['no', 'No schema forms'], ['yes', 'Also for row edits'], ['yes', 'SQL tab in dialogs'], 'partly', 'partly', 'partly'] },
+    { label: 'License', cells: ['MIT', 'MIT', 'GPL-3.0 (paid Premium)', 'PostgreSQL License', 'Apache 2.0', 'Apache 2.0 or GPL 2', 'Apache 2.0'] },
+    { label: 'Maturity', cells: ['New (2026), one maintainer', '10+ years, small team', 'Very active, company-backed', '10+ years, PostgreSQL community', 'Mature, backed by DBeaver', 'Mature, slow-moving', 'Large company, very active'] },
   ],
   footnote: asOf,
 }
 
 export const ROUNDUP_WINS = [
-    'Smallest thing to run: one container with a Go binary, no database of its own, nothing to configure.',
-    'The admin screens Supabase Studio users like (RLS policies, advisors, roles) for any Postgres, without the rest of a platform.',
-    'Schema changes made through forms (CREATE, ALTER, GRANT, policies) are shown as SQL first, and you run them yourself.',
+    'More than a query explorer: RLS policies, roles, indexes, functions, triggers, extensions and settings, which pgweb doesn’t cover.',
+    'Postgres-specific depth DbGate doesn’t focus on: Row Level Security, performance and security advisors, pg_stat_statements.',
     'EXPLAIN ANALYZE as a tree that points at the slowest node and flags bad row estimates.',
-    'Stateless: nothing is stored on the server, so there is nothing to back up or leak.',
+    'Small and stateless: one container with a Go binary, nothing stored on the server.',
+    'Schema changes made through forms (CREATE, ALTER, GRANT, policies) are shown as SQL first, and you run them yourself.',
   ]
 
 export const ROUNDUP_LOSSES = [
-    'No login of its own. pgAdmin and CloudBeaver have real user accounts; pgquery needs a VPN or an auth proxy on a shared server.',
-    'No SSH tunnels. If your database sits behind a bastion host, pgAdmin or CloudBeaver will connect where pgquery cannot.',
-    'PostgreSQL only. CloudBeaver and Adminer also speak MySQL, SQLite, SQL Server and more.',
-    'No backup / restore, CSV import or PL/pgSQL debugger; pgAdmin has all three.',
-    'It is young. The others have years of bug reports behind them.',
+    'No SSH tunnels. pgweb, DbGate, pgAdmin and CloudBeaver connect through a bastion host where pgquery cannot.',
+    'No login of its own. pgweb has basic auth, DbGate, pgAdmin and CloudBeaver have accounts; pgquery needs a VPN or an auth proxy.',
+    'PostgreSQL only. DbGate, CloudBeaver and Adminer also speak MySQL, SQLite, SQL Server and more.',
+    'No backup / restore, CSV import or schema diff. DbGate and pgAdmin have them, and DbGate previews even row edits as SQL.',
+    'Not a single binary: pgweb runs without Docker on Mac, Linux and Windows.',
+    'It is young. pgweb and pgAdmin have more than ten years of bug reports behind them.',
   ]
 
 
@@ -57,10 +59,10 @@ export const COMPARE_GUIDES: Guide[] = [
     label: 'Browser PostgreSQL clients compared',
     title: 'Browser-based PostgreSQL clients compared (2026)',
     description:
-      'An honest comparison of web-based PostgreSQL clients: pgquery, pgAdmin 4, CloudBeaver, Adminer and Supabase Studio. Footprint, login, SSH, ER diagrams, EXPLAIN, RLS, backups and licenses.',
+      'An honest comparison of web-based PostgreSQL clients: pgquery, pgweb, DbGate, pgAdmin 4, CloudBeaver, Adminer and Supabase Studio. Footprint, login, SSH, ER diagrams, EXPLAIN, RLS, backups and licenses.',
     eyebrow: 'Guide · Comparison',
     h1: 'Browser-based PostgreSQL clients, compared honestly',
-    lede: 'Five tools you can open in a browser tab, side by side. pgquery is ours, so we are listing where it falls short as carefully as where it does well.',
+    lede: 'Seven tools you can open in a browser tab, side by side. pgquery is ours, so we are listing where it falls short as carefully as where it does well.',
     wide: true,
     body: `
 ${matrix(ROUNDUP)}
@@ -68,6 +70,8 @@ ${verdict(ROUNDUP_WINS, ROUNDUP_LOSSES)}
 <h2>Which one to pick</h2>
 ${pick([
   ['pgquery', 'You want a fast, modern Postgres GUI you can run anywhere in one command, and you will put it behind your own access control.'],
+  ['pgweb', 'You want a lean, proven query explorer as a single binary, with SSH tunnels and no Docker.'],
+  ['DbGate', 'You work with several databases and want a full-featured manager: import / export, schema compare, query designer.'],
   ['pgAdmin 4', 'You need the most complete PostgreSQL administration: backups, debugging, schema diff, many servers, user accounts.'],
   ['CloudBeaver', 'Your team works with several database engines and wants one web tool with logins for all of them.'],
   ['Adminer', 'You need something tiny on a PHP server for occasional edits, across database types.'],
@@ -75,7 +79,8 @@ ${pick([
 ])}
 <p>Desktop apps are a separate category: see <a href="/dbeaver-alternative/">pgquery vs DBeaver</a>.</p>`,
     faq: [
-      ['Which browser-based PostgreSQL client is the best?', 'It depends on what you need. For full administration with logins, pgAdmin 4. For several database engines, CloudBeaver. For a small, modern Postgres-only tool you self-host in one container, pgquery.'],
+      ['Which browser-based PostgreSQL client is the best?', 'It depends on what you need. For full administration with logins, pgAdmin 4. For several database engines, DbGate or CloudBeaver. For a lean query explorer as one binary, pgweb. For Postgres administration (RLS, roles, advisors, EXPLAIN) in one small container, pgquery.'],
+      ['How is pgquery different from pgweb?', 'pgweb is a lean, mature query explorer: browse tables, run SQL, export, SSH tunnels, single binary. pgquery adds the administration side (RLS policies, roles, indexes, functions, triggers, extensions, settings), performance and security advisors, a visual EXPLAIN tree and an ER diagram. pgweb wins on SSH tunnels, single binary and maturity.'],
       ['Are any of these free?', 'All five have free, open-source versions. CloudBeaver and Supabase also sell paid editions or hosting.'],
       ['Is it safe to use a web-based database client?', 'Yes, if you control who can reach it. Self-host it next to your database and put it behind a VPN or an authenticating proxy, or use a tool with its own login.'],
     ],
