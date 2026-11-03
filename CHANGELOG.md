@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/Hxndrik/pgquery/compare/v1.2.0...v1.2.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* parse the release pull request JSON in the shell ([#15](https://github.com/Hxndrik/pgquery/issues/15)) ([b6cf536](https://github.com/Hxndrik/pgquery/commit/b6cf5367f1bc85e93dc3073002967252d2af1312))
+
 ## [1.2.0](https://github.com/Hxndrik/pgquery/compare/v1.1.0...v1.2.0) (2026-11-03)
 
 
