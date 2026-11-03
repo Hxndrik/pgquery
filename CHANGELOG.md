@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Hxndrik/pgquery/compare/v1.0.1...v1.1.0) (2026-11-03)
+
+
+### Features
+
+* honest comparisons and connection guides, one-accent app UI, video hero ([#10](https://github.com/Hxndrik/pgquery/issues/10)) ([237d202](https://github.com/Hxndrik/pgquery/commit/237d2021c8a524c8703581b6b32bbcb8be56ddaf))
+
 ## [1.0.1](https://github.com/Hxndrik/pgquery/compare/v1.0.0...v1.0.1) (2026-11-03)
 
 
