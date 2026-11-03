@@ -220,11 +220,11 @@ export function renderHome(o: SiteOptions) {
   <figure class="figure">
     <div class="shot">
       <img src="/screens/app.png" width="1440" height="900" alt="The pgquery window: sidebar with tools, SQL editor with a JOIN query, and a results table" loading="lazy">
-      <span class="dot" style="left:8%;top:14%">1</span>
-      <span class="dot" style="left:8%;top:46%">2</span>
-      <span class="dot" style="left:46%;top:20%">3</span>
-      <span class="dot" style="left:86%;top:46%">4</span>
-      <span class="dot" style="left:46%;top:68%">5</span>
+      <span class="dot" style="left:11%;top:10%">1</span>
+      <span class="dot" style="left:11%;top:42%">2</span>
+      <span class="dot" style="left:88%;top:14%">3</span>
+      <span class="dot" style="left:57%;top:56.5%">4</span>
+      <span class="dot" style="left:88%;top:76%">5</span>
     </div>
     <figcaption><b>FIG. 2</b> The main window, connected to the sample record store.</figcaption>
   </figure>
