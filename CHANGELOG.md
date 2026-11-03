@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/Hxndrik/pgquery/compare/v1.2.1...v1.2.2) (2026-11-03)
+
+
+### Bug Fixes
+
+* exact values for every Postgres type, read and write ([#17](https://github.com/Hxndrik/pgquery/issues/17)) ([d55d805](https://github.com/Hxndrik/pgquery/commit/d55d8058ec514f551ec599fcbb03fc066dde59dc))
+
 ## [1.2.1](https://github.com/Hxndrik/pgquery/compare/v1.2.0...v1.2.1) (2026-11-03)
 
 
