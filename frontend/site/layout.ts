@@ -1,5 +1,7 @@
 import { tupleMarkup } from '../src/brand/pixels'
 import { GUIDES, HOME_FAQ, type Guide } from './content'
+import { matrix, subset, verdict } from './compare'
+import { ROUNDUP, ROUNDUP_LOSSES, ROUNDUP_WINS } from './guides-compare'
 import { DESCRIPTION, DOCKER_RUN, FEATURES, IMAGE, ONE_LINER, PORT, REPO } from './facts'
 
 export interface SiteOptions {
@@ -87,6 +89,7 @@ function doc(o: SiteOptions, m: Meta, body: string) {
 <meta name="description" content="${esc(m.description)}">
 ${m.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${url}">`}
 <meta name="theme-color" content="#16181d">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.json">
@@ -124,6 +127,7 @@ function masthead() {
   <a class="brand" href="/" aria-label="pgquery home">${tuple(42, 'pgquery', 'hd')}<b>pgquery</b></a>
   <nav class="nav" aria-label="Main">
     <a href="/#contents">Contents</a>
+    <a href="/postgres-client-comparison/">Compare</a>
     <a href="/self-hosted-postgres-gui-docker/">Self-host</a>
     <a href="${REPO}">GitHub</a>
     <a class="btn small" href="/app/">Open the app</a>
@@ -137,9 +141,13 @@ function colophon() {
     <a class="brand" href="/">${tuple(36, 'pgquery', 'ft')}<b>pgquery</b></a>
     <p>${esc(ONE_LINER)}</p>
   </div>
-  <div><p class="eyebrow" style="margin-bottom:10px">Guides</p><ul>
-    ${GUIDES.map((g) => `<li><a href="/${g.slug}/">${esc(g.label)}</a></li>`).join('')}
-  </ul></div>
+  ${(['Comparison', 'Connect', 'Guide'] as const)
+    .map(
+      (kind) => `<div><p class="eyebrow" style="margin-bottom:10px">${kind === 'Comparison' ? 'Compare' : kind === 'Connect' ? 'Connect' : 'Guides'}</p><ul>
+    ${GUIDES.filter((g) => (kind === 'Guide' ? !/Comparison|Connect/.test(g.eyebrow) : g.eyebrow.includes(kind))).map((g) => `<li><a href="/${g.slug}/">${esc(g.label)}</a></li>`).join('')}
+  </ul></div>`,
+    )
+    .join('')}
   <div><p class="eyebrow" style="margin-bottom:10px">Project</p><ul>
     <li><a href="/app/">Open the app</a></li>
     <li><a href="/app/?demo">Try the demo database</a></li>
@@ -177,29 +185,52 @@ const CHAPTERS: { title: string; what: string; href?: string }[] = [
 
 export function renderHome(o: SiteOptions) {
   const body = `
-<section class="wrap cover">
-  <div class="cover-copy">
-    <p class="eyebrow">Operator's manual · for any PostgreSQL server</p>
-    <h1 class="display">The Postgres studio you can read cover to cover.</h1>
-    <p class="lede">pgquery is a free, open-source database GUI that runs in your browser. It ships as <span class="mark">one Docker container</span>, needs no account, and shows you every statement before it runs.</p>
+<section class="wrap hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Free PostgreSQL client · runs in your browser</p>
+    <h1 class="display">Paste a connection string. Start querying.</h1>
+    <p class="lede">pgquery is a free, open-source PostgreSQL client in your browser: SQL editor, table editor, ER diagram, RLS policies, EXPLAIN viewer and advisors. One Docker container, no account.</p>
     <div class="actions">
       <a class="btn" href="/app/">Open the app →</a>
       <a class="btn ghost" href="/app/?demo">Try the demo</a>
       <a class="link" href="${REPO}">Source on GitHub</a>
     </div>
-    <p class="hint">Connect your own database in the browser, or look around a read-only sample store first. Nothing to install.</p>
+    <p class="hint">Works with any Postgres you can reach: Supabase, Neon, RDS or your own server. Or look around a read-only sample store first.</p>
   </div>
-  <figure class="figure">
-    <div class="plate">${tuple(440, 'Tuple the elephant, drawn as a 1-bit dithered figure', 'cv')}</div>
-    <figcaption><b>FIG. 1</b> Tuple, the operator. Drawn on a 30 × 20 grid.</figcaption>
+  <figure class="figure hero-fig">
+    <div class="screen">
+      <video src="/screens/hero.mp4" poster="/screens/hero.png" width="1280" height="800" autoplay muted loop playsinline preload="auto" aria-label="pgquery in use: pasting a connection string, opening a table, editing a value and running a SQL query"></video>
+    </div>
+    <figcaption><b>FIG. 1</b> Connect, open a table, edit a value, run SQL. A real recording, no cuts.</figcaption>
   </figure>
+</section>
+
+<section class="section compare-band" aria-labelledby="cmp-h">
+  <div class="wrap stack" style="gap:24px">
+    <div class="split" style="align-items:end">
+      <div class="stack" style="gap:10px">
+        <p class="eyebrow">Compared honestly</p>
+        <h2 class="display" id="cmp-h">Where it wins. Where it doesn’t.</h2>
+      </div>
+      <p class="muted">pgquery is ours, so the gaps are listed as carefully as the strengths. <a href="/postgres-client-comparison/">Full comparison</a> with Adminer, or <a href="/dbeaver-alternative/">vs DBeaver</a>.</p>
+    </div>
+    ${matrix(
+      subset(
+        ROUNDUP,
+        [0, 1, 2, 4],
+        ['Self-hosted as', 'Own login and user accounts', 'SSH tunnel', 'Visual EXPLAIN', 'Row Level Security editor', 'Performance and security advisors', 'Backup and restore', 'Import CSV', 'License', 'Maturity'],
+        'pgquery and the main web-based alternatives',
+      ),
+    )}
+    ${verdict(ROUNDUP_WINS.slice(0, 4), ROUNDUP_LOSSES.slice(0, 4))}
+  </div>
 </section>
 
 <section class="band" aria-labelledby="qs">
   <div class="wrap steps">
     <div class="stack" style="gap:8px">
       <p class="eyebrow">Procedure 1</p>
-      <h2 class="display" id="qs">Quick start</h2>
+      <h2 class="display" id="qs">Run your own</h2>
     </div>
     <div class="step"><span class="n">1</span><span>Start the container.</span>${cmd()}</div>
     <div class="step"><span class="n">2</span><span>Open it in your browser.</span><code>http://localhost:${PORT}</code></div>
@@ -207,36 +238,12 @@ export function renderHome(o: SiteOptions) {
   </div>
 </section>
 
-<section class="wrap section split" aria-labelledby="anatomy">
-  <div class="stack">
-    <p class="eyebrow">Chapter 2</p>
-    <h2 class="display" id="anatomy">Anatomy of the window</h2>
-    <ol class="callouts">
-      <li><span class="dot">1</span><span><b>Connections.</b> Saved in your browser. Paste a URI or a key=value string.</span></li>
-      <li><span class="dot">2</span><span><b>Tools.</b> Tables, schema map, functions, roles, policies, indexes and the advisors.</span></li>
-      <li><span class="dot">3</span><span><b>Editor.</b> Monaco with autocomplete that knows your schema. Tabs survive a reload.</span></li>
-      <li><span class="dot">4</span><span><b>Plan.</b> Explain or Explain analyze, drawn as a tree.</span></li>
-      <li><span class="dot">5</span><span><b>Results.</b> Sort, copy, export to CSV or JSON.</span></li>
-    </ol>
-  </div>
-  <figure class="figure">
-    <div class="shot">
-      <img src="/screens/app.png" width="1440" height="900" alt="The pgquery window: sidebar with tools, SQL editor with a JOIN query, and a results table" loading="lazy">
-      <span class="dot" style="left:11%;top:10%">1</span>
-      <span class="dot" style="left:11%;top:42%">2</span>
-      <span class="dot" style="left:88%;top:14%">3</span>
-      <span class="dot" style="left:57%;top:56.5%">4</span>
-      <span class="dot" style="left:88%;top:76%">5</span>
-    </div>
-    <figcaption><b>FIG. 2</b> The main window, connected to the sample record store.</figcaption>
-  </figure>
-</section>
-
-<section class="section" id="contents" aria-labelledby="toc-h" style="border-top:2px solid var(--ink)">
+<section class="section" id="contents" aria-labelledby="toc-h">
   <div class="wrap split">
     <div class="stack">
       <h2 class="display" id="toc-h">Contents</h2>
       <p class="muted">Eighteen tools in one window. The linked chapters have their own guide.</p>
+      <p class="muted">Connecting a hosted database? Step-by-step for <a href="/connect-supabase/">Supabase</a>, <a href="/connect-neon/">Neon</a>, <a href="/connect-aws-rds/">Amazon RDS</a> and <a href="/connect-local-postgres/">local or Docker</a>.</p>
     </div>
     <nav class="toc" aria-label="Features">
       ${CHAPTERS.map(
@@ -255,18 +262,17 @@ export function renderHome(o: SiteOptions) {
     <table class="specs"><tbody>
       <tr><th>Footprint</th><td>One Docker container, amd64 and arm64</td></tr>
       <tr><th>Accounts</th><td>None</td></tr>
-      <tr><th>Where state lives</th><td>Your browser (localStorage)</td></tr>
-      <tr><th>Server</th><td>A small, stateless Go proxy</td></tr>
-      <tr><th>Connection formats</th><td><code>postgres://</code> URI, key=value (libpq, Npgsql)</td></tr>
+      <tr><th>Where state lives</th><td>Your browser (localStorage). The server keeps nothing.</td></tr>
+      <tr><th>Schema changes</th><td>Shown as SQL before they run; dropping a table asks first</td></tr>
+      <tr><th>Connection formats</th><td><code>postgres://</code> URI, Npgsql / ADO.NET key=value (<code>Host=…;Database=…</code>)</td></tr>
       <tr><th>Also browses</th><td>S3-compatible buckets</td></tr>
       <tr><th>License</th><td>MIT</td></tr>
     </tbody></table>
   </div>
-  <div class="caution">
-    <span class="display">⚠ Caution</span>
-    <p>Every DROP, ALTER and GRANT is shown as plain SQL before it runs. Read it, then press Execute. pgquery never changes your database behind your back.</p>
-    <p class="mono" style="font-size:13px">See <a href="/postgres-rls-policy-editor/">Chapter 8, Policies (RLS)</a>.</p>
-  </div>
+  <figure class="figure tuple-fig">
+    <div class="plate">${tuple(300, 'Tuple the elephant, drawn as a 1-bit dithered figure', 'cv')}</div>
+    <figcaption><b>FIG. 2</b> Tuple, the operator. Drawn on a 30 × 20 grid.</figcaption>
+  </figure>
 </section>
 
 <section class="wrap section" aria-labelledby="faq-h" style="border-top:2px solid var(--ink)">
@@ -280,7 +286,7 @@ export function renderHome(o: SiteOptions) {
     o,
     {
       path: '/',
-      title: 'pgquery — free Postgres GUI in your browser, one Docker container',
+      title: 'pgquery: free PostgreSQL client in your browser',
       description: DESCRIPTION,
       jsonLd: [softwareLd(o.siteUrl), faqLd(HOME_FAQ)],
     },
@@ -290,7 +296,8 @@ export function renderHome(o: SiteOptions) {
 
 // ── guides ────────────────────────────────────────────────
 export function renderGuide(o: SiteOptions, g: Guide) {
-  const others = GUIDES.filter((x) => x.slug !== g.slug)
+  const group = (x: Guide) => x.eyebrow.split(' · ')[1] ?? ''
+  const others = [...GUIDES.filter((x) => x.slug !== g.slug && group(x) === group(g)), ...GUIDES.filter((x) => x.slug !== g.slug && group(x) !== group(g))].slice(0, 6)
   const body = `
 <div class="wrap">
   <header class="page-head">
@@ -302,14 +309,18 @@ export function renderGuide(o: SiteOptions, g: Guide) {
   </header>
 </div>
 <div class="dither" aria-hidden="true"></div>
-<section class="wrap section split">
+${
+  g.wide
+    ? `<section class="wrap section"><article class="prose prose-wide">${g.body}</article></section>`
+    : `<section class="wrap section split">
   <article class="prose">${g.body}</article>
   <aside class="stack">
     <p class="eyebrow">Run it yourself</p>
     ${cmd()}
     <p class="muted" style="font-size:16px">Then open <code class="mono">localhost:${PORT}</code>. MIT licensed, no account.</p>
   </aside>
-</section>
+</section>`
+}
 <section class="wrap section">
   <div class="split">
     <h2 class="display">Questions</h2>
@@ -345,7 +356,7 @@ export function renderNotFound(o: SiteOptions) {
   </div>
   <figure class="figure"><div class="plate">${tuple(320, 'Tuple, looking for the page', 'nf')}</div><figcaption><b>FIG. 404</b> Tuple, looking for it too.</figcaption></figure>
 </section>`
-  return doc(o, { path: '/404', title: 'Page not found — pgquery', description: 'Page not found.', jsonLd: [], noindex: true }, body)
+  return doc(o, { path: '/404', title: 'Page not found · pgquery', description: 'Page not found.', jsonLd: [], noindex: true }, body)
 }
 
 // ── crawler files ─────────────────────────────────────────

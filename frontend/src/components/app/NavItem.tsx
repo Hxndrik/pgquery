@@ -15,7 +15,7 @@ export function NavItem({ icon, label, active, onClick }: NavItemProps) {
       className={`
         flex items-center gap-2.5 px-2.5 py-[7px] text-[13px] w-full text-left transition-colors
         ${active
-          ? 'bg-[var(--highlight)] text-[var(--highlight-fg)] font-semibold'
+          ? 'bg-[var(--accent)] text-[var(--accent-fg)] font-semibold'
           : 'text-[var(--fg-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg)]'}
       `}
     >

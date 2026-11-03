@@ -100,19 +100,19 @@ export default function SecurityAdvisorPage({ connectionUrl }: PageProps) {
 
   const severityColor = (s: Check['severity']) => {
     switch (s) {
-      case 'critical': return 'text-red-500'
-      case 'warning': return 'text-yellow-500'
-      case 'info': return 'text-blue-400'
-      case 'pass': return 'text-green-500'
+      case 'critical': return 'text-[var(--error)]'
+      case 'warning': return 'text-[var(--warning)]'
+      case 'info': return 'text-[var(--fg-muted)]'
+      case 'pass': return 'text-[var(--success)]'
     }
   }
 
   const severityBg = (s: Check['severity']) => {
     switch (s) {
-      case 'critical': return 'bg-red-500/10 border-red-500/20'
-      case 'warning': return 'bg-yellow-500/10 border-yellow-500/20'
-      case 'info': return 'bg-blue-500/10 border-blue-500/20'
-      case 'pass': return 'bg-green-500/10 border-green-500/20'
+      case 'critical': return 'bg-[var(--error-bg)] border-[var(--error-border)]'
+      case 'warning': return 'bg-[var(--warning-bg)] border-[var(--warning-border)]'
+      case 'info': return 'bg-[var(--bg-hover)] border-[var(--border-mid)]'
+      case 'pass': return 'bg-[var(--success-bg)] border-[var(--success-border)]'
     }
   }
 
@@ -138,7 +138,7 @@ export default function SecurityAdvisorPage({ connectionUrl }: PageProps) {
           <button
             onClick={runChecks}
             disabled={loading}
-            className="ml-auto text-[13px] px-3 py-1.5 rounded bg-[var(--accent-bg)] text-[var(--accent)] hover:opacity-80 transition-opacity disabled:opacity-50"
+            className="ml-auto text-[13px] px-3 py-1.5 rounded bg-[var(--accent-bg)] text-[var(--accent-text)] hover:opacity-80 transition-opacity disabled:opacity-50"
           >
             {loading ? 'Scanning…' : 'Re-scan'}
           </button>
@@ -147,7 +147,7 @@ export default function SecurityAdvisorPage({ connectionUrl }: PageProps) {
         {!loading && checks.length > 0 && (
           <div className="mb-6 p-4 rounded-lg border border-[var(--border)] bg-[var(--bg-raised)]">
             <div className="flex items-center gap-4">
-              <div className={`text-[32px] font-bold ${score >= 80 ? 'text-green-500' : score >= 50 ? 'text-yellow-500' : 'text-red-500'}`}>
+              <div className={`text-[32px] font-bold ${score >= 80 ? 'text-[var(--success)]' : score >= 50 ? 'text-[var(--warning)]' : 'text-[var(--error)]'}`}>
                 {score}%
               </div>
               <div>

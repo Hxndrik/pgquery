@@ -1,4 +1,6 @@
 import { DOCKER_RUN, PORT, REPO } from './facts'
+import { COMPARE_GUIDES } from './guides-compare'
+import { CONNECT_GUIDES } from './guides-connect'
 
 export interface Guide {
   slug: string
@@ -13,11 +15,13 @@ export interface Guide {
   faq: [string, string][]
   /** Short label for menus and the contents list. */
   label: string
+  /** Full-width body (comparison tables) instead of text column + sidebar. */
+  wide?: boolean
 }
 
 const run = `<pre><code>${DOCKER_RUN}</code></pre>`
 
-export const GUIDES: Guide[] = [
+const CORE_GUIDES: Guide[] = [
   {
     slug: 'postgres-gui-in-browser',
     label: 'Postgres GUI in the browser',
@@ -41,66 +45,13 @@ export const GUIDES: Guide[] = [
 <p>The interface is a single-page app. A Go proxy in the same container turns HTTP requests from your browser into Postgres connections, runs the query and returns rows. The proxy keeps no state: saved connections, tabs and history live in your browser's localStorage.</p>
 <h2>Run it</h2>
 ${run}
-<p>Then open <code>http://localhost:${PORT}</code> and paste a connection string. Both <code>postgres://user:pass@host:5432/db</code> URIs and key=value strings (libpq and Npgsql style) work.</p>
+<p>Then open <code>http://localhost:${PORT}</code> and paste a connection string. Both <code>postgres://user:pass@host:5432/db</code> URIs and Npgsql / ADO.NET style key=value strings (<code>Host=…;Database=…</code>) work.</p>
 <h2>When a browser client is the right choice</h2>
 <p>A browser client shines when you work from several machines, want to give a teammate access without installing anything, or run Postgres on a server where a desktop app cannot reach it directly. Put pgquery next to the database, behind your VPN or reverse proxy, and everyone gets the same tool at one URL.</p>`,
     faq: [
       ['Is pgquery free?', 'Yes. It is MIT licensed, free to use, modify and self-host, with no paid tier.'],
       ['Does my data pass through a third party?', 'Only through the proxy you run. When you self-host, queries go from your browser to your container to your database.'],
       ['Which Postgres versions work?', 'Any server reachable over the normal wire protocol. Catalog queries use standard pg_catalog views.'],
-    ],
-  },
-  {
-    slug: 'pgadmin-alternative',
-    label: 'pgAdmin alternative',
-    title: 'A lightweight pgAdmin alternative — pgquery',
-    description:
-      'Looking for a pgAdmin alternative? pgquery is a fast, open-source Postgres studio in the browser with a modern SQL editor, RLS editor and advisors.',
-    eyebrow: 'Guide · Comparison',
-    h1: 'A lighter alternative to pgAdmin',
-    lede: 'pgAdmin is the long-standing reference tool for PostgreSQL and covers almost everything. pgquery covers the daily work with less weight and a faster editor.',
-    body: `
-<h2>Where pgAdmin is stronger</h2>
-<p>pgAdmin has been maintained by the PostgreSQL community for many years. It has dialogs for nearly every object type, backup and restore through pg_dump, a visual query plan, a debugger for PL/pgSQL and multi-server management. If you need those, keep it.</p>
-<h2>Where pgquery is different</h2>
-<ul>
-  <li><strong>Small footprint.</strong> One container with a Go binary and static files. No Python runtime, no internal database for settings.</li>
-  <li><strong>Editor first.</strong> Monaco with autocomplete from your live schema, tabs that survive a reload, and history.</li>
-  <li><strong>Security in view.</strong> A Row Level Security editor and a scored security audit are first-class screens.</li>
-  <li><strong>SQL before it runs.</strong> Every change you make through a form is shown as SQL, and you run it yourself.</li>
-</ul>
-<h2>Try both</h2>
-${run}
-<p>pgquery listens on port ${PORT}. You can run it next to pgAdmin and point both at the same database.</p>`,
-    faq: [
-      ['Can pgquery replace pgAdmin entirely?', 'For querying, browsing data and managing roles, policies, indexes and extensions, yes. For backup and restore or PL/pgSQL debugging, pgAdmin still does more.'],
-      ['Is pgquery a fork of pgAdmin?', 'No. It is a separate project: a React frontend and a small Go proxy.'],
-    ],
-  },
-  {
-    slug: 'supabase-studio-alternative',
-    label: 'Supabase Studio alternative',
-    title: 'Supabase Studio alternative for any Postgres — pgquery',
-    description:
-      'The table editor, RLS policies and advisors you know from Supabase Studio, for any PostgreSQL database. Self-hosted in one container.',
-    eyebrow: 'Guide · Comparison',
-    h1: 'Supabase-style database screens for any Postgres',
-    lede: 'Supabase Studio is a great dashboard for Supabase projects. pgquery brings the database parts of it to any PostgreSQL server: RDS, Neon, a VPS or your laptop.',
-    body: `
-<h2>The familiar parts</h2>
-<p>If you have used Studio, you will recognise the shape: a table editor, a SQL editor, an ER diagram, Row Level Security policies, roles, extensions, indexes, publications, and security and performance advisors.</p>
-<h2>What is different</h2>
-<ul>
-  <li><strong>Any Postgres.</strong> No Supabase project, auth schema or storage service needed.</li>
-  <li><strong>One container.</strong> Self-hosting Studio usually means running the Supabase stack. pgquery is one image.</li>
-  <li><strong>Database only.</strong> There is no auth, storage or edge functions UI. pgquery stays a database tool.</li>
-</ul>
-<h2>Useful for Supabase users too</h2>
-<p>You can point pgquery at a Supabase database with its direct connection string. That is handy for comparing environments or giving a teammate read access through a role you create for them.</p>
-${run}`,
-    faq: [
-      ['Is pgquery affiliated with Supabase?', 'No. It is an independent open-source project.'],
-      ['Does it support Supabase databases?', 'Yes. Supabase databases are regular Postgres; use the direct or pooler connection string.'],
     ],
   },
   {
@@ -254,6 +205,8 @@ ${run}
     ],
   },
 ]
+
+export const GUIDES: Guide[] = [...COMPARE_GUIDES, ...CONNECT_GUIDES, ...CORE_GUIDES]
 
 export const HOME_FAQ: [string, string][] = [
   ['What is pgquery?', 'A free, open-source PostgreSQL GUI that runs in your browser: SQL editor, table editor, ER diagram, RLS policies, roles, indexes, an EXPLAIN plan viewer and performance and security advisors.'],

@@ -174,7 +174,7 @@ export default function S3ObjectBrowser({ config }: S3ObjectBrowserProps) {
         <div className="flex items-center gap-1 px-4 py-1.5 text-[12px] border-b border-[var(--border)] bg-[var(--bg)] shrink-0">
           <button
             onClick={() => navigateToPrefix(-1)}
-            className="text-[var(--accent)] hover:underline"
+            className="text-[var(--accent-text)] hover:underline"
           >
             {config.bucket}
           </button>
@@ -185,7 +185,7 @@ export default function S3ObjectBrowser({ config }: S3ObjectBrowserProps) {
                 onClick={() => navigateToPrefix(i)}
                 className={i === breadcrumbs.length - 1
                   ? 'text-[var(--fg)]'
-                  : 'text-[var(--accent)] hover:underline'
+                  : 'text-[var(--accent-text)] hover:underline'
                 }
               >
                 {part}

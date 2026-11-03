@@ -66,7 +66,7 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
         renderItem={(s, isActive) => (
           <>
             <span className="text-[12px] font-mono truncate flex-1">{s.name}</span>
-            <span className={`text-[10px] font-mono shrink-0 ${isActive ? 'text-[var(--accent)]' : 'text-[var(--fg-faint)]'}`}>
+            <span className={`text-[10px] font-mono shrink-0 ${isActive ? 'text-[var(--accent-text)]' : 'text-[var(--fg-faint)]'}`}>
               {s.tables.length}
             </span>
           </>
@@ -89,7 +89,7 @@ export function TableExplorer({ connectionUrl }: TableExplorerProps) {
           <>
             <span className="text-[12px] font-mono flex-1 truncate">{t.name}</span>
             {t.rowEstimate > 0 && (
-              <span className={`text-[10px] font-mono shrink-0 ${isActive ? 'text-[var(--accent)]' : 'text-[var(--fg-faint)]'}`}>
+              <span className={`text-[10px] font-mono shrink-0 ${isActive ? 'text-[var(--accent-text)]' : 'text-[var(--fg-faint)]'}`}>
                 {formatRowCount(t.rowEstimate)}
               </span>
             )}

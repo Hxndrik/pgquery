@@ -25,7 +25,7 @@ export function Modal({ open, onClose, title, children, width = 'max-w-lg' }: Mo
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <motion.div
-            className="absolute inset-0 bg-black/45"
+            className="absolute inset-0 bg-[var(--overlay)]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

@@ -58,13 +58,13 @@ I wanted the database screens I like in Supabase Studio (table editor, RLS polic
 
   docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
 
-How it works: a React app plus a small Go proxy that turns HTTP requests into Postgres connections. The proxy keeps no state; saved connections, tabs and history live in your browser's localStorage. Anything you change through a form (DROP, ALTER, GRANT, CREATE POLICY) is shown as SQL first and you run it yourself.
+How it works: a React app plus a small Go proxy that turns HTTP requests into Postgres connections. The proxy keeps no state; saved connections, tabs and history live in your browser's localStorage. Schema changes made through forms (CREATE, ALTER, GRANT, CREATE POLICY) are shown as SQL first and you run them yourself.
 
 What's in it: SQL editor with schema-aware autocomplete, a table editor (JSONB too), an ER diagram you can export as an SVG/PNG "plate", RLS policies, roles and grants, indexes, a pg_stat_statements view, performance and security advisors, and an EXPLAIN / EXPLAIN ANALYZE viewer that draws the plan as a tree and highlights the slowest node.
 
 There's a read-only demo database (a small record store, reset daily): https://pgquery.dev/app/?demo
 
-Limits, honestly: there's no built-in login, so on a shared server put it behind a VPN or an auth proxy. It's Postgres-only. pgAdmin still does more admin work (backup/restore, a PL/pgSQL debugger).
+Limits, honestly: there's no built-in login, so on a shared server put it behind a VPN or an auth proxy. No SSH tunnels, Postgres only, and pgAdmin still does more admin work (backup/restore, a PL/pgSQL debugger). I wrote up where it wins and loses against pgAdmin, CloudBeaver, Adminer and Supabase Studio here: https://pgquery.dev/postgres-client-comparison/
 
 I'd love feedback on the plan viewer and on which advisor checks you'd want next. Source: https://github.com/Hxndrik/pgquery
 ```
@@ -84,7 +84,7 @@ pgquery: a Postgres GUI in a single container (SQL editor, ER diagram, RLS polic
 **Body**
 
 ```text
-I've been building a browser-based Postgres GUI and just released 1.0. It's one container, about as light as these things get:
+I've been building a browser-based Postgres GUI and just released v1.1. It's one container, about as light as these things get:
 
     docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
 
@@ -104,6 +104,7 @@ Self-hosting details:
 - stateless: connections and history stay in your browser, nothing on disk in the container
 - no telemetry in the image
 - no built-in auth, so put it behind your VPN, Authelia, oauth2-proxy or Cloudflare Access like other admin tools
+- no SSH tunnels yet; run it next to the database instead
 
 Read-only demo (sample record store): https://pgquery.dev/app/?demo
 Source (MIT): https://github.com/Hxndrik/pgquery
@@ -138,6 +139,8 @@ Everything is plain pg_catalog queries and generated DDL behind a small stateles
 
 Read-only demo: https://pgquery.dev/app/?demo
 Source: https://github.com/Hxndrik/pgquery
+
+There's also an honest comparison with pgAdmin, CloudBeaver, Adminer and Supabase Studio (including where pgquery loses): https://pgquery.dev/postgres-client-comparison/
 
 Which advisor checks would you add? I'm collecting ideas.
 ```
@@ -174,7 +177,7 @@ Feedback on the design very welcome.
 
 Attach demo.mp4 to post 1, screenshot-plan.png to post 3, schema-plate.png to post 4.
 
-**1/5 (with demo.mp4)**
+**1/6 (with demo.mp4)**
 
 ```text
 I made pgquery: a free Postgres GUI that runs in your browser and ships as one Docker container.
@@ -184,7 +187,7 @@ SQL editor, tables, ER diagram, RLS policies, roles, indexes, advisors. No accou
 Try the read-only demo → pgquery.dev
 ```
 
-**2/5**
+**2/6**
 
 ```text
 Self-host it in one line:
@@ -194,19 +197,27 @@ docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
 The server is a small stateless Go proxy. Your connections and history stay in your browser.
 ```
 
-**3/5 (with screenshot-plan.png)**
+**3/6 (with screenshot-plan.png)**
 
 ```text
 EXPLAIN ANALYZE as a tree: each node's share of the time, the heaviest one highlighted, and a warning when row estimates are off by 10×.
 ```
 
-**4/5 (with schema-plate.png)**
+**4/6 (with schema-plate.png)**
 
 ```text
 Export your schema as a printable "plate": an ER diagram with a title block, as SVG or PNG. Drop it into a design doc or pin it to the wall.
 ```
 
-**5/5**
+**5/6**
+
+```text
+I also wrote an honest comparison with pgAdmin, CloudBeaver, Adminer and Supabase Studio. Including the parts where pgquery loses (no login, no SSH tunnels, Postgres only).
+
+pgquery.dev/postgres-client-comparison
+```
+
+**6/6**
 
 ```text
 MIT licensed. Code, issues and ideas welcome: github.com/Hxndrik/pgquery
@@ -315,8 +326,8 @@ Hey Product Hunt! I built pgquery because I wanted Supabase-style database scree
 
 ## Media (this folder and docs/assets)
 
-- `demo.mp4`: 20 s walkthrough: landing → demo → query → Explain analyze → schema map. For X, Bluesky, Reddit, Product Hunt.
-- `demo.gif`: Same walkthrough as a GIF, for the README and places that don't take video.
+- `demo.mp4`: 21 s real recording: connect with a string, open a table, edit a value, run SQL, EXPLAIN ANALYZE. For X, Bluesky, Reddit, Product Hunt.
+- `demo.gif`: Same recording as a GIF, for the README and places that don't take video.
 - `og-image.png`: 1200×630 share card (used automatically when the link is shared).
 - `social-preview.png`: 1280×640, for GitHub Settings → Social preview.
 - `screenshot-editor.png`: SQL editor with results.

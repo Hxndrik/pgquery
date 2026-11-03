@@ -40,6 +40,14 @@ export default function AppLayout() {
     }
   }, [activeConnectionUrl, loadSchema, clearSchema]);
 
+  // Tab title: connection and screen, so several open tabs can be told apart.
+  useEffect(() => {
+    const label = descriptor?.sidebarSections.flatMap((s) => s.items).find((i) => i.view === view)?.label;
+    document.title = activeConnection
+      ? `${activeConnection.name}${label ? ` · ${label}` : ""} — pgquery`
+      : "Connect a database — pgquery";
+  }, [activeConnection, descriptor, view]);
+
   // /app?demo (the landing page's "Open the demo" link) connects straight away.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -82,7 +90,7 @@ export default function AppLayout() {
       <nav className="flex items-center justify-between gap-4 pl-4 pr-3 h-12 border-b-[1.5px] border-[var(--border-strong)] bg-[var(--bg)] shrink-0 z-50">
         <a href="/" className="flex items-center gap-2.5 group" aria-label="pgquery home">
           <Tuple style="dither" width={33} />
-          <span className="text-[17px] font-black tracking-[-0.02em] [font-stretch:125%] text-[var(--fg)] group-hover:text-[var(--accent)] transition-colors">
+          <span className="text-[17px] font-black tracking-[-0.02em] [font-stretch:125%] text-[var(--fg)] group-hover:text-[var(--accent-text)] transition-colors">
             pgquery
           </span>
         </a>

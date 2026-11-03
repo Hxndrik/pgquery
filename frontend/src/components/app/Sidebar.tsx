@@ -12,6 +12,8 @@ import { STORAGE_KEYS } from "../../lib/storageKeys";
 import { toast } from "sonner";
 import { getConnectionType } from "../../lib/connectionRegistry";
 import type { NavSection } from "../../lib/connectionRegistry";
+import { connectDemo, isDemoUrl } from "../../lib/demo";
+import { isPostgresConfig } from "../../lib/connectionTypes";
 
 // Import registrations
 import "../../lib/connectionTypes";
@@ -67,12 +69,25 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
     storageKey: STORAGE_KEYS.SIDEBAR_WIDTH,
     initialWidth: 240,
   });
-  const [connOpen, setConnOpen] = useState(false);
+  // "Open the app" with nothing saved yet: start on the connection form.
+  // (/app?demo connects the demo instead, see AppLayout.)
+  const [connOpen, setConnOpen] = useState(
+    () => useConnectionStore.getState().connections.length === 0 && !new URLSearchParams(window.location.search).has("demo")
+  );
   const [editingId, setEditingId] = useState<string | null>(null);
-  const { connections, activeConnectionId, status, setActiveConnection, setStatus } =
+  const { connections, activeConnectionId, status, setActiveConnection, setStatus, deleteConnection } =
     useConnectionStore();
 
   const activeConnection = connections.find((c) => c.id === activeConnectionId);
+  const isDemo = (c: (typeof connections)[number]) => isPostgresConfig(c.config) && isDemoUrl(c.config.url);
+  const hasDemo = connections.some(isDemo);
+
+
+  const openDemo = async () => {
+    const error = await connectDemo();
+    if (error) toast.error(error);
+    else onViewChange("queries");
+  };
   const activeType = activeConnection?.type;
   const descriptor = activeType ? getConnectionType(activeType) : undefined;
   const sections: NavSection[] = descriptor?.sidebarSections ?? [];
@@ -177,6 +192,21 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
                     </span>
                     <span className="truncate text-[13px] flex-1">{c.name}</span>
                   </button>
+                  {isDemo(c) ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteConnection(c.id);
+                    }}
+                    title="Remove the demo database (you can bring it back any time)"
+                    aria-label="Remove the demo database"
+                    className={`shrink-0 px-1.5 rounded-sm text-[14px] leading-none transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--error)] ${
+                      isActive ? "text-[var(--fg-subtle)]" : "text-[var(--fg-subtle)] opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    }`}
+                  >
+                    ×
+                  </button>
+                  ) : (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -192,12 +222,22 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
                   >
                     <EditIcon size={12} />
                   </button>
+                  )}
                 </div>
               );
             })}
           </div>
         )}
       </div>
+
+      {!hasDemo && (
+        <button
+          onClick={openDemo}
+          className="mx-4 mt-1.5 self-start text-[12px] text-[var(--fg-subtle)] hover:text-[var(--fg)] underline underline-offset-2 decoration-[var(--border-mid)]"
+        >
+          Try the demo database
+        </button>
+      )}
 
       <div className="border-t border-[var(--border)] mx-3 my-2" />
 

@@ -48,15 +48,17 @@ export default function PostgresConnectionForm({ onConnect, initial, isEdit }: C
   return (
     <div className="flex flex-col gap-4">
       {/* Mode tabs */}
-      <div className="flex gap-1 p-1 bg-[var(--bg-hover)] rounded">
+      <div className="flex border border-[var(--border-mid)] rounded-sm" role="tablist">
         {(['url', 'form'] as Mode[]).map((m) => (
           <button
             key={m}
+            role="tab"
+            aria-selected={mode === m}
             onClick={() => setMode(m)}
-            className={`flex-1 py-1.5 text-[12px] font-medium rounded transition-colors ${
+            className={`flex-1 py-1.5 text-[12px] font-semibold transition-colors ${
               mode === m
-                ? 'bg-[var(--bg-card)] text-[var(--fg)] shadow-sm'
-                : 'text-[var(--fg-muted)] hover:text-[var(--fg)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-fg)]'
+                : 'text-[var(--fg-muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-hover)]'
             }`}
           >
             {m === 'url' ? 'URL' : 'Form'}

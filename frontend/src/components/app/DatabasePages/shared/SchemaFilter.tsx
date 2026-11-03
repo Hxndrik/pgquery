@@ -18,7 +18,7 @@ export function SchemaFilter({ schemas, selected, onChange, includeAll = true }:
           rounded text-[13px] text-[var(--fg)] pl-3 pr-8 py-2
           transition-colors cursor-pointer
           hover:border-[var(--border-strong)]
-          focus:outline-none focus:border-[var(--accent)]
+          focus:outline-none focus:border-[var(--accent-border)]
         "
       >
         {includeAll && <option value="">All schemas</option>}

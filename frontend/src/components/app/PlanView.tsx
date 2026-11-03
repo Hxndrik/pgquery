@@ -79,7 +79,7 @@ export function PlanView({ plan }: { plan: Plan }) {
               <div className="flex items-center gap-2 pt-[3px]" title={`${Math.round(n.share * 100)}% of the ${plan.analyzed ? 'time' : 'cost'}`}>
                 <div className="flex-1 h-[10px] border border-[var(--border-mid)] relative">
                   <div
-                    className={`absolute inset-y-0 left-0 ${n.slowest ? 'bg-[var(--highlight)] border-r border-[var(--fg)]' : 'dither-50'}`}
+                    className={`absolute inset-y-0 left-0 ${n.slowest ? 'bg-[var(--accent)] border-r border-[var(--fg)]' : 'dither-50'}`}
                     style={{ width: `${Math.max(n.share * 100, n.share > 0 ? 2 : 0)}%` }}
                   />
                 </div>

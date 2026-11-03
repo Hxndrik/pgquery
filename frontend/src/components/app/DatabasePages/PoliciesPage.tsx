@@ -429,7 +429,7 @@ function CreatePolicyModal({
             <select
               value={command}
               onChange={(e) => setCommand(e.target.value as typeof command)}
-              className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)]"
+              className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)]"
             >
               <option value="ALL">ALL</option>
               <option value="SELECT">SELECT</option>
@@ -446,7 +446,7 @@ function CreatePolicyModal({
             <select
               value={permissive ? 'permissive' : 'restrictive'}
               onChange={(e) => setPermissive(e.target.value === 'permissive')}
-              className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)]"
+              className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)]"
             >
               <option value="permissive">Permissive</option>
               <option value="restrictive">Restrictive</option>
@@ -470,7 +470,7 @@ function CreatePolicyModal({
             onChange={(e) => setUsingExpr(e.target.value)}
             rows={3}
             placeholder="e.g. current_user = owner"
-            className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] font-mono text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)] resize-y"
+            className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] font-mono text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)] resize-y"
           />
         </div>
 
@@ -483,7 +483,7 @@ function CreatePolicyModal({
             onChange={(e) => setWithCheck(e.target.value)}
             rows={3}
             placeholder="e.g. current_user = owner"
-            className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] font-mono text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)] resize-y"
+            className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] font-mono text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)] resize-y"
           />
         </div>
 

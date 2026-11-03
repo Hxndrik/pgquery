@@ -329,7 +329,7 @@ export default function IndexesPage({ connectionUrl }: PageProps) {
             <select
               value={formMethod}
               onChange={(e) => setFormMethod(e.target.value as typeof formMethod)}
-              className="mt-1.5 w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)]"
+              className="mt-1.5 w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)]"
             >
               <option value="btree">B-tree</option>
               <option value="hash">Hash</option>

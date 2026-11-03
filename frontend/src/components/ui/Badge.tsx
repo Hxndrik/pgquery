@@ -9,7 +9,7 @@ interface BadgeProps {
 }
 
 const variants: Record<Variant, string> = {
-  accent:  'bg-[var(--accent-bg)] text-[var(--accent)] border border-[var(--accent-border)]',
+  accent:  'bg-[var(--accent-bg)] text-[var(--accent-text)] border border-[var(--accent-border)]',
   success: 'bg-[var(--success-bg)] text-[var(--success)] border border-[var(--success-border)]',
   warning: 'bg-[var(--warning-bg)] text-[var(--warning)]',
   error:   'bg-[var(--error-bg)] text-[var(--error)]',

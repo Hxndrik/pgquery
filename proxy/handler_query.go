@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -147,16 +148,20 @@ func validateConnectionString(conn string) error {
 }
 
 // sanitizeConnError removes connection strings from error messages.
+// Connection URLs and password=… pairs, which must never be echoed back.
+var (
+	connURLPattern  = regexp.MustCompile(`postgres(ql)?://\S+`)
+	passwordPattern = regexp.MustCompile(`(?i)password=\S+`)
+)
+
+// sanitizeConnError makes a connect error safe to show: it keeps the reason
+// (timeout, auth failure, SSL …) but removes connection URLs and passwords.
 func sanitizeConnError(err error) string {
 	if err == nil {
 		return ""
 	}
-	msg := err.Error()
-	// Remove anything that looks like a connection URL
-	if idx := strings.Index(msg, "postgres"); idx > 0 {
-		msg = msg[:idx] + "[connection]"
-	}
-	return msg
+	msg := connURLPattern.ReplaceAllString(err.Error(), "[connection]")
+	return passwordPattern.ReplaceAllString(msg, "password=[hidden]")
 }
 
 type pgErrorInfo struct {

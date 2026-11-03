@@ -26,7 +26,7 @@ function SortIndicator({ dir }: { dir: SortDir }) {
         width="8"
         height="5"
         viewBox="0 0 8 5"
-        className={dir === 'asc' ? 'text-[var(--accent)]' : 'text-[var(--fg-faint)] opacity-50'}
+        className={dir === 'asc' ? 'text-[var(--accent-text)]' : 'text-[var(--fg-faint)] opacity-50'}
       >
         <path d="M1 4 L4 1 L7 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
@@ -34,7 +34,7 @@ function SortIndicator({ dir }: { dir: SortDir }) {
         width="8"
         height="5"
         viewBox="0 0 8 5"
-        className={dir === 'desc' ? 'text-[var(--accent)]' : 'text-[var(--fg-faint)] opacity-50'}
+        className={dir === 'desc' ? 'text-[var(--accent-text)]' : 'text-[var(--fg-faint)] opacity-50'}
         style={{ marginTop: '1px' }}
       >
         <path d="M1 1 L4 4 L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />

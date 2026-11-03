@@ -12,6 +12,7 @@
   <a href="https://pgquery.dev">Website</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#features">Features</a> ·
+  <a href="https://pgquery.dev/postgres-client-comparison/">Comparison</a> ·
   <a href="https://pgquery.dev/self-hosted-postgres-gui-docker/">Self-hosting guide</a>
 </p>
 
@@ -34,7 +35,7 @@ docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
 
 `latest` is the newest release; `main` follows the main branch. Pin a version with e.g. `ghcr.io/hxndrik/pgquery:1.0`.
 
-Open <http://localhost:54280> and paste a connection string. Both `postgres://user:pass@host:5432/db` URIs and key=value strings (libpq or Npgsql style) work.
+Open <http://localhost:54280> and paste a connection string. Both `postgres://user:pass@host:5432/db` URIs and Npgsql / ADO.NET style key=value strings (`Host=…;Database=…`) work.
 
 Or with Docker Compose:
 
@@ -66,7 +67,7 @@ services:
 | <img src="docs/assets/icons/gear.svg" width="16" alt=""> **Settings** | Every server setting by category; change session or system values |
 | <img src="docs/assets/icons/bucket.svg" width="16" alt=""> **S3 browser** | Browse, preview, upload and delete objects in S3-compatible buckets |
 
-Every change made through a form (DROP, ALTER, GRANT, CREATE POLICY …) is shown as SQL first, and you run it yourself.
+Schema changes made through forms (CREATE, ALTER, GRANT, CREATE POLICY …) are shown as SQL first, and you run them yourself.
 
 <table>
   <tr>
@@ -88,7 +89,7 @@ Every change made through a form (DROP, ALTER, GRANT, CREATE POLICY …) is show
 | Databases | PostgreSQL | PostgreSQL | many | many | PostgreSQL (Supabase) |
 | License | MIT | PostgreSQL License | Apache 2.0 | Apache 2.0 or GPL 2 | Apache 2.0 |
 
-pgAdmin does more administration (backup and restore, a PL/pgSQL debugger), and DBeaver and Adminer speak many databases. pgquery aims to be the quickest way to a good Postgres editor and the admin screens you use every week.
+pgAdmin does more administration (backup and restore, a PL/pgSQL debugger, user accounts), and DBeaver and Adminer speak many databases. pgquery has no login of its own and no SSH tunnels. The [full, honest comparison](https://pgquery.dev/postgres-client-comparison/) lists where it wins and where it loses.
 
 ## How it works
 

@@ -128,17 +128,17 @@ export default function PerformanceAdvisorPage({ connectionUrl }: PageProps) {
 
   const statusColor = (s: Section['status']) => {
     switch (s) {
-      case 'good': return 'text-green-500'
-      case 'warn': return 'text-yellow-500'
-      case 'bad': return 'text-red-500'
+      case 'good': return 'text-[var(--success)]'
+      case 'warn': return 'text-[var(--warning)]'
+      case 'bad': return 'text-[var(--error)]'
     }
   }
 
   const statusBg = (s: Section['status']) => {
     switch (s) {
-      case 'good': return 'bg-green-500/10 border-green-500/20'
-      case 'warn': return 'bg-yellow-500/10 border-yellow-500/20'
-      case 'bad': return 'bg-red-500/10 border-red-500/20'
+      case 'good': return 'bg-[var(--success-bg)] border-[var(--success-border)]'
+      case 'warn': return 'bg-[var(--warning-bg)] border-[var(--warning-border)]'
+      case 'bad': return 'bg-[var(--error-bg)] border-[var(--error-border)]'
     }
   }
 
@@ -151,7 +151,7 @@ export default function PerformanceAdvisorPage({ connectionUrl }: PageProps) {
           <button
             onClick={runAnalysis}
             disabled={loading}
-            className="ml-auto text-[13px] px-3 py-1.5 rounded bg-[var(--accent-bg)] text-[var(--accent)] hover:opacity-80 transition-opacity disabled:opacity-50"
+            className="ml-auto text-[13px] px-3 py-1.5 rounded bg-[var(--accent-bg)] text-[var(--accent-text)] hover:opacity-80 transition-opacity disabled:opacity-50"
           >
             {loading ? 'Analyzing…' : 'Re-analyze'}
           </button>

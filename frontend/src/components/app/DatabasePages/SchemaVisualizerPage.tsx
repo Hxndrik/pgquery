@@ -286,7 +286,7 @@ export default function SchemaVisualizerPage({ connectionUrl }: PageProps) {
                   {/* Columns */}
                   {t.columns.map((col, ci) => (
                     <g key={ci} transform={`translate(0, ${NODE_HEADER + ci * NODE_ROW})`}>
-                      <text x={10} y={16} fontSize={11} fill={col.isPrimary ? 'var(--accent)' : 'var(--fg)'} fontFamily="'IBM Plex Mono', monospace">
+                      <text x={10} y={16} fontSize={11} fill={col.isPrimary ? 'var(--accent-text)' : 'var(--fg)'} fontFamily="'IBM Plex Mono', monospace">
                         {col.isPrimary ? '◆ ' : ''}{col.name}
                       </text>
                       <text x={NODE_WIDTH - 10} y={16} fontSize={10} fill="var(--fg-subtle)" fontFamily="'IBM Plex Mono', monospace" textAnchor="end">

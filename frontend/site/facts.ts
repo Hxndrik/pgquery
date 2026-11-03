@@ -4,7 +4,7 @@ export const IMAGE = 'ghcr.io/hxndrik/pgquery'
 export const PORT = 54280
 export const DOCKER_RUN = `docker run -p ${PORT}:${PORT} ${IMAGE}`
 export const ONE_LINER =
-  'pgquery is a free, open-source Postgres studio that runs in your browser. It ships as one Docker container and needs no account.'
+  'pgquery is a free, open-source PostgreSQL client that runs in your browser. It ships as one Docker container and needs no account.'
 export const DESCRIPTION =
   'Free, open-source PostgreSQL GUI in your browser: SQL editor, table editor, ER diagram, RLS policies, roles, indexes, EXPLAIN plan viewer and performance advisors. One Docker container, no account.'
 

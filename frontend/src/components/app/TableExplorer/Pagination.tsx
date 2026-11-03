@@ -66,7 +66,7 @@ export function Pagination({
             <select
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              className="bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[11px] text-[var(--fg)] px-1.5 py-0.5 focus:outline-none focus:border-[var(--accent)] cursor-pointer"
+              className="bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[11px] text-[var(--fg)] px-1.5 py-0.5 focus:outline-none focus:border-[var(--accent-border)] cursor-pointer"
             >
               {pageSizeOptions.map((s) => (
                 <option key={s} value={s}>
@@ -119,7 +119,7 @@ export function Pagination({
                 ;(e.target as HTMLInputElement).blur()
               }
             }}
-            className="w-10 text-center bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[11px] text-[var(--fg)] px-1 py-0.5 focus:outline-none focus:border-[var(--accent)]"
+            className="w-10 text-center bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[11px] text-[var(--fg)] px-1 py-0.5 focus:outline-none focus:border-[var(--accent-border)]"
             aria-label="Page number"
           />
           <span>of {totalPages ?? '?'}</span>

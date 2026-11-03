@@ -4,6 +4,48 @@ import { useSettingsStore } from '../../stores/settingsStore'
 import { useTabStore } from '../../stores/tabStore'
 import { useSchemaStore } from '../../stores/schemaStore'
 import type * as Monaco from 'monaco-editor'
+import { EDITOR_DARK, EDITOR_LIGHT, type EditorPalette } from '../../brand/colors'
+
+const hex = (c: string) => c.replace('#', '')
+
+// Ink on paper: bold keywords, italic functions, highlighter selection.
+// The SQL tokenizer emits *.sql token names, so both forms get a rule.
+function monacoTheme(base: 'vs' | 'vs-dark', p: EditorPalette): Monaco.editor.IStandaloneThemeData {
+  return {
+    base,
+    inherit: true,
+    rules: [
+      { token: 'keyword', foreground: hex(p.keyword), fontStyle: 'bold' },
+      { token: 'predefined', foreground: hex(p.fn), fontStyle: 'italic' },
+      { token: 'predefined.sql', foreground: hex(p.fn), fontStyle: 'italic' },
+      { token: 'operator', foreground: hex(p.fn) },
+      { token: 'operator.sql', foreground: hex(p.operator), fontStyle: 'bold' }, // JOIN, AND, IN, LIKE …
+      { token: 'string', foreground: hex(p.string) },
+      { token: 'string.sql', foreground: hex(p.string) },
+      { token: 'number', foreground: hex(p.number) },
+      { token: 'number.sql', foreground: hex(p.number) },
+      { token: 'comment', foreground: hex(p.comment), fontStyle: 'italic' },
+      { token: 'delimiter', foreground: hex(p.foreground) },
+      { token: 'delimiter.parenthesis.sql', foreground: hex(p.foreground) },
+    ],
+    colors: {
+      'editor.background': p.background,
+      'editor.foreground': p.foreground,
+      'editor.lineHighlightBackground': p.lineHighlight,
+      'editorLineNumber.foreground': p.lineNumber,
+      'editorLineNumber.activeForeground': p.lineNumberActive,
+      'editor.selectionBackground': p.selection,
+      'editor.inactiveSelectionBackground': p.selectionInactive,
+      'editorCursor.foreground': p.cursor,
+      // Matching-bracket colors default to blue/yellow/purple; keep them in the palette.
+      'editorBracketHighlight.foreground1': p.foreground,
+      'editorBracketHighlight.foreground2': p.foreground,
+      'editorBracketHighlight.foreground3': p.foreground,
+      'editorBracketMatch.border': p.foreground,
+      'editorBracketMatch.background': p.selectionInactive,
+    },
+  }
+}
 
 interface EditorProps {
   tabId: string
@@ -23,56 +65,8 @@ export function Editor({ tabId, onRun }: EditorProps) {
   }, [])
 
   const handleMount: OnMount = (editor, monaco) => {
-    // Ink on paper: bold ink keywords, blue-ink functions, highlighter selection.
-    monaco.editor.defineTheme('pgquery-dark', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [
-        { token: 'keyword', foreground: 'ffffff', fontStyle: 'bold' },
-        { token: 'predefined', foreground: '8ea2ff' },
-        { token: 'predefined.sql', foreground: '8ea2ff' },
-        { token: 'operator', foreground: 'c2c5bc' },
-        { token: 'operator.sql', foreground: 'ffffff', fontStyle: 'bold' }, // JOIN, AND, IN, LIKE …
-        { token: 'string', foreground: '5fd38a' },
-        { token: 'number', foreground: 'ffc24d' },
-        { token: 'comment', foreground: '7a7e75', fontStyle: 'italic' },
-      ],
-      colors: {
-        'editor.background': '#17191d',
-        'editor.foreground': '#eceee7',
-        'editor.lineHighlightBackground': '#1e2125',
-        'editorLineNumber.foreground': '#4d5149',
-        'editorLineNumber.activeForeground': '#c2c5bc',
-        'editor.selectionBackground': '#ffe94d40',
-        'editor.inactiveSelectionBackground': '#ffe94d1f',
-        'editorCursor.foreground': '#ffe94d',
-      },
-    })
-
-    monaco.editor.defineTheme('pgquery-light', {
-      base: 'vs',
-      inherit: true,
-      rules: [
-        { token: 'keyword', foreground: '16181d', fontStyle: 'bold' },
-        { token: 'predefined', foreground: '2340d9' },
-        { token: 'predefined.sql', foreground: '2340d9' },
-        { token: 'operator', foreground: '3f433b' },
-        { token: 'operator.sql', foreground: '16181d', fontStyle: 'bold' }, // JOIN, AND, IN, LIKE …
-        { token: 'string', foreground: '11803d' },
-        { token: 'number', foreground: '9a5b00' },
-        { token: 'comment', foreground: '7d8277', fontStyle: 'italic' },
-      ],
-      colors: {
-        'editor.background': '#f3f4ef',
-        'editor.foreground': '#16181d',
-        'editor.lineHighlightBackground': '#eceee6',
-        'editorLineNumber.foreground': '#a6aaa0',
-        'editorLineNumber.activeForeground': '#16181d',
-        'editor.selectionBackground': '#ffe94dcc',
-        'editor.inactiveSelectionBackground': '#ffe94d66',
-        'editorCursor.foreground': '#16181d',
-      },
-    })
+    monaco.editor.defineTheme('pgquery-dark', monacoTheme('vs-dark', EDITOR_DARK))
+    monaco.editor.defineTheme('pgquery-light', monacoTheme('vs', EDITOR_LIGHT))
 
     monaco.editor.setTheme(theme === 'dark' ? 'pgquery-dark' : 'pgquery-light')
 
@@ -196,13 +190,14 @@ export function Editor({ tabId, onRun }: EditorProps) {
         lineNumbers: 'on',
         folding: true,
         fontSize: 13,
+        // Rainbow brackets would add colors outside the palette.
+        bracketPairColorization: { enabled: false },
         fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
         fontLigatures: true,
         scrollBeyondLastLine: false,
         smoothScrolling: true,
         cursorBlinking: 'smooth',
         renderLineHighlight: 'line',
-        bracketPairColorization: { enabled: true },
         padding: { top: 12, bottom: 12 },
         tabSize: 2,
       }}
