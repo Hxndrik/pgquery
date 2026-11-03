@@ -34,16 +34,28 @@ export type QueryApiResult =
   | { success: true; data: QueryResult }
   | { success: false; error: QueryError }
 
+export interface QueryOptions {
+  /**
+   * Return every value as Postgres prints it (a string, or null) instead of a
+   * JSON value. Exact for every type: int8, numeric, NaN, infinity, intervals,
+   * geometry, bytea … Use it wherever user data is shown or written back.
+   */
+  text?: boolean
+  /** Text mode: cut values longer than this many bytes (listed in `cut`). */
+  cellLimit?: number
+}
+
 export async function executeQuery(
   connection: string,
   query: string,
-  params: unknown[] = []
+  params: unknown[] = [],
+  options: QueryOptions = {}
 ): Promise<QueryApiResult> {
   try {
     const res = await fetch('/api/query', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ connection, query, params }),
+      body: JSON.stringify({ connection, query, params, text: options.text || undefined, cellLimit: options.cellLimit || undefined }),
     })
     const data = await res.json() as Record<string, unknown>
     if ('error' in data && data.error) {
@@ -64,6 +76,7 @@ export async function executeQuery(
         rowCount: Number(data.rowCount ?? 0),
         duration: Number(data.duration ?? 0),
         truncated: Boolean(data.truncated),
+        cut: (data.cut as QueryResult['cut']) ?? undefined,
       },
     }
   } catch (e) {

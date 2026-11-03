@@ -4,14 +4,29 @@ import { persist } from 'zustand/middleware'
 export interface ColumnInfo {
   name: string
   type: string
+  /** pg_type.typcategory (N numeric, B boolean, D date/time …); text-mode results only. */
+  category?: string
+}
+
+/** A value the proxy cut to the request's cellLimit; `size` is its full length in bytes. */
+export interface CutCell {
+  row: number
+  col: number
+  size: number
 }
 
 export interface QueryResult {
   columns: ColumnInfo[]
+  /**
+   * Text-mode results hold each value as Postgres prints it (string) or null.
+   * Typed results (catalog pages, and results saved by older versions) hold
+   * JSON values.
+   */
   rows: unknown[][]
   rowCount: number
   duration: number
   truncated?: boolean
+  cut?: CutCell[]
 }
 
 export interface QueryError {

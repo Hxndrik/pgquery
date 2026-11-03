@@ -46,6 +46,12 @@ func (cfg *config) connect(ctx context.Context, connString string) (*pgx.Conn, e
 		return nil, clientError{"invalid connection string: " + sanitizeConnError(err)}
 	}
 
+	// Print floats exactly (the default on Postgres 12+), so text values
+	// written back unchanged keep their value on older servers too.
+	if _, set := pgCfg.RuntimeParams["extra_float_digits"]; !set {
+		pgCfg.RuntimeParams["extra_float_digits"] = "3"
+	}
+
 	if cfg.BlockPrivateHosts && !trusted {
 		// Check the address actually dialed, after DNS resolution, so a
 		// hostname that resolves to a private IP is caught too.

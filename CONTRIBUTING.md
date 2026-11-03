@@ -37,6 +37,8 @@ cd frontend && npm run build    # type-checks and builds
 cd proxy && go vet ./... && go test ./...
 ```
 
+`go test` skips the database round-trip test unless `PGQUERY_TEST_DATABASE_URL` points at a scratch database (admin user). It loads the demo seed in a transaction that is rolled back and checks that every value in `type_edge_cases` reads and writes back unchanged; CI runs it against Postgres 18. Touching how values are read or written? Run it locally.
+
 - Use [conventional commit](https://www.conventionalcommits.org) prefixes in commit messages and PR titles: `fix:` (patch release), `feat:` (minor release), `docs:`, `chore:`, `refactor:`, `test:`. Add `!` (e.g. `feat!:`) for breaking changes.
 - Keep changes focused; one feature or fix per pull request.
 - Anything that changes the database must show its SQL before it runs.

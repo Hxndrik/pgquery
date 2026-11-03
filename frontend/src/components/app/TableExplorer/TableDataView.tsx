@@ -13,7 +13,8 @@ import type { SchemaColumn } from '../../../lib/api'
 import { useSchemaStore } from '../../../stores/schemaStore'
 import { toast } from 'sonner'
 import { friendlyError } from '../../../lib/errors'
-import { isNumericType, stringifyValue } from '../../../lib/typeUtils'
+import { isNumericType } from '../../../lib/typeUtils'
+import { CellValue } from '../ResultsTable'
 
 interface TableDataViewProps {
   connectionUrl: string
@@ -24,6 +25,9 @@ interface TableDataViewProps {
 }
 
 const DEFAULT_PAGE_SIZE = 100
+// Cells show 120 characters; longer values are cut by the proxy and loaded in
+// full when the row is opened for editing.
+const CELL_LIMIT = 4096
 const PAGE_SIZE_STORAGE_KEY = 'pgquery-table-page-size'
 
 type SortDir = 'asc' | 'desc' | null
@@ -56,24 +60,17 @@ function SortIndicator({ dir }: { dir: SortDir }) {
   )
 }
 
-function buildWhereClause(columns: SchemaColumn[], searchQuery: string): { where: string; params: unknown[] } | null {
+function buildWhereClause(columns: SchemaColumn[], searchQuery: string, param = 1): { where: string; params: unknown[] } | null {
   const trimmed = searchQuery.trim()
   if (!trimmed) return null
-  const where = columns.map((col) => `${quote(col.name)}::text ILIKE $1`).join(' OR ')
-  return { where, params: [`%${trimmed}%`] }
-}
-
-function CellValue({ value, maxLength = 120 }: { value: unknown; maxLength?: number }) {
-  if (value === null || value === undefined) {
-    return <span className="italic text-[var(--fg-faint)]">NULL</span>
-  }
-  const str = stringifyValue(value)
-  if (str.length > maxLength) return <>{str.slice(0, maxLength)}<span className="text-[var(--fg-faint)]">…</span></>
-  return <>{str}</>
+  const where = columns.map((col) => `${quote(col.name)}::text ILIKE $${param}`).join(' OR ')
+  return { where: `(${where})`, params: [`%${trimmed}%`] }
 }
 
 export function TableDataView({ connectionUrl, schemaName, tableName, columns, onTableDropped }: TableDataViewProps) {
+  // Values as Postgres prints them (text mode), so keys and edits stay exact.
   const [rows, setRows] = useState<unknown[][]>([])
+  const [cutSizes, setCutSizes] = useState<Map<string, number>>(new Map())
   const [totalCount, setTotalCount] = useState<number | null>(null)
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState<number>(() => {
@@ -103,9 +100,25 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
 
   const loadSchema = useSchemaStore((s) => s.loadSchema)
 
-  const pkCol = columns.find((c) => c.isPrimary)
-  const pkIdx = columns.findIndex((c) => c.isPrimary)
+  const pkCols = columns.filter((c) => c.isPrimary)
+  const pkIdxs = pkCols.map((c) => columns.indexOf(c))
+  const hasPk = pkCols.length > 0
   const tableRef = `${quote(schemaName)}.${quote(tableName)}`
+
+  const rowPk = (row: unknown[]) => pkIdxs.map((i) => row[i])
+  const mapPk = (m: Record<string, unknown>) => pkCols.map((c) => m[c.name])
+
+  /** `pk IN (…)` for these primary keys (one value per key column), params numbered from `start`. */
+  const pkIn = (keys: unknown[][], start: number): { sql: string; params: unknown[] } => {
+    const single = pkCols.length === 1
+    const target = single ? quote(pkCols[0].name) : `(${pkCols.map((c) => quote(c.name)).join(', ')})`
+    let n = start
+    const tuples = keys.map((k) => {
+      const ph = k.map(() => `$${n++}`)
+      return single ? ph[0] : `(${ph.join(', ')})`
+    })
+    return { sql: `${target} IN (${tuples.join(', ')})`, params: keys.flat() }
+  }
 
   const handlePageSizeChange = (size: number) => {
     setPageSize(size)
@@ -129,9 +142,10 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
           ? ` ORDER BY ${pkCols.join(', ')}`
           : ''
     const query = `SELECT * FROM ${tableRef}${where}${orderBy} LIMIT ${pageSize} OFFSET ${offset}`
-    const result = await executeQuery(connectionUrl, query, clause?.params ?? [])
+    const result = await executeQuery(connectionUrl, query, clause?.params ?? [], { text: true, cellLimit: CELL_LIMIT })
     if (result.success) {
       setRows(result.data.rows)
+      setCutSizes(new Map((result.data.cut ?? []).map((c) => [`${c.row}:${c.col}`, c.size])))
       setError(null)
     } else {
       setError(result.error.error)
@@ -180,12 +194,12 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
     setPage(0)
   }
 
+  // Selection holds row indexes on this page (in select-all mode: the rows
+  // unticked), so it can't carry over to another page or search.
   useEffect(() => {
-    if (!selectAllMode) {
-      if (selectedRows.size > 0) setSelectedRows(new Set())
-      setLastSelectedIndex(null)
-    }
-  }, [page, selectAllMode])
+    setSelectedRows(new Set())
+    setLastSelectedIndex(null)
+  }, [page, searchQuery])
 
   function rowToMap(row: unknown[]): Record<string, unknown> {
     const m: Record<string, unknown> = {}
@@ -193,13 +207,49 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
     return m
   }
 
-  const getSelectedPKs = (): unknown[] => {
-    if (!pkCol || pkIdx === -1) return []
-    if (selectAllMode) {
-      const unselectedPKs = Array.from(selectedRows).map(idx => rows[idx]?.[pkIdx])
-      return rows.map(row => row[pkIdx]).filter(pk => !unselectedPKs.includes(pk))
+  /**
+   * WHERE for the selection: the ticked rows, or in select-all mode every row
+   * matching the search (on all pages) except the unticked ones.
+   */
+  const selectionWhere = (start: number): { sql: string; params: unknown[] } | null => {
+    const picked = Array.from(selectedRows).map((i) => rows[i]).filter(Boolean).map(rowPk)
+    if (!selectAllMode) return picked.length > 0 ? pkIn(picked, start) : null
+    const parts: string[] = []
+    const params: unknown[] = []
+    const clause = buildWhereClause(columns, searchQuery, start)
+    if (clause) {
+      parts.push(clause.where)
+      params.push(...clause.params)
+      start += clause.params.length
     }
-    return Array.from(selectedRows).map(idx => rows[idx]?.[pkIdx]).filter(Boolean)
+    if (picked.length > 0) {
+      const excluded = pkIn(picked, start)
+      parts.push(`NOT (${excluded.sql})`)
+      params.push(...excluded.params)
+    }
+    return { sql: parts.length > 0 ? parts.join(' AND ') : 'TRUE', params }
+  }
+
+  /** The row as a column → value map; loads it in full first if a value was cut. */
+  const fullRow = async (rowIndex: number): Promise<Record<string, unknown> | null> => {
+    const row = rows[rowIndex]
+    if (!row) return null
+    const isCut = columns.some((_, ci) => cutSizes.has(`${rowIndex}:${ci}`))
+    if (!isCut || !hasPk) return rowToMap(row)
+    const where = pkIn([rowPk(row)], 1)
+    const result = await executeQuery(connectionUrl, `SELECT * FROM ${tableRef} WHERE ${where.sql}`, where.params, { text: true })
+    if (!result.success || !result.data.rows[0]) {
+      toast.error(result.success ? 'The row no longer exists' : friendlyError(result.error))
+      return null
+    }
+    return rowToMap(result.data.rows[0])
+  }
+
+  const openEdit = async (rowIndex: number, focusColumn?: string) => {
+    const values = await fullRow(rowIndex)
+    if (!values) return
+    setEditRow(values)
+    setEditFocusColumn(focusColumn)
   }
 
   const getSelectionCount = (): number => {
@@ -270,14 +320,18 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
     setLastSelectedIndex(null)
   }
 
+  // Values are Postgres text (or null): sent as text parameters, Postgres
+  // parses them with each column type's own input function.
   const handleAdd = async (values: Record<string, string | null>) => {
-    const cols = Object.keys(values).filter((k) => values[k] !== null || columns.find(c => c.name === k && !c.nullable) === undefined)
+    const cols = Object.keys(values) // only the fields the user filled in; the rest get defaults
     const colList = cols.map(quote).join(', ')
     const paramList = cols.map((_, i) => `$${i + 1}`).join(', ')
     const params = cols.map((k) => values[k])
     const result = await executeQuery(
       connectionUrl,
-      `INSERT INTO ${tableRef} (${colList}) VALUES (${paramList})`,
+      cols.length > 0
+        ? `INSERT INTO ${tableRef} (${colList}) VALUES (${paramList})`
+        : `INSERT INTO ${tableRef} DEFAULT VALUES`,
       params
     )
     if (result.success) {
@@ -291,112 +345,64 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
   }
 
   const handleEdit = async (values: Record<string, string | null>) => {
-    if (!pkCol) return
-    
+    if (!hasPk || !editRow) {
+      toast.error('Cannot edit: this table has no primary key')
+      return
+    }
+    // Only changed fields arrive, so untouched values are never rewritten.
+    const entries = Object.entries(values)
+    if (entries.length === 0) {
+      setEditRow(null)
+      return
+    }
     const selectionCount = getSelectionCount()
-    
-    if (selectionCount > 1 || selectAllMode) {
-      // Bulk edit
-      const pks = getSelectedPKs()
-      if (pks.length === 0) {
-        toast.error('No rows selected')
-        return
-      }
-
-      const entries = Object.entries(values).filter(([, v]) => v !== null && v !== '')
-      if (entries.length === 0) {
-        toast.error('No fields to update')
-        return
-      }
-
-      const setClauses = entries.map(([k], i) => `${quote(k)} = $${i + 1}`).join(', ')
-      const params = [...entries.map(([, v]) => v), ...pks]
-      const placeholders = pks.map((_, i) => `$${entries.length + i + 1}`).join(', ')
-
-      const result = await executeQuery(
-        connectionUrl,
-        `UPDATE ${tableRef} SET ${setClauses} WHERE ${quote(pkCol.name)} IN (${placeholders})`,
-        params
-      )
-      
-      if (result.success) {
-        toast.success(`Updated ${pks.length} rows`)
-        setEditRow(null)
-        clearSelection()
-        loadData()
-      } else {
-        toast.error(friendlyError(result.error))
-      }
+    const bulk = selectionCount > 1 || selectAllMode
+    const setClauses = entries.map(([k], i) => `${quote(k)} = $${i + 1}`).join(', ')
+    const where = bulk ? selectionWhere(entries.length + 1) : pkIn([mapPk(editRow)], entries.length + 1)
+    if (!where) {
+      toast.error('No rows selected')
+      return
+    }
+    const result = await executeQuery(
+      connectionUrl,
+      `UPDATE ${tableRef} SET ${setClauses} WHERE ${where.sql}`,
+      [...entries.map(([, v]) => v), ...where.params]
+    )
+    if (result.success) {
+      toast.success(bulk ? `Updated ${selectionCount.toLocaleString()} rows` : 'Row updated')
+      setEditRow(null)
+      setEditFocusColumn(undefined)
+      if (bulk) clearSelection()
+      loadData()
     } else {
-      // Single edit
-      if (!editRow) return
-      const pkVal = editRow[pkCol.name]
-      const entries = Object.entries(values)
-      const setClauses = entries.map(([k], i) => `${quote(k)} = $${i + 1}`).join(', ')
-      const params = [...entries.map(([, v]) => v), pkVal]
-      const result = await executeQuery(
-        connectionUrl,
-        `UPDATE ${tableRef} SET ${setClauses} WHERE ${quote(pkCol.name)} = $${entries.length + 1}`,
-        params
-      )
-      if (result.success) {
-        toast.success('Row updated')
-        setEditRow(null)
-        setEditFocusColumn(undefined)
-        loadData()
-      } else {
-        toast.error(friendlyError(result.error))
-      }
+      toast.error(friendlyError(result.error))
     }
   }
 
   const handleDelete = async () => {
-    if (!pkCol) {
+    if (!hasPk) {
       toast.error('Cannot delete: no primary key found')
       return
     }
 
-    if (deleteTarget === 'single' && singleDeleteRow) {
-      const pkVal = singleDeleteRow[pkCol.name]
-      const result = await executeQuery(
-        connectionUrl,
-        `DELETE FROM ${tableRef} WHERE ${quote(pkCol.name)} = $1`,
-        [pkVal]
-      )
-      if (result.success) {
-        toast.success('Row deleted')
-        setDeleteModalOpen(false)
-        setSingleDeleteRow(null)
-        setDeleteTarget(null)
-        loadData()
-        loadCount()
-      } else {
-        toast.error(friendlyError(result.error))
-      }
-    } else if (deleteTarget === 'bulk') {
-      const pks = getSelectedPKs()
-      if (pks.length === 0) {
-        toast.error('No rows selected')
-        return
-      }
-
-      const placeholders = pks.map((_, i) => `$${i + 1}`).join(', ')
-      const result = await executeQuery(
-        connectionUrl,
-        `DELETE FROM ${tableRef} WHERE ${quote(pkCol.name)} IN (${placeholders})`,
-        pks
-      )
-      
-      if (result.success) {
-        toast.success(`Deleted ${pks.length} rows`)
-        setDeleteModalOpen(false)
-        setDeleteTarget(null)
-        clearSelection()
-        loadData()
-        loadCount()
-      } else {
-        toast.error(friendlyError(result.error))
-      }
+    const bulk = deleteTarget === 'bulk'
+    const where = bulk ? selectionWhere(1) : singleDeleteRow ? pkIn([mapPk(singleDeleteRow)], 1) : null
+    if (!where) {
+      toast.error('No rows selected')
+      return
+    }
+    const count = getSelectionCount()
+    const result = await executeQuery(connectionUrl, `DELETE FROM ${tableRef} WHERE ${where.sql}`, where.params)
+    if (result.success) {
+      toast.success(bulk ? `Deleted ${count.toLocaleString()} rows` : 'Row deleted')
+      setDeleteModalOpen(false)
+      setDeleteTarget(null)
+      setSingleDeleteRow(null)
+      if (bulk) clearSelection()
+      loadData()
+      loadCount()
+    } else {
+      toast.error(friendlyError(result.error))
     }
   }
 
@@ -406,12 +412,8 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
       return
     }
     // Open edit modal with first selected row's data as initial values
-    const firstSelectedIdx = selectAllMode ? 0 : Array.from(selectedRows)[0]
-    const firstRow = rows[firstSelectedIdx]
-    if (firstRow) {
-      setEditRow(rowToMap(firstRow))
-      setEditFocusColumn(undefined)
-    }
+    const firstSelectedIdx = selectAllMode ? rows.findIndex((_, i) => !selectedRows.has(i)) : Array.from(selectedRows)[0]
+    openEdit(firstSelectedIdx === -1 ? 0 : firstSelectedIdx)
   }
 
   const handleBulkDelete = () => {
@@ -424,11 +426,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
   }
 
   const handleCellDoubleClick = (rowIndex: number, columnName: string) => {
-    const row = rows[rowIndex]
-    if (row) {
-      setEditRow(rowToMap(row))
-      setEditFocusColumn(columnName)
-    }
+    openEdit(rowIndex, columnName)
   }
 
   const handleDropTable = async (cascade: boolean) => {
@@ -448,6 +446,8 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
 
   const selectionCount = getSelectionCount()
   const hasSelection = selectionCount > 0
+  // "All N rows" only while nothing is unticked; otherwise the labels give the real count.
+  const allSelected = selectAllMode && selectedRows.size === 0
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -607,17 +607,14 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
                         `}
                         onDoubleClick={() => handleCellDoubleClick(ri, columns[ci]?.name ?? '')}
                       >
-                        <CellValue value={cell} />
+                        <CellValue value={cell} maxLength={120} cutSize={cutSizes.get(`${ri}:${ci}`)} />
                       </td>
                     ))}
                     {/* Actions */}
                     <td className="px-2 py-1.5 border-[var(--border)] w-20">
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
-                          onClick={() => {
-                            setEditRow(rowMap)
-                            setEditFocusColumn(undefined)
-                          }}
+                          onClick={() => openEdit(ri)}
                           className="p-1 text-[var(--fg-subtle)] hover:text-[var(--accent-text)] rounded hover:bg-[var(--accent-bg)] transition-colors"
                           title="Edit row"
                         >
@@ -648,7 +645,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
       {hasSelection ? (
         <BulkActionsBar
           selectedCount={selectionCount}
-          isAllSelected={selectAllMode}
+          isAllSelected={allSelected}
           totalCount={totalCount}
           onEdit={handleBulkEdit}
           onDelete={handleBulkDelete}
@@ -690,7 +687,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
           mode="edit"
           focusColumn={editFocusColumn}
           bulkCount={selectionCount > 1 ? selectionCount : undefined}
-          isAllSelected={selectAllMode}
+          isAllSelected={allSelected}
           totalCount={totalCount}
         />
       )}
@@ -705,7 +702,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
         }}
         onConfirm={handleDelete}
         count={deleteTarget === 'bulk' ? selectionCount : 1}
-        isAll={selectAllMode && deleteTarget === 'bulk'}
+        isAll={allSelected && deleteTarget === 'bulk'}
         totalCount={totalCount ?? undefined}
       />
 
