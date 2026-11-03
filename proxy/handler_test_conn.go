@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type testRequest struct {
@@ -33,19 +31,13 @@ func (cfg *config) handleTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validateConnectionString(req.Connection); err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(testResponse{OK: false, Error: err.Error()})
-		return
-	}
-
 	connCtx, connCancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer connCancel()
 
-	conn, err := pgx.Connect(connCtx, req.Connection)
+	conn, err := cfg.connect(connCtx, req.Connection)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(testResponse{OK: false, Error: sanitizeConnError(err)})
+		json.NewEncoder(w).Encode(testResponse{OK: false, Error: connError(err)})
 		return
 	}
 	defer conn.Close(context.Background())

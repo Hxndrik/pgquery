@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -9,7 +10,7 @@ import (
 )
 
 func main() {
-	port := getEnv("PORT", "28001")
+	port := getEnv("PORT", "54280")
 	staticDir := getEnv("STATIC_DIR", "../frontend/dist")
 
 	rateLimitRPM := 600
@@ -38,6 +39,20 @@ func main() {
 		MaxRows:      maxRows,
 	}
 
+	// A configured demo database means this is a public instance: seed it,
+	// keep it fresh, and refuse private/loopback targets unless told otherwise.
+	if adminURL := os.Getenv("DEMO_DATABASE_URL"); adminURL != "" {
+		resetEvery := 24 * time.Hour
+		if v := os.Getenv("DEMO_RESET_INTERVAL"); v != "" {
+			if d, err := time.ParseDuration(v); err == nil {
+				resetEvery = d
+			}
+		}
+		cfg.Demo = newDemoDB(adminURL, resetEvery)
+		go cfg.Demo.run(context.Background())
+		cfg.BlockPrivateHosts = os.Getenv("ALLOW_PRIVATE_HOSTS") != "true"
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/query", cfg.handleQuery)
 	mux.HandleFunc("/api/schema", cfg.handleSchema)
@@ -56,15 +71,17 @@ func main() {
 	rl := newRateLimiter(rateLimitRPM)
 	handler := withMiddleware(mux, rl)
 
-	log.Printf("pgquery proxy listening on :%s", port)
+	log.Printf("pgquery listening on :%s (demo: %t, private hosts blocked: %t)", port, cfg.Demo != nil, cfg.BlockPrivateHosts)
 	if err := http.ListenAndServe(":"+port, handler); err != nil {
 		log.Fatal(err)
 	}
 }
 
 type config struct {
-	QueryTimeout time.Duration
-	MaxRows      int
+	QueryTimeout      time.Duration
+	MaxRows           int
+	Demo              *demoDB // set when DEMO_DATABASE_URL is configured
+	BlockPrivateHosts bool    // on with a demo (public instance) unless ALLOW_PRIVATE_HOSTS=true
 }
 
 func getEnv(key, fallback string) string {

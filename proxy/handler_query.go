@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type queryRequest struct {
@@ -48,11 +46,6 @@ func (cfg *config) handleQuery(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validateConnectionString(req.Connection); err != nil {
-		writeError(w, err.Error(), "", 0, http.StatusBadRequest)
-		return
-	}
-
 	if strings.TrimSpace(req.Query) == "" {
 		writeError(w, "query is required", "", 0, http.StatusBadRequest)
 		return
@@ -62,9 +55,9 @@ func (cfg *config) handleQuery(w http.ResponseWriter, r *http.Request) {
 	connCtx, connCancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer connCancel()
 
-	conn, err := pgx.Connect(connCtx, req.Connection)
+	conn, err := cfg.connect(connCtx, req.Connection)
 	if err != nil {
-		writeError(w, sanitizeConnError(err), "", 0, http.StatusBadGateway)
+		writeError(w, connError(err), "", 0, http.StatusBadGateway)
 		return
 	}
 	defer conn.Close(context.Background())

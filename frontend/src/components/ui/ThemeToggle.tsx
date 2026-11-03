@@ -9,7 +9,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       <button
         onClick={toggleTheme}
         className={`
-          p-2 rounded text-[var(--fg-subtle)] hover:text-[var(--fg)]
+          p-2 rounded-sm text-[var(--fg-subtle)] hover:text-[var(--fg)]
           hover:bg-[var(--bg-hover)] transition-colors
           ${className}
         `}

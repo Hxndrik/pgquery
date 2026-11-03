@@ -17,7 +17,7 @@ export function Tooltip({ content, children }: TooltipProps) {
       {children}
       {visible && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 pointer-events-none">
-          <div className="bg-[var(--bg-active)] text-[var(--fg)] text-[11px] px-2 py-1 rounded whitespace-nowrap border border-[var(--border-mid)] shadow-lg">
+          <div className="bg-[var(--fg)] text-[var(--bg)] font-mono text-[11px] px-2 py-1 rounded-sm whitespace-nowrap">
             {content}
           </div>
         </div>

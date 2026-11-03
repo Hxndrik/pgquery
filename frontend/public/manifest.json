@@ -1,13 +1,21 @@
 {
-  "name": "pgquery",
+  "name": "pgquery \u2014 Postgres studio",
   "short_name": "pgquery",
-  "description": "Free browser-based PostgreSQL client",
-  "start_url": "/",
+  "description": "Free, open-source Postgres studio in your browser.",
+  "start_url": "/app/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#336791",
+  "background_color": "#e7e9e2",
+  "theme_color": "#16181d",
   "icons": [
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
-    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
   ]
 }
