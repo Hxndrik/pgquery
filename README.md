@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/screenshot-editor.png" alt="pgquery: sidebar of tools, SQL editor with a JOIN query, results table" width="900">
+  <img src="docs/launch/demo.gif" alt="pgquery walkthrough: open the demo, run a JOIN query, Explain analyze, schema map" width="900">
 </p>
 
 ## Quick start
