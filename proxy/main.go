@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	port := getEnv("PORT", "28001")
+	port := getEnv("PORT", "54280")
 	staticDir := getEnv("STATIC_DIR", "../frontend/dist")
 
 	rateLimitRPM := 600
@@ -34,8 +34,10 @@ func main() {
 	}
 
 	cfg := &config{
-		QueryTimeout: queryTimeout,
-		MaxRows:      maxRows,
+		QueryTimeout:      queryTimeout,
+		MaxRows:           maxRows,
+		DemoURL:           os.Getenv("DEMO_DATABASE_URL"),
+		BlockPrivateHosts: os.Getenv("BLOCK_PRIVATE_HOSTS") == "true",
 	}
 
 	mux := http.NewServeMux()
@@ -56,15 +58,17 @@ func main() {
 	rl := newRateLimiter(rateLimitRPM)
 	handler := withMiddleware(mux, rl)
 
-	log.Printf("pgquery proxy listening on :%s", port)
+	log.Printf("pgquery listening on :%s (demo: %t, block private hosts: %t)", port, cfg.DemoURL != "", cfg.BlockPrivateHosts)
 	if err := http.ListenAndServe(":"+port, handler); err != nil {
 		log.Fatal(err)
 	}
 }
 
 type config struct {
-	QueryTimeout time.Duration
-	MaxRows      int
+	QueryTimeout      time.Duration
+	MaxRows           int
+	DemoURL           string // DEMO_DATABASE_URL: served when the client asks for the demo connection
+	BlockPrivateHosts bool   // BLOCK_PRIVATE_HOSTS=true: refuse loopback/private targets (public instances)
 }
 
 func getEnv(key, fallback string) string {

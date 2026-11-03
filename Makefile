@@ -1,7 +1,7 @@
 .PHONY: dev build docker clean
 
 dev:
-	@echo "Starting dev servers (Vite :5173, proxy :8080)..."
+	@echo "Starting dev servers (Vite :28000, proxy :54280)..."
 	@(cd frontend && npm run dev) & (cd proxy && go run .) & wait
 
 build:

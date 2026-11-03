@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type schemaColumn struct {
@@ -48,17 +46,12 @@ func (cfg *config) handleSchema(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validateConnectionString(req.Connection); err != nil {
-		writeError(w, err.Error(), "", 0, http.StatusBadRequest)
-		return
-	}
-
 	connCtx, connCancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer connCancel()
 
-	conn, err := pgx.Connect(connCtx, req.Connection)
+	conn, err := cfg.connect(connCtx, req.Connection)
 	if err != nil {
-		writeError(w, sanitizeConnError(err), "", 0, http.StatusBadGateway)
+		writeError(w, connError(err), "", 0, http.StatusBadGateway)
 		return
 	}
 	defer conn.Close(context.Background())

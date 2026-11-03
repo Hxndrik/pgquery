@@ -1,12 +1,18 @@
 services:
   pgquery:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_SITE_URL: ${VITE_SITE_URL:-https://pgquery.dev}
+        VITE_GOATCOUNTER_CODE: ${VITE_GOATCOUNTER_CODE:-}
+    ports:
+      - "${PORT:-54280}:${PORT:-54280}"
     environment:
-      - PORT=8080
+      - PORT=${PORT:-54280}
       - STATIC_DIR=/app/static
-      - RATE_LIMIT_RPM=60
+      - RATE_LIMIT_RPM=${RATE_LIMIT_RPM:-120}
       - MAX_QUERY_TIMEOUT=30s
       - MAX_ROWS=10000
+      - DEMO_DATABASE_URL=${DEMO_DATABASE_URL:-}
+      - BLOCK_PRIVATE_HOSTS=${BLOCK_PRIVATE_HOSTS:-false}
     restart: unless-stopped
-    labels:
-      - "coolify.managed=true"
