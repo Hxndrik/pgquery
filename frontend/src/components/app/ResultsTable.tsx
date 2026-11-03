@@ -1,22 +1,35 @@
 import { useState, useMemo, useEffect } from 'react'
-import type { ColumnInfo } from '../../stores/tabStore'
-import { compareValues, isNumericType, stringifyValue } from '../../lib/typeUtils'
+import type { ColumnInfo, CutCell } from '../../stores/tabStore'
+import { compareValues, isNumericColumn, stringifyValue } from '../../lib/typeUtils'
+import { formatBytes } from '../../lib/formatUtils'
 
 interface ResultsTableProps {
   columns: ColumnInfo[]
   rows: unknown[][]
   truncated?: boolean
+  cut?: CutCell[]
 }
+
+// Long values are shown cut in the grid; exports and the JSON view keep them whole.
+const DISPLAY_CHARS = 1000
 
 type SortDir = 'asc' | 'desc' | null
 
-function CellValue({ value, maxLength }: { value: unknown; maxLength?: number }) {
+export function CellValue({ value, maxLength, cutSize }: { value: unknown; maxLength?: number; cutSize?: number }) {
   if (value === null || value === undefined) {
     return <span className="italic text-[var(--fg-faint)]">NULL</span>
   }
   const str = stringifyValue(value)
-  if (maxLength && str.length > maxLength) return <>{str.slice(0, maxLength)}<span className="text-[var(--fg-faint)]">…</span></>
-  return <>{str}</>
+  const shown = maxLength && str.length > maxLength ? str.slice(0, maxLength) : str
+  if (shown === str && cutSize === undefined) return <>{str}</>
+  return (
+    <>
+      {shown}
+      <span className="text-[var(--fg-faint)]" title={cutSize !== undefined ? `Shortened; the full value is ${formatBytes(cutSize)}` : 'Shortened for display'}>
+        …{cutSize !== undefined && ` (${formatBytes(cutSize)})`}
+      </span>
+    </>
+  )
 }
 
 function SortIndicator({ dir }: { dir: SortDir }) {
@@ -43,7 +56,7 @@ function SortIndicator({ dir }: { dir: SortDir }) {
   )
 }
 
-export function ResultsTable({ columns, rows, truncated }: ResultsTableProps) {
+export function ResultsTable({ columns, rows, truncated, cut }: ResultsTableProps) {
   const [sortCol, setSortCol] = useState<number | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>(null)
 
@@ -66,17 +79,19 @@ export function ResultsTable({ columns, rows, truncated }: ResultsTableProps) {
     }
   }
 
-  const sorted = useMemo(() => {
-    if (sortCol === null || sortDir === null) return rows
-    const type = columns[sortCol]?.type ?? ''
-    const indexed = rows.map((r, i) => [r, i] as const)
-    indexed.sort(([a, ai], [b, bi]) => {
-      const cmp = compareValues(a[sortCol], b[sortCol], type)
+  // Row indexes in display order (cut cells are keyed by the original index).
+  const order = useMemo(() => {
+    const indexes = rows.map((_, i) => i)
+    if (sortCol === null || sortDir === null) return indexes
+    const { type = '', category } = columns[sortCol] ?? {}
+    return indexes.sort((ai, bi) => {
+      const cmp = compareValues(rows[ai][sortCol], rows[bi][sortCol], type, category)
       if (cmp !== 0) return sortDir === 'asc' ? cmp : -cmp
       return ai - bi // stable
     })
-    return indexed.map(([r]) => r)
   }, [rows, columns, sortCol, sortDir])
+
+  const cutSizes = useMemo(() => new Map((cut ?? []).map((c) => [`${c.row}:${c.col}`, c.size])), [cut])
 
   return (
     <div className="h-full overflow-auto">
@@ -111,10 +126,10 @@ export function ResultsTable({ columns, rows, truncated }: ResultsTableProps) {
                     text-[10px] font-semibold uppercase tracking-[0.3px]
                     ${active ? 'text-[var(--fg)] bg-[var(--bg-hover)]' : 'text-[var(--fg-subtle)]'}
                     cursor-pointer hover:bg-[var(--bg-hover)] hover:text-[var(--fg)] transition-colors select-none whitespace-nowrap
-                    ${isNumericType(col.type) ? 'text-right' : ''}
+                    ${isNumericColumn(col) ? 'text-right' : ''}
                   `}
                 >
-                  <div className={`flex items-center gap-1 ${isNumericType(col.type) ? 'justify-end' : ''}`}>
+                  <div className={`flex items-center gap-1 ${isNumericColumn(col) ? 'justify-end' : ''}`}>
                     {col.name}
                     <span className="text-[var(--fg-faint)] font-mono normal-case tracking-normal">{col.type}</span>
                     <SortIndicator dir={dir} />
@@ -125,21 +140,21 @@ export function ResultsTable({ columns, rows, truncated }: ResultsTableProps) {
           </tr>
         </thead>
         <tbody>
-          {sorted.map((row, ri) => (
+          {order.map((ri) => (
             <tr
               key={ri}
               className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors"
             >
-              {row.map((cell, ci) => (
+              {rows[ri].map((cell, ci) => (
                 <td
                   key={ci}
                   className={`
                     px-3 py-2 border-r border-[var(--border)] text-[var(--fg)] whitespace-nowrap
-                    ${isNumericType(columns[ci]?.type ?? '') ? 'text-right font-mono' : ''}
+                    ${columns[ci] && isNumericColumn(columns[ci]) ? 'text-right font-mono' : ''}
                     ${cell === null ? 'text-[var(--fg-faint)]' : ''}
                   `}
                 >
-                  <CellValue value={cell} />
+                  <CellValue value={cell} maxLength={DISPLAY_CHARS} cutSize={cutSizes.get(`${ri}:${ci}`)} />
                 </td>
               ))}
             </tr>

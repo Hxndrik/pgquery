@@ -60,7 +60,8 @@ export default function PostgresQueryView({ connectionUrl }: PostgresQueryViewPr
 
     clearPlan(activeTabId)
     setLoading(activeTabId, true)
-    const result = await executeQuery(connectionUrl, sql)
+    // Text mode: every value exactly as Postgres prints it (no lost digits).
+    const result = await executeQuery(connectionUrl, sql, [], { text: true })
 
     if (result.success) {
       setResult(activeTabId, result.data)

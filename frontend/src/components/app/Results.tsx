@@ -90,7 +90,7 @@ export function Results({ result, error }: ResultsProps) {
       {/* Content */}
       <div className="flex-1 overflow-hidden">
         {view === 'table' && (
-          <ResultsTable columns={result.columns} rows={result.rows} truncated={result.truncated} />
+          <ResultsTable columns={result.columns} rows={result.rows} truncated={result.truncated} cut={result.cut} />
         )}
         {view === 'json' && (
           <ResultsJSON columns={result.columns} rows={result.rows} />

@@ -19,3 +19,6 @@ When a step has to be done by hand (GitHub settings, a deploy setting), give the
 
 ## Monaco needs SQL-specific token names
 The SQL tokenizer emits `predefined.sql` and `operator.sql` (JOIN, AND, IN …); theme rules for plain `predefined`/`operator` don't apply to them.
+
+## Values travel as Postgres text, never as JS numbers
+JSON numbers become doubles in the browser: an int8 primary key past 2^53 once sent edits and deletes to a different row, and numeric `Infinity` showed as 0. Result grids and the table editor use text mode (`executeQuery(…, { text: true })`), which returns each value as Postgres prints it, and edits send strings back as text parameters. Only catalog pages use typed results. `proxy/demo/seed.sql` has a `type_edge_cases` table, and `TestTypeEdgeCasesRoundTrip` checks every value survives a write-back.

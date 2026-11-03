@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import type { ColumnInfo } from '../../stores/tabStore'
+import { resultToJSON } from '../../lib/exportUtils'
 
 interface ResultsJSONProps {
   columns: ColumnInfo[]
@@ -16,20 +17,13 @@ function colorizeJSON(json: string): string {
   return safe
     .replace(/(&quot;(?:[^&]|&(?!quot;))*&quot;)\s*:/g, '<span style="color:var(--accent-text)">$1</span>:')
     .replace(/:\s*(&quot;(?:[^&]|&(?!quot;))*&quot;)/g, ': <span style="color:var(--success)">$1</span>')
-    .replace(/:\s*(\d+\.?\d*)/g, ': <span style="color:var(--warning)">$1</span>')
+    .replace(/:\s*(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g, ': <span style="color:var(--warning)">$1</span>')
     .replace(/:\s*(true|false)/g, ': <span style="color:var(--accent-text)">$1</span>')
     .replace(/:\s*(null)/g, ': <span style="color:var(--fg-faint)">$1</span>')
 }
 
 export function ResultsJSON({ columns, rows }: ResultsJSONProps) {
-  const colorized = useMemo(() => {
-    const data = rows.map((row) => {
-      const obj: Record<string, unknown> = {}
-      columns.forEach((col, i) => { obj[col.name] = row[i] })
-      return obj
-    })
-    return colorizeJSON(JSON.stringify(data, null, 2))
-  }, [columns, rows])
+  const colorized = useMemo(() => colorizeJSON(resultToJSON(columns, rows)), [columns, rows])
 
   return (
     <div className="h-full overflow-auto p-4">
