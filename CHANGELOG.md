@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Hxndrik/pgquery/compare/v1.0.0...v1.0.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* clearer calls to action, automated releases, tidy contributor docs ([#8](https://github.com/Hxndrik/pgquery/issues/8)) ([3df2098](https://github.com/Hxndrik/pgquery/commit/3df2098ee03797a29dfc9b7d6e64a642e8cbf4b4))
+
 ## 1.0.0
 
 - New look: ink on paper with a dark mode, Tuple the pixel elephant, pixel icons.
