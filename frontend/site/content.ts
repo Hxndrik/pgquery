@@ -243,8 +243,7 @@ ${run}
   <li><code>PORT</code>: listen port, default ${PORT}.</li>
   <li><code>RATE_LIMIT_RPM</code>: requests per minute per client IP.</li>
   <li><code>MAX_QUERY_TIMEOUT</code> and <code>MAX_ROWS</code>: limits per query.</li>
-  <li><code>BLOCK_PRIVATE_HOSTS=true</code>: refuse connections to private and local addresses. Use it on public instances.</li>
-  <li><code>DEMO_DATABASE_URL</code>: offer a demo database without exposing its credentials.</li>
+  <li><code>DEMO_DATABASE_URL</code>: run a public demo. pgquery seeds a sample database, serves it read-only and resets it daily (<code>DEMO_RESET_INTERVAL</code>). Instances with a demo also refuse private and local addresses.</li>
 </ul>
 <h2>Security notes</h2>
 <p>pgquery has no login of its own. Anyone who can reach it can use it to connect to databases they have credentials for. Put it behind your VPN, an authenticating reverse proxy (oauth2-proxy, Authelia, Cloudflare Access) or bind it to localhost.</p>

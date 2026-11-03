@@ -1,19 +1,21 @@
 -- pgquery demo database: a small record store.
 --
--- Run as a superuser against the demo database:
---   psql "$ADMIN_URL" -v demo_password='choose-a-strong-one' -f scripts/demo/seed.sql
---
--- Safe to re-run: it drops and recreates everything it owns.
--- The `demo` role it creates is read-only; point DEMO_DATABASE_URL at it:
---   postgres://demo:<demo_password>@<host>:<port>/<db>
-
-\set ON_ERROR_STOP on
-BEGIN;
+-- The proxy runs this file itself (see proxy/demo.go) when DEMO_DATABASE_URL
+-- is set: on startup and then every DEMO_RESET_INTERVAL. It runs as one
+-- transaction with the admin credentials, drops and recreates everything it
+-- owns, and creates a SELECT-only `demo` role. The proxy then sets a fresh
+-- random password on that role and serves the demo through it only.
 
 -- Extensions live in their own schema so `public` holds only the sample tables.
+-- pg_stat_statements is optional: skipped where the server doesn't ship it.
 CREATE SCHEMA IF NOT EXISTS extensions;
-DROP EXTENSION IF EXISTS pg_stat_statements;
-CREATE EXTENSION pg_stat_statements SCHEMA extensions;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = 'pg_stat_statements') THEN
+    DROP EXTENSION IF EXISTS pg_stat_statements;
+    CREATE EXTENSION pg_stat_statements SCHEMA extensions;
+  END IF;
+END $$;
 
 DROP TABLE IF EXISTS playlist_tracks, playlists, order_items, orders, plays,
   customers, tracks, albums, genres, artists CASCADE;
@@ -213,11 +215,14 @@ BEGIN
   END IF;
 END $$;
 
+-- The password is set by the proxy right after this script (random per run).
 ALTER ROLE demo WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION
-  CONNECTION LIMIT 20 PASSWORD :'demo_password';
+  CONNECTION LIMIT 20;
 ALTER ROLE demo SET default_transaction_read_only = on;
 ALTER ROLE demo SET statement_timeout = '5s';
 ALTER ROLE demo SET idle_in_transaction_session_timeout = '10s';
+-- Let the advisors find pg_stat_statements without a schema prefix.
+ALTER ROLE demo SET search_path = public, extensions;
 
 -- Grants are the real guard: default_transaction_read_only is only a default
 -- a session could change, so demo gets SELECT and nothing else.
@@ -232,11 +237,3 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO demo;
 GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO demo;
 GRANT SELECT ON ALL TABLES IN SCHEMA extensions TO demo;
 GRANT pg_read_all_stats TO demo;   -- lets the advisors read pg_stat_* views
-
-COMMIT;
-
-ANALYZE;
-SELECT extensions.pg_stat_statements_reset();
-
--- Let the advisors find pg_stat_statements without a schema prefix.
-ALTER ROLE demo SET search_path = public, extensions;

@@ -11,11 +11,13 @@ cd frontend && npm install
 make dev          # Vite on :28000, proxy on :54280
 ```
 
-For a realistic sample database, load the demo seed into a local Postgres:
+For a realistic sample database, point the demo at a local Postgres you can throw away. The proxy seeds it on startup:
 
 ```bash
-psql "postgres://postgres@localhost:5432/postgres" -v demo_password=demo -f scripts/demo/seed.sql
+cd proxy && DEMO_DATABASE_URL="postgres://postgres@localhost:5432/scratch" ALLOW_PRIVATE_HOSTS=true go run .
 ```
+
+Then use **Open the demo database** in the app. The seed lives in `proxy/demo/seed.sql`.
 
 ## Where things live
 

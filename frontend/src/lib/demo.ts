@@ -4,7 +4,7 @@ import { testConnection } from './api'
 
 /**
  * The hosted demo database. The proxy swaps this exact string for its
- * DEMO_DATABASE_URL (see proxy/connect.go), so no credentials reach the browser.
+ * read-only demo role's URL (see proxy/demo.go), so no credentials reach the browser.
  */
 export const DEMO_URL = 'postgres://demo@demo.pgquery/demo'
 export const DEMO_NAME = 'Demo · record_store'

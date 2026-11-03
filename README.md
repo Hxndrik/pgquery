@@ -107,8 +107,9 @@ Browser (React app) ──HTTP──▶ Go proxy ──Postgres protocol──�
 | `RATE_LIMIT_RPM` | `600` | Requests per minute per client IP |
 | `MAX_QUERY_TIMEOUT` | `30s` | Maximum query time |
 | `MAX_ROWS` | `10000` | Maximum rows returned per query |
-| `BLOCK_PRIVATE_HOSTS` | `false` | `true` refuses loopback, private and link-local targets. Use it on public instances |
-| `DEMO_DATABASE_URL` | – | Serves a demo database. The browser only ever sees a placeholder; see [`scripts/demo/seed.sql`](scripts/demo/seed.sql) |
+| `DEMO_DATABASE_URL` | – | For a public demo instance. An admin `postgres://` URL to a **dedicated** database. On startup the app seeds a sample record store ([`proxy/demo/seed.sql`](proxy/demo/seed.sql)) and serves it through a SELECT-only role with a random password. The admin URL never reaches the browser |
+| `DEMO_RESET_INTERVAL` | `24h` | How often the demo is re-seeded; `0` seeds once |
+| `ALLOW_PRIVATE_HOSTS` | `false` | With a demo configured, connections to loopback, private and link-local addresses are refused, so a public instance can't be used to reach your network. `true` allows them anyway. Without a demo nothing is blocked |
 
 Build-time settings for the public website (Docker build args):
 

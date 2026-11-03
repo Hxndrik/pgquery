@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -34,10 +35,22 @@ func main() {
 	}
 
 	cfg := &config{
-		QueryTimeout:      queryTimeout,
-		MaxRows:           maxRows,
-		DemoURL:           os.Getenv("DEMO_DATABASE_URL"),
-		BlockPrivateHosts: os.Getenv("BLOCK_PRIVATE_HOSTS") == "true",
+		QueryTimeout: queryTimeout,
+		MaxRows:      maxRows,
+	}
+
+	// A configured demo database means this is a public instance: seed it,
+	// keep it fresh, and refuse private/loopback targets unless told otherwise.
+	if adminURL := os.Getenv("DEMO_DATABASE_URL"); adminURL != "" {
+		resetEvery := 24 * time.Hour
+		if v := os.Getenv("DEMO_RESET_INTERVAL"); v != "" {
+			if d, err := time.ParseDuration(v); err == nil {
+				resetEvery = d
+			}
+		}
+		cfg.Demo = newDemoDB(adminURL, resetEvery)
+		go cfg.Demo.run(context.Background())
+		cfg.BlockPrivateHosts = os.Getenv("ALLOW_PRIVATE_HOSTS") != "true"
 	}
 
 	mux := http.NewServeMux()
@@ -58,7 +71,7 @@ func main() {
 	rl := newRateLimiter(rateLimitRPM)
 	handler := withMiddleware(mux, rl)
 
-	log.Printf("pgquery listening on :%s (demo: %t, block private hosts: %t)", port, cfg.DemoURL != "", cfg.BlockPrivateHosts)
+	log.Printf("pgquery listening on :%s (demo: %t, private hosts blocked: %t)", port, cfg.Demo != nil, cfg.BlockPrivateHosts)
 	if err := http.ListenAndServe(":"+port, handler); err != nil {
 		log.Fatal(err)
 	}
@@ -67,8 +80,8 @@ func main() {
 type config struct {
 	QueryTimeout      time.Duration
 	MaxRows           int
-	DemoURL           string // DEMO_DATABASE_URL: served when the client asks for the demo connection
-	BlockPrivateHosts bool   // BLOCK_PRIVATE_HOSTS=true: refuse loopback/private targets (public instances)
+	Demo              *demoDB // set when DEMO_DATABASE_URL is configured
+	BlockPrivateHosts bool    // on with a demo (public instance) unless ALLOW_PRIVATE_HOSTS=true
 }
 
 func getEnv(key, fallback string) string {

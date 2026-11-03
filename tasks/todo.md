@@ -5,9 +5,9 @@ Decisions: keep the name **pgquery**, domain **pgquery.dev**. Design direction *
 ## Phase 0: infra & safety
 - [x] Site URL from `VITE_SITE_URL` (canonical, og, sitemap, robots, llms.txt); dead `pgquery.io` references removed
 - [x] Default port 54280 (`PORT` overrides); Dockerfile build args for site URL / GoatCounter
-- [x] `DEMO_DATABASE_URL`: the proxy swaps a placeholder for the real URL, so credentials never reach the browser
-- [x] `BLOCK_PRIVATE_HOSTS=true`: SSRF guard checked on the resolved IP at dial time; unit tests
-- [x] `scripts/demo/seed.sql`: record_store sample + SELECT-only `demo` role (verified writes, temp tables and `SET read_only off` are all refused)
+- [x] `DEMO_DATABASE_URL` (admin URL): the proxy seeds `proxy/demo/seed.sql` on startup and every `DEMO_RESET_INTERVAL` (24h), sets a random password on the SELECT-only `demo` role and serves only that role; the browser sees a placeholder
+- [x] Private/loopback targets blocked automatically when a demo is configured (`ALLOW_PRIVATE_HOSTS=true` opts out); checked on the resolved IP; unit tests
+- [x] Verified locally: seed on boot, resets, writes / temp tables / `SET read_only off` refused, self-host mode still reaches localhost
 - [x] CI (build, go vet/test) and GHCR multi-arch publish workflows. Lint runs but does not block yet (pre-existing errors)
 
 ## Phase 1–3: design & app

@@ -10,8 +10,8 @@ import (
 )
 
 // demoConnection is the connection string the frontend sends for the hosted
-// demo database. The proxy swaps it for DEMO_DATABASE_URL, so the real
-// credentials never reach the browser.
+// demo database. The proxy swaps it for the read-only demo role's URL (see
+// demo.go), so no credentials reach the browser.
 const demoConnection = "postgres://demo@demo.pgquery/demo"
 
 // clientError is a connect failure whose message is safe to show as-is.
@@ -20,7 +20,7 @@ type clientError struct{ msg string }
 func (e clientError) Error() string { return e.msg }
 
 var (
-	errDemoUnavailable = clientError{"the demo database is not configured on this server"}
+	errDemoUnavailable = clientError{"the demo database is not available on this server right now"}
 	errBlockedHost     = clientError{"this server does not connect to private or local addresses"}
 )
 
@@ -29,10 +29,14 @@ var (
 func (cfg *config) connect(ctx context.Context, connString string) (*pgx.Conn, error) {
 	trusted := false
 	if connString == demoConnection {
-		if cfg.DemoURL == "" {
+		demoURL := ""
+		if cfg.Demo != nil {
+			demoURL = cfg.Demo.URL()
+		}
+		if demoURL == "" {
 			return nil, errDemoUnavailable
 		}
-		connString, trusted = cfg.DemoURL, true
+		connString, trusted = demoURL, true
 	} else if err := validateConnectionString(connString); err != nil {
 		return nil, clientError{err.Error()}
 	}

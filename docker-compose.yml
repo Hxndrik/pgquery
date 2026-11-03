@@ -13,6 +13,7 @@ services:
       - RATE_LIMIT_RPM=${RATE_LIMIT_RPM:-120}
       - MAX_QUERY_TIMEOUT=30s
       - MAX_ROWS=10000
+      # Public demo instance only: an admin URL the app seeds and resets itself.
       - DEMO_DATABASE_URL=${DEMO_DATABASE_URL:-}
-      - BLOCK_PRIVATE_HOSTS=${BLOCK_PRIVATE_HOSTS:-false}
+      - DEMO_RESET_INTERVAL=${DEMO_RESET_INTERVAL:-24h}
     restart: unless-stopped
