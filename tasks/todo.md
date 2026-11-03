@@ -1,38 +1,31 @@
-# pgquery — growth & makeover plan
+# pgquery: growth & makeover
 
-Goal: give pgquery a distinctive identity, fix discoverability, and prepare a launch.
+Decisions: keep the name **pgquery**, domain **pgquery.dev**. Design direction **B, "Operator's Manual"**, modernized for the app. Public demo on a read-only DB. GoatCounter. New features: schema plate export and an EXPLAIN plan viewer.
 
-## Phase 0 — Fixes that don't depend on the design
-- [ ] Make site URL configurable (`VITE_SITE_URL`) for canonical / og / sitemap / robots; stop pointing at the dead `pgquery.io`
-- [ ] Generate `robots.txt` + `sitemap.xml` at build time from the same URL
-- [ ] GitHub Actions workflow: build + push Docker image to GHCR on tag / main
-- [ ] `docker run ghcr.io/hxndrik/pgquery` one-liner in README
+## Phase 0: infra & safety
+- [x] Site URL from `VITE_SITE_URL` (canonical, og, sitemap, robots, llms.txt); dead `pgquery.io` references removed
+- [x] Default port 54280 (`PORT` overrides); Dockerfile build args for site URL / GoatCounter
+- [x] `DEMO_DATABASE_URL`: the proxy swaps a placeholder for the real URL, so credentials never reach the browser
+- [x] `BLOCK_PRIVATE_HOSTS=true`: SSRF guard checked on the resolved IP at dial time; unit tests
+- [x] `scripts/demo/seed.sql`: record_store sample + SELECT-only `demo` role (verified writes, temp tables and `SET read_only off` are all refused)
+- [x] CI (build, go vet/test) and GHCR multi-arch publish workflows. Lint runs but does not block yet (pre-existing errors)
 
-## Phase 1 — Design direction (user picks)
-- [ ] 3 directions on a design canvas: landing, app UI, share card each
-  - A. Insert Coin — pixel arcade, mascot "Tuple" the elephant
-  - B. Operator's Manual — printed technical manual, 1-bit dithered art
-  - C. Schema Transit — schema as a subway map, wayfinding signage
-- [ ] User picks (or mixes)
+## Phase 1–3: design & app
+- [x] Tokens: paper/ink light, ink dark, blue ink, highlighter, dither utilities; self-hosted fonts
+- [x] Tuple + pixel icons from one source (`frontend/src/brand/pixels.ts`)
+- [x] App restyle: header, sidebar (pixel icons, highlighter selection), primitives, Monaco themes
+- [x] Welcome screen with one-click demo; `/app/?demo` deep link
+- [x] Landing + 8 guides + 404 as prerendered static HTML with JSON-LD; Go server serves them with real 404s
 
-## Phase 2 — Build the chosen direction
-- [ ] Design tokens (index.css + tailwind) for app + landing
-- [ ] New landing page (pre-rendered HTML for SEO)
-- [ ] Restyle app chrome (sidebar, tabs, editor theme, tables, modals)
-- [ ] OG / share image 1200×630 + favicon + apple-touch icon
-- [ ] Pixel-art SVG set: banner, mascot, feature icons
-- [ ] Signature shareable feature (direction-specific viral hook)
+## Phase 4: features
+- [x] EXPLAIN / EXPLAIN ANALYZE plan viewer (asks before analyzing writes)
+- [x] Schema plate export (SVG / 2× PNG); masonry layout fixes overlapping tables
 
-## Phase 3 — Repo makeover
-- [ ] README: banner, GIF, pitch, one-command run, comparison table, features with icons
-- [ ] CONTRIBUTING.md, issue templates, good-first-issue labels
-- [ ] Repo topics + description (user does this in GitHub settings)
-
-## Phase 4 — Launch (user)
-- [ ] Own domain live, set `VITE_SITE_URL`, submit to Google Search Console
-- [ ] Analytics (Plausible / Umami / GoatCounter)
-- [ ] Show HN → r/selfhosted → r/PostgreSQL → awesome-postgres / awesome-selfhosted PRs
-- [ ] Long-tail landing pages: RLS editor, ER diagram, Supabase Studio alternative, pg_stat_statements viewer
+## Phase 5: repo
+- [x] README, CONTRIBUTING, SECURITY, CHANGELOG, issue templates
+- [x] Assets: banner.svg (all pixels, pixel wordmark), favicon, og-image, social preview, touch icon, screenshots (`scripts/assets/build.ts`)
 
 ## Review
-_(filled in at the end)_
+- Verified: frontend build, go vet/test, proxy routes (/, /app SPA, guides with redirects, 404), demo queries through the placeholder, writes rejected, private hosts blocked, JSON-LD parses on every page, screenshots checked in light/dark/mobile, plate export downloaded and inspected, plan parser checked against real ANALYZE output.
+- Not verified here: the Docker image build (no Docker daemon in the sandbox; CI builds it); the real demo DB at the user's host (port blocked from the sandbox, so the seed was tested on a local Postgres 16).
+- Follow-ups: fix the pre-existing react-hooks lint errors and make lint blocking; consider edge routing in the schema map (lines cross tables).
