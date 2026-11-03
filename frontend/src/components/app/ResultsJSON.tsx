@@ -14,10 +14,10 @@ function colorizeJSON(json: string): string {
   const safe = escapeHtml(json)
   // Matches HTML-escaped JSON strings (keys and values use &quot;)
   return safe
-    .replace(/(&quot;(?:[^&]|&(?!quot;))*&quot;)\s*:/g, '<span style="color:var(--accent)">$1</span>:')
+    .replace(/(&quot;(?:[^&]|&(?!quot;))*&quot;)\s*:/g, '<span style="color:var(--accent-text)">$1</span>:')
     .replace(/:\s*(&quot;(?:[^&]|&(?!quot;))*&quot;)/g, ': <span style="color:var(--success)">$1</span>')
     .replace(/:\s*(\d+\.?\d*)/g, ': <span style="color:var(--warning)">$1</span>')
-    .replace(/:\s*(true|false)/g, ': <span style="color:var(--accent)">$1</span>')
+    .replace(/:\s*(true|false)/g, ': <span style="color:var(--accent-text)">$1</span>')
     .replace(/:\s*(null)/g, ': <span style="color:var(--fg-faint)">$1</span>')
 }
 

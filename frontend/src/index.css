@@ -9,8 +9,15 @@
 
 /*
   pgquery — "Operator's Manual"
-  Ink on paper. One blue ink for links and focus, one highlighter yellow for
-  selection. Dither patterns instead of gradients and shadows.
+  Ink on paper, one accent: highlighter yellow. Green, amber and red are only
+  for status. Dither patterns instead of gradients and shadows.
+
+  Accent roles (use these, never a literal color):
+    --accent         yellow fill: selection, active item, primary hover
+    --accent-fg      text on an --accent fill
+    --accent-text    emphasis text/icons on the page (ink in light, yellow in dark)
+    --accent-bg      soft tint: selected rows, active tabs
+    --accent-border  outlines and focus rings
 */
 
 /* ── Light (default): paper ───────────────────────────────── */
@@ -31,27 +38,25 @@ html.light {
   --border-mid:   rgba(22,24,29,0.28);
   --border-strong:#16181d;
 
-  --accent:        #2340d9;  /* blue ink */
-  --accent-fg:     #ffffff;
-  --accent-bg:     rgba(35,64,217,0.08);
-  --accent-border: rgba(35,64,217,0.35);
-
-  --highlight:     #ffe94d;  /* highlighter */
-  --highlight-fg:  #16181d;
-
-  --band:          #16181d;  /* the big black bar */
-  --band-fg:       #e7e9e2;
+  --accent:        #ffe94d;  /* highlighter */
+  --accent-fg:     #16181d;
+  --accent-text:   #16181d;
+  --accent-bg:     rgba(255,233,77,0.45);
+  --accent-border: #16181d;
 
   --success:        #11803d;
   --success-bg:     rgba(17,128,61,0.09);
   --success-border: rgba(17,128,61,0.30);
 
-  --warning:     #9a5b00;
-  --warning-bg:  rgba(214,140,0,0.14);
+  --warning:        #9a5b00;
+  --warning-bg:     rgba(214,140,0,0.14);
+  --warning-border: rgba(154,91,0,0.35);
 
-  --error:       #c22a1f;
-  --error-bg:    rgba(194,42,31,0.09);
+  --error:        #c22a1f;
+  --error-bg:     rgba(194,42,31,0.09);
+  --error-border: rgba(194,42,31,0.30);
 
+  --overlay:     rgba(22,24,29,0.45);
   --dither-ink:  rgba(22,24,29,0.55);
   color-scheme: light;
 }
@@ -73,27 +78,25 @@ html.dark {
   --border-mid:   rgba(236,238,231,0.20);
   --border-strong:#eceee7;
 
-  --accent:        #8ea2ff;
+  --accent:        #ffe94d;
   --accent-fg:     #111316;
-  --accent-bg:     rgba(142,162,255,0.10);
-  --accent-border: rgba(142,162,255,0.35);
-
-  --highlight:     #ffe94d;
-  --highlight-fg:  #111316;
-
-  --band:          #eceee7;
-  --band-fg:       #111316;
+  --accent-text:   #ffe94d;
+  --accent-bg:     rgba(255,233,77,0.14);
+  --accent-border: #ffe94d;
 
   --success:        #5fd38a;
   --success-bg:     rgba(95,211,138,0.10);
   --success-border: rgba(95,211,138,0.28);
 
-  --warning:     #ffc24d;
-  --warning-bg:  rgba(255,194,77,0.10);
+  --warning:        #ffc24d;
+  --warning-bg:     rgba(255,194,77,0.10);
+  --warning-border: rgba(255,194,77,0.30);
 
-  --error:       #ff7a6e;
-  --error-bg:    rgba(255,122,110,0.10);
+  --error:        #ff7a6e;
+  --error-bg:     rgba(255,122,110,0.10);
+  --error-border: rgba(255,122,110,0.30);
 
+  --overlay:     rgba(0,0,0,0.6);
   --dither-ink:  rgba(236,238,231,0.45);
   color-scheme: dark;
 }
@@ -119,8 +122,8 @@ body {
 }
 
 ::selection {
-  background: var(--highlight);
-  color: var(--highlight-fg);
+  background: var(--accent);
+  color: var(--accent-fg);
 }
 
 /* ── Scrollbars ──────────────────────────────────────────── */
@@ -140,7 +143,7 @@ body {
 
 /* ── Focus styles ────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-border);
   outline-offset: 2px;
 }
 
@@ -176,8 +179,8 @@ body {
   }
   /* Highlighter mark for selected text. */
   .mark {
-    background: linear-gradient(transparent 14%, var(--highlight) 14%, var(--highlight) 90%, transparent 90%);
-    color: var(--highlight-fg);
+    background: linear-gradient(transparent 14%, var(--accent) 14%, var(--accent) 90%, transparent 90%);
+    color: var(--accent-fg);
     padding: 0 3px;
   }
   .pixel {

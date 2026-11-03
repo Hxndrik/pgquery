@@ -279,7 +279,7 @@ export default function FunctionsPage({ connectionUrl }: PageProps) {
               <select
                 value={form.schema}
                 onChange={(e) => setForm({ ...form, schema: e.target.value })}
-                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)]"
+                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)]"
               >
                 {schemas.map((s) => (
                   <option key={s} value={s}>
@@ -309,7 +309,7 @@ export default function FunctionsPage({ connectionUrl }: PageProps) {
               <select
                 value={form.language}
                 onChange={(e) => setForm({ ...form, language: e.target.value })}
-                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)]"
+                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)]"
               >
                 <option value="plpgsql">plpgsql</option>
                 <option value="sql">sql</option>
@@ -329,7 +329,7 @@ export default function FunctionsPage({ connectionUrl }: PageProps) {
                     volatility: e.target.value as CreateFormState['volatility'],
                   })
                 }
-                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)]"
+                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)]"
               >
                 <option value="VOLATILE">volatile</option>
                 <option value="STABLE">stable</option>
@@ -346,7 +346,7 @@ export default function FunctionsPage({ connectionUrl }: PageProps) {
               onChange={(e) => setForm({ ...form, body: e.target.value })}
               rows={8}
               placeholder="BEGIN&#10;  -- function body&#10;END;"
-              className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] font-mono text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)] resize-y"
+              className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] font-mono text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)] resize-y"
             />
           </div>
           <div className="flex items-center justify-end gap-2 pt-2">

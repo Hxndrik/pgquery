@@ -352,7 +352,7 @@ function EditSettingModal({
           <select
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)]"
+            className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)]"
           >
             {setting.enumvals.map((v) => (
               <option key={v} value={v}>{v}</option>

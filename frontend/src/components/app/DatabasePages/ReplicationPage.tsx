@@ -62,7 +62,7 @@ export default function ReplicationPage({ connectionUrl }: PageProps) {
           <button
             onClick={loadData}
             disabled={loading}
-            className="ml-auto text-[13px] px-3 py-1.5 rounded bg-[var(--accent-bg)] text-[var(--accent)] hover:opacity-80 transition-opacity disabled:opacity-50"
+            className="ml-auto text-[13px] px-3 py-1.5 rounded bg-[var(--accent-bg)] text-[var(--accent-text)] hover:opacity-80 transition-opacity disabled:opacity-50"
           >
             {loading ? 'Loading…' : 'Refresh'}
           </button>
@@ -100,7 +100,7 @@ export default function ReplicationPage({ connectionUrl }: PageProps) {
                           <td className="px-3 py-2 font-mono text-[var(--fg-muted)]">{slot.plugin ?? '—'}</td>
                           <td className="px-3 py-2 font-mono text-[var(--fg-muted)]">{slot.database ?? '—'}</td>
                           <td className="px-3 py-2">
-                            <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${slot.active ? 'bg-green-500/15 text-green-500' : 'bg-yellow-500/15 text-yellow-500'}`}>
+                            <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${slot.active ? 'bg-[var(--success-bg)] text-[var(--success)]' : 'bg-[var(--warning-bg)] text-[var(--warning)]'}`}>
                               {slot.active ? 'Active' : 'Inactive'}
                             </span>
                           </td>
@@ -140,7 +140,7 @@ export default function ReplicationPage({ connectionUrl }: PageProps) {
                         <tr key={sub.name} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--bg-hover)]">
                           <td className="px-3 py-2 font-mono text-[var(--fg)]">{sub.name}</td>
                           <td className="px-3 py-2">
-                            <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${sub.enabled ? 'bg-green-500/15 text-green-500' : 'bg-yellow-500/15 text-yellow-500'}`}>
+                            <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${sub.enabled ? 'bg-[var(--success-bg)] text-[var(--success)]' : 'bg-[var(--warning-bg)] text-[var(--warning)]'}`}>
                               {sub.enabled ? 'Enabled' : 'Disabled'}
                             </span>
                           </td>

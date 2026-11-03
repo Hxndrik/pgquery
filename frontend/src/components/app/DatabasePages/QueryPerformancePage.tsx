@@ -4,6 +4,7 @@ import { checkStatStatementsExtension, topQueriesByTime } from '../../../lib/pgC
 import { QueryStatsIcon } from '../../icons'
 import { DDLPreviewModal } from './shared'
 import { toast } from 'sonner'
+import { Button } from '../../ui/Button'
 
 interface PageProps { connectionUrl: string }
 
@@ -90,7 +91,7 @@ export default function QueryPerformancePage({ connectionUrl }: PageProps) {
             <button
               onClick={loadQueries}
               disabled={loading}
-              className="ml-auto text-[13px] px-3 py-1.5 rounded bg-[var(--accent-bg)] text-[var(--accent)] hover:opacity-80 transition-opacity disabled:opacity-50"
+              className="ml-auto text-[13px] px-3 py-1.5 rounded bg-[var(--accent-bg)] text-[var(--accent-text)] hover:opacity-80 transition-opacity disabled:opacity-50"
             >
               {loading ? 'Loading…' : 'Refresh'}
             </button>
@@ -105,14 +106,11 @@ export default function QueryPerformancePage({ connectionUrl }: PageProps) {
               pg_stat_statements not installed
             </div>
             <p className="text-[13px] text-[var(--fg-muted)] mb-4 max-w-md mx-auto">
-              This extension tracks query execution statistics. Install it to see performance data.
+              This extension tracks query execution statistics. Install it to see performance data. It also needs{' '}
+              <code className="font-mono text-[12px]">shared_preload_libraries = 'pg_stat_statements'</code> in
+              postgresql.conf and a server restart.
             </p>
-            <button
-              onClick={() => setShowInstallModal(true)}
-              className="text-[13px] px-4 py-2 rounded bg-[var(--accent)] text-white hover:opacity-90 transition-opacity"
-            >
-              Install pg_stat_statements
-            </button>
+            <Button onClick={() => setShowInstallModal(true)}>Install pg_stat_statements</Button>
           </div>
         ) : (
           <>
@@ -129,7 +127,7 @@ export default function QueryPerformancePage({ connectionUrl }: PageProps) {
                   onClick={() => setSortBy(key)}
                   className={`text-[12px] px-2 py-1 rounded transition-colors ${
                     sortBy === key
-                      ? 'bg-[var(--accent-bg)] text-[var(--accent)] font-medium'
+                      ? 'bg-[var(--accent-bg)] text-[var(--accent-text)] font-medium'
                       : 'text-[var(--fg-muted)] hover:bg-[var(--bg-hover)]'
                   }`}
                 >

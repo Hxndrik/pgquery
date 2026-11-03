@@ -92,7 +92,7 @@ export function ExplorerSection<T>({
               className={`
                 w-full flex items-center gap-2 px-3 py-2 text-left transition-colors
                 ${isSelected
-                  ? 'bg-[var(--accent-bg)] text-[var(--accent)]'
+                  ? 'bg-[var(--accent-bg)] text-[var(--accent-text)]'
                   : 'text-[var(--fg-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg)]'}
               `}
             >

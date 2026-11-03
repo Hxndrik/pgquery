@@ -23,8 +23,9 @@ node scripts/assets/build.ts               # regenerate brand assets after chang
 
 ## House rules
 
-- **SQL before it runs.** Any change made through a form must show the generated SQL and let the user run it. DDL lives in `frontend/src/lib/ddlGenerators.ts`, catalog queries in `frontend/src/lib/pgCatalogQueries.ts`.
-- **Design tokens only.** Colors, fonts and radii come from `frontend/src/index.css` / `tailwind.config.js`. No hard-coded hex values in components. Both light and dark themes must work.
+- **SQL before it runs.** Any schema change made through a form must show the generated SQL and let the user run it. DDL lives in `frontend/src/lib/ddlGenerators.ts`, catalog queries in `frontend/src/lib/pgCatalogQueries.ts`.
+- **Design tokens only.** Colors, fonts and radii come from `frontend/src/index.css` / `tailwind.config.js`. No hard-coded hex values or Tailwind palette classes in components; Monaco and file exports read `frontend/src/brand/colors.ts`. Both light and dark themes must work.
+- **One accent in the app.** Highlighter yellow (`--accent`, `--accent-text`, `--accent-bg`, `--accent-border`) is the only accent; green, amber and red are only for status. The website may also use blue ink as a secondary color.
 - **No server state.** Connections, tabs and history live in the browser (`pgquery-*` localStorage keys; don't rename them, users would lose data).
 - **Facts in copy.** Website, README and guide claims must match what the code does. No invented numbers.
 - **Safe defaults.** Default views should open on user data (prefer the `public` schema) and never on something that can error.

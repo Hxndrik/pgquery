@@ -12,6 +12,7 @@ import { executeQuery } from '../../../lib/api'
 import type { SchemaColumn } from '../../../lib/api'
 import { useSchemaStore } from '../../../stores/schemaStore'
 import { toast } from 'sonner'
+import { friendlyError } from '../../../lib/errors'
 import { isNumericType, stringifyValue } from '../../../lib/typeUtils'
 
 interface TableDataViewProps {
@@ -38,7 +39,7 @@ function SortIndicator({ dir }: { dir: SortDir }) {
         width="8"
         height="5"
         viewBox="0 0 8 5"
-        className={dir === 'asc' ? 'text-[var(--accent)]' : 'text-[var(--fg-faint)] opacity-50'}
+        className={dir === 'asc' ? 'text-[var(--accent-text)]' : 'text-[var(--fg-faint)] opacity-50'}
       >
         <path d="M1 4 L4 1 L7 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
@@ -46,7 +47,7 @@ function SortIndicator({ dir }: { dir: SortDir }) {
         width="8"
         height="5"
         viewBox="0 0 8 5"
-        className={dir === 'desc' ? 'text-[var(--accent)]' : 'text-[var(--fg-faint)] opacity-50'}
+        className={dir === 'desc' ? 'text-[var(--accent-text)]' : 'text-[var(--fg-faint)] opacity-50'}
         style={{ marginTop: '1px' }}
       >
         <path d="M1 1 L4 4 L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
@@ -118,10 +119,15 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
     const offset = page * pageSize
     const clause = buildWhereClause(columns, searchQuery)
     const where = clause ? ` WHERE ${clause.where}` : ''
+    // Without an explicit sort, order by the primary key: Postgres returns
+    // rows in no fixed order, and an edited row would otherwise jump to the end.
+    const pkCols = columns.filter((c) => c.isPrimary).map((c) => quote(c.name))
     const orderBy =
       sortColumn && sortDir && columns.some((c) => c.name === sortColumn)
         ? ` ORDER BY ${quote(sortColumn)} ${sortDir === 'asc' ? 'ASC' : 'DESC'} NULLS LAST`
-        : ''
+        : pkCols.length > 0
+          ? ` ORDER BY ${pkCols.join(', ')}`
+          : ''
     const query = `SELECT * FROM ${tableRef}${where}${orderBy} LIMIT ${pageSize} OFFSET ${offset}`
     const result = await executeQuery(connectionUrl, query, clause?.params ?? [])
     if (result.success) {
@@ -280,7 +286,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
       loadData()
       loadCount()
     } else {
-      toast.error(result.error.error)
+      toast.error(friendlyError(result.error))
     }
   }
 
@@ -319,7 +325,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
         clearSelection()
         loadData()
       } else {
-        toast.error(result.error.error)
+        toast.error(friendlyError(result.error))
       }
     } else {
       // Single edit
@@ -339,7 +345,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
         setEditFocusColumn(undefined)
         loadData()
       } else {
-        toast.error(result.error.error)
+        toast.error(friendlyError(result.error))
       }
     }
   }
@@ -365,7 +371,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
         loadData()
         loadCount()
       } else {
-        toast.error(result.error.error)
+        toast.error(friendlyError(result.error))
       }
     } else if (deleteTarget === 'bulk') {
       const pks = getSelectedPKs()
@@ -389,7 +395,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
         loadData()
         loadCount()
       } else {
-        toast.error(result.error.error)
+        toast.error(friendlyError(result.error))
       }
     }
   }
@@ -436,7 +442,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
       loadSchema(connectionUrl)
       onTableDropped?.()
     } else {
-      toast.error(result.error.error)
+      toast.error(friendlyError(result.error))
     }
   }
 
@@ -551,7 +557,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
                       `}
                     >
                       <div className={`flex items-center gap-1.5 ${isNumericType(col.type) ? 'justify-end' : ''}`}>
-                        {col.isPrimary && <span className="text-[9px] font-bold text-[var(--warning)]">PK</span>}
+                        {col.isPrimary && <span className="text-[9px] font-bold px-1 rounded-sm bg-[var(--accent)] text-[var(--accent-fg)]">PK</span>}
                         <span>{col.name}</span>
                         <span className="text-[var(--fg-faint)] font-mono font-normal normal-case tracking-normal text-[9px]">{col.type}</span>
                         <SortIndicator dir={dir} />
@@ -612,7 +618,7 @@ export function TableDataView({ connectionUrl, schemaName, tableName, columns, o
                             setEditRow(rowMap)
                             setEditFocusColumn(undefined)
                           }}
-                          className="p-1 text-[var(--fg-subtle)] hover:text-[var(--accent)] rounded hover:bg-[var(--accent-bg)] transition-colors"
+                          className="p-1 text-[var(--fg-subtle)] hover:text-[var(--accent-text)] rounded hover:bg-[var(--accent-bg)] transition-colors"
                           title="Edit row"
                         >
                           <EditIcon size={13} />

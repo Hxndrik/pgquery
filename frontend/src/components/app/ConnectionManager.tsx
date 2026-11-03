@@ -77,20 +77,20 @@ export function ConnectionManager({ open, onClose, editingId }: ConnectionManage
         {/* Type selector -- only when creating new */}
         {!editingId && registeredTypes.length > 1 && (
           <div>
-            <label className="block text-[12px] font-medium text-[var(--fg-muted)] mb-1.5">
-              Connection type
-            </label>
-            <div className="flex gap-1 p-1 bg-[var(--bg-hover)] rounded">
+            <label className="label block mb-1.5">Connection type</label>
+            <div className="flex border border-[var(--border-mid)] rounded-sm" role="tablist">
               {registeredTypes.map((desc) => {
                 const Icon = desc.icon
                 return (
                   <button
                     key={desc.type}
                     onClick={() => setSelectedType(desc.type)}
-                    className={`flex items-center gap-1.5 flex-1 py-1.5 px-2 text-[12px] font-medium rounded transition-colors ${
+                    role="tab"
+                    aria-selected={effectiveType === desc.type}
+                    className={`flex items-center justify-center gap-1.5 flex-1 py-1.5 px-2 text-[12px] font-semibold transition-colors ${
                       effectiveType === desc.type
-                        ? 'bg-[var(--bg-card)] text-[var(--fg)] shadow-sm'
-                        : 'text-[var(--fg-muted)] hover:text-[var(--fg)]'
+                        ? 'bg-[var(--accent)] text-[var(--accent-fg)]'
+                        : 'text-[var(--fg-muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-hover)]'
                     }`}
                   >
                     <Icon size={14} />

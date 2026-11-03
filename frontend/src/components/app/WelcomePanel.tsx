@@ -50,7 +50,7 @@ export function WelcomePanel({ onConnected }: { onConnected: () => void }) {
           <span className="label mb-1">Where your data goes</span>
           <span>Connections are saved in this browser (localStorage).</span>
           <span>The proxy forwards queries and keeps nothing.</span>
-          <span>Every DROP, ALTER and GRANT is shown as SQL before it runs.</span>
+          <span>Schema changes (CREATE, ALTER, GRANT) are shown as SQL before they run.</span>
         </div>
       </div>
     </div>

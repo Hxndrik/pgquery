@@ -55,7 +55,7 @@ export default function WrappersPage({ connectionUrl }: PageProps) {
           <button
             onClick={loadData}
             disabled={loading}
-            className="ml-auto text-[13px] px-3 py-1.5 rounded bg-[var(--accent-bg)] text-[var(--accent)] hover:opacity-80 transition-opacity disabled:opacity-50"
+            className="ml-auto text-[13px] px-3 py-1.5 rounded bg-[var(--accent-bg)] text-[var(--accent-text)] hover:opacity-80 transition-opacity disabled:opacity-50"
           >
             {loading ? 'Loading…' : 'Refresh'}
           </button>

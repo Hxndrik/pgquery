@@ -23,9 +23,9 @@ export function BulkActionsBar({
     : `${selectedCount} ${selectedCount === 1 ? 'row' : 'rows'} selected`
 
   return (
-    <div className="flex items-center justify-between px-4 py-2.5 bg-[var(--accent-bg)] border-t border-[var(--accent)] shrink-0">
+    <div className="flex items-center justify-between px-4 py-2.5 bg-[var(--accent-bg)] border-t border-[var(--accent-border)] shrink-0">
       <div className="flex items-center gap-3">
-        <span className="text-[12px] font-medium text-[var(--accent)]">{countText}</span>
+        <span className="text-[12px] font-medium text-[var(--accent-text)]">{countText}</span>
         <Button variant="ghost" size="sm" onClick={onClear} className="text-[11px] h-6 px-2">
           Clear selection
         </Button>

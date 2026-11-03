@@ -244,7 +244,7 @@ export default function TriggersPage({ connectionUrl }: PageProps) {
               e.stopPropagation()
               handleToggle(item)
             }}
-            className="text-[11px] text-[var(--accent)] hover:underline"
+            className="text-[11px] text-[var(--accent-text)] hover:underline"
           >
             {item.enabled === 'enabled' ? 'Disable' : 'Enable'}
           </button>
@@ -323,7 +323,7 @@ export default function TriggersPage({ connectionUrl }: PageProps) {
               <select
                 value={form.schema}
                 onChange={(e) => setForm({ ...form, schema: e.target.value })}
-                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)]"
+                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)]"
               >
                 {schemas.map((s) => (
                   <option key={s} value={s}>
@@ -352,7 +352,7 @@ export default function TriggersPage({ connectionUrl }: PageProps) {
                     timing: e.target.value as CreateFormState['timing'],
                   })
                 }
-                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)]"
+                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)]"
               >
                 <option value="BEFORE">BEFORE</option>
                 <option value="AFTER">AFTER</option>
@@ -371,7 +371,7 @@ export default function TriggersPage({ connectionUrl }: PageProps) {
                     forEach: e.target.value as 'ROW' | 'STATEMENT',
                   })
                 }
-                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent)]"
+                className="w-full bg-[var(--bg-card)] border border-[var(--border-mid)] rounded text-[13px] text-[var(--fg)] px-3 py-2 transition-colors hover:border-[var(--border-strong)] focus:outline-none focus:border-[var(--accent-border)]"
               >
                 <option value="ROW">ROW</option>
                 <option value="STATEMENT">STATEMENT</option>

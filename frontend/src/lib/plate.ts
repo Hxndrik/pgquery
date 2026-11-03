@@ -1,6 +1,7 @@
 // "Plate" export of the schema map: a standalone, printable SVG in the
 // manual style (ink on paper, title block, figure number, Tuple).
 import { tupleMarkup } from '../brand/pixels'
+import { INK, INK_MUTED as MUTED_2, INK_SUBTLE as MUTED, PAPER as PAPER_2, PAPER_RAISED as PAPER } from '../brand/colors'
 
 export interface PlateTable {
   name: string
@@ -28,10 +29,7 @@ export interface PlateInput {
   date?: Date
 }
 
-const INK = '#16181d'
-const PAPER = '#f3f4ef'
-const PAPER_2 = '#e7e9e2'
-const BLUE = '#2340d9'
+
 const SANS = "'Archivo Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif"
 const MONO = "'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace"
 
@@ -63,8 +61,8 @@ export function buildPlateSvg(p: PlateInput): { svg: string; width: number; heig
       const cols = t.columns
         .map(
           (c, i) =>
-            `<text x="10" y="${p.header + i * p.row + 15}" font-family="${MONO}" font-size="11" fill="${c.isPrimary ? BLUE : INK}">${c.isPrimary ? '◆ ' : ''}${esc(c.name)}</text>` +
-            `<text x="${t.width - 10}" y="${p.header + i * p.row + 15}" font-family="${MONO}" font-size="10" fill="#5f645a" text-anchor="end">${esc(c.type)}</text>`,
+            `<text x="10" y="${p.header + i * p.row + 15}" font-family="${MONO}" font-size="11" fill="${INK}" font-weight="${c.isPrimary ? 600 : 400}">${c.isPrimary ? '◆ ' : ''}${esc(c.name)}</text>` +
+            `<text x="${t.width - 10}" y="${p.header + i * p.row + 15}" font-family="${MONO}" font-size="10" fill="${MUTED}" text-anchor="end">${esc(c.type)}</text>`,
         )
         .join('')
       return `<g transform="translate(${t.x + ox} ${t.y + oy})"><rect width="${t.width}" height="${t.height}" fill="${PAPER}" stroke="${INK}" stroke-width="1.5"/><rect width="${t.width}" height="${p.header}" fill="${INK}"/><text x="10" y="18" font-family="${MONO}" font-size="12" font-weight="600" fill="${PAPER}">${esc(t.name)}</text>${cols}</g>`
@@ -76,9 +74,9 @@ export function buildPlateSvg(p: PlateInput): { svg: string; width: number; heig
   const tuple = `<svg x="${width - margin - 120}" y="${ty + 30}" width="120" height="80" viewBox="0 0 30 20" shape-rendering="crispEdges">${tupleMarkup('dither', { ink: INK, paper: PAPER_2 }, undefined, 'plate')}</svg>`
   const title =
     `<line x1="12" y1="${ty}" x2="${width - 12}" y2="${ty}" stroke="${INK}" stroke-width="3"/>` +
-    `<text x="${margin}" y="${ty + 46}" font-family="${MONO}" font-size="13" letter-spacing="2" fill="${BLUE}">FIG. 1 · SCHEMA PLATE</text>` +
+    `<text x="${margin}" y="${ty + 46}" font-family="${MONO}" font-size="13" letter-spacing="2" fill="${INK}">FIG. 1 · SCHEMA PLATE</text>` +
     `<text x="${margin}" y="${ty + 96}" font-family="${SANS}" font-size="44" font-weight="900" fill="${INK}" letter-spacing="-1">${esc(p.database)}.${esc(p.schema)}</text>` +
-    `<text x="${margin}" y="${ty + 126}" font-family="${MONO}" font-size="13" fill="#3f433b">${p.tables.length} tables · ${p.edges.length} foreign keys · ${date} · made with pgquery.dev</text>` +
+    `<text x="${margin}" y="${ty + 126}" font-family="${MONO}" font-size="13" fill="${MUTED_2}">${p.tables.length} tables · ${p.edges.length} foreign keys · ${date} · made with pgquery.dev</text>` +
     tuple
 
   const svg =

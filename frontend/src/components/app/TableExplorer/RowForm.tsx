@@ -125,7 +125,7 @@ export function RowForm({ open, onClose, onSubmit, columns, initial, mode, focus
               <div key={col.name} className="flex flex-col gap-1">
                 <label className="text-[12px] text-[var(--fg-muted)] font-medium">{label}</label>
                 <textarea
-                  className="w-full rounded-md border border-[var(--border)] bg-[var(--bg-input)] px-3 py-2 text-[13px] text-[var(--fg)] font-mono resize-y min-h-[80px] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full rounded-md border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 text-[13px] text-[var(--fg)] font-mono resize-y min-h-[80px] focus:outline-none focus:ring-1 focus:ring-[var(--accent-border)] disabled:opacity-50 disabled:cursor-not-allowed"
                   value={values[col.name] ?? ''}
                   onChange={(e) => setValues((v) => ({ ...v, [col.name]: e.target.value }))}
                   placeholder={col.nullable ? 'NULL' : ''}
