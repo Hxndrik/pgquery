@@ -241,11 +241,11 @@ export default function S3ObjectBrowser({ config }: S3ObjectBrowserProps) {
     : objects
 
   return (
-    <div className="flex flex-1 h-full overflow-hidden">
+    <div className="flex flex-1 h-full overflow-hidden relative">
       {/* Object list */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-[280px]">
         {/* Toolbar */}
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-raised)] shrink-0">
+        <div className="flex flex-wrap items-center gap-2 px-3 md:px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-raised)] shrink-0">
           <Button variant="ghost" size="sm" onClick={load} disabled={loading} aria-label="Refresh">
             <RefreshIcon size={14} />
           </Button>
@@ -270,7 +270,7 @@ export default function S3ObjectBrowser({ config }: S3ObjectBrowserProps) {
             </>
           )}
           <div className="flex-1" />
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-[var(--bg)] border border-[var(--border)]">
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-[var(--bg)] border border-[var(--border)] max-md:flex-1 max-md:min-w-[8rem]">
             <SearchIcon size={12} className="text-[var(--fg-subtle)]" />
             <input
               type="text"
@@ -278,7 +278,7 @@ export default function S3ObjectBrowser({ config }: S3ObjectBrowserProps) {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter..."
               aria-label="Filter this folder"
-              className="bg-transparent text-[12px] text-[var(--fg)] outline-none w-32 placeholder:text-[var(--fg-faint)]"
+              className="bg-transparent text-[12px] text-[var(--fg)] outline-none w-32 max-md:w-full placeholder:text-[var(--fg-faint)]"
             />
           </div>
         </div>
@@ -324,7 +324,7 @@ export default function S3ObjectBrowser({ config }: S3ObjectBrowserProps) {
                   <th className="w-8 px-4 py-2" />
                   <th className="px-2 py-2 font-medium">Name</th>
                   <th className="px-2 py-2 font-medium w-24 text-right">Size</th>
-                  <th className="px-2 py-2 font-medium w-44 text-right">Last Modified</th>
+                  <th className="px-2 py-2 font-medium w-44 text-right max-md:hidden">Last Modified</th>
                 </tr>
               </thead>
               <tbody>
@@ -367,7 +367,7 @@ export default function S3ObjectBrowser({ config }: S3ObjectBrowserProps) {
                       <td className="px-2 py-1.5 text-right text-[var(--fg-muted)]">
                         {obj.isFolder ? '--' : formatSize(obj.size)}
                       </td>
-                      <td className="px-2 py-1.5 text-right text-[var(--fg-muted)]">
+                      <td className="px-2 py-1.5 text-right text-[var(--fg-muted)] max-md:hidden">
                         {obj.lastModified ? formatDate(obj.lastModified) : '--'}
                       </td>
                     </tr>
@@ -402,11 +402,11 @@ export default function S3ObjectBrowser({ config }: S3ObjectBrowserProps) {
       {(metaLoading || previewMeta) && (
         <div
           style={{ width: previewWidth }}
-          className="shrink-0 border-l border-[var(--border)] bg-[var(--bg-raised)] flex flex-col overflow-hidden relative"
+          className="shrink-0 border-l border-[var(--border)] bg-[var(--bg-raised)] flex flex-col overflow-hidden relative max-md:!w-full max-md:absolute max-md:inset-0 max-md:z-20 max-md:border-l-0"
         >
           <div
             onMouseDown={onPreviewDragStart}
-            className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-[var(--accent)] transition-colors z-10"
+            className="max-md:hidden absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-[var(--accent)] transition-colors z-10"
           />
           {metaLoading ? (
             <div className="flex-1 flex items-center justify-center">

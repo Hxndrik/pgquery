@@ -20,6 +20,9 @@ import "../../lib/connectionTypes";
 interface SidebarProps {
   activeView: string;
   onViewChange: (view: string) => void;
+  /** Phones: the sidebar is a drawer, shown only while this is true. */
+  mobileOpen?: boolean;
+  onCloseMenu?: () => void;
 }
 
 function CollapsibleSection({
@@ -63,7 +66,7 @@ function CollapsibleSection({
   );
 }
 
-export function Sidebar({ activeView, onViewChange }: SidebarProps) {
+export function Sidebar({ activeView, onViewChange, mobileOpen = false, onCloseMenu }: SidebarProps) {
   const { width, onMouseDown } = useResizableWidth({
     storageKey: STORAGE_KEYS.SIDEBAR_WIDTH,
     initialWidth: 240,
@@ -131,11 +134,13 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   return (
     <div
       style={{ width }}
-      className="shrink-0 bg-[var(--bg)] border-r border-[var(--border-strong)] h-full flex flex-col relative"
+      className={`shrink-0 bg-[var(--bg)] border-r border-[var(--border-strong)] h-full flex-col relative max-md:fixed max-md:left-0 max-md:top-12 max-md:bottom-0 max-md:z-40 max-md:!w-[min(88vw,320px)] max-md:shadow-[6px_0_0_0_var(--border-strong)] ${
+        mobileOpen ? "flex" : "max-md:hidden md:flex"
+      }`}
     >
       <div
         onMouseDown={onMouseDown}
-        className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-[var(--fg)] transition-colors z-10"
+        className="max-md:hidden absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-[var(--fg)] transition-colors z-10"
       />
 
       {/* Connection Section -- always visible */}
@@ -285,6 +290,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
         editingId={editingId}
         // A screen from another connection type (the S3 browser while adding Postgres, or the reverse) doesn't exist here.
         onConnected={(type) => {
+          onCloseMenu?.();
           const added = getConnectionType(type);
           if (added && !added.viewComponents[activeView]) onViewChange(added.defaultView);
         }}

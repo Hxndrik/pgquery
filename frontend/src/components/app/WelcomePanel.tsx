@@ -30,7 +30,7 @@ export function WelcomePanel({ onConnected }: { onConnected: (view: string) => v
 
         <div className="flex flex-col gap-3">
           <h1 className="text-[34px] leading-[0.95] font-black uppercase tracking-[-0.02em] [font-stretch:125%] text-balance">
-            Connect a database
+            Connect a database or a bucket
           </h1>
           <p className="text-[15px] text-[var(--fg-muted)] max-w-[34em]">
             Open a sample to look around, or add your own connection with the{' '}
