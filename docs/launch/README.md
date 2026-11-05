@@ -6,10 +6,35 @@ Everything for launching pgquery. Copy each block as is or put it in your own wo
 
 - [ ] pgquery.dev serves the new build; https://pgquery.dev/app/?demo opens the demo and a query runs
 - [ ] GHCR package is public, so `docker run ghcr.io/hxndrik/pgquery` works without logging in
-- [ ] GitHub description, topics and social preview are set; v1.0.0 release is published
+- [ ] GitHub About text, website and topics are set (see [GitHub repository settings](#github-repository-settings)), social preview uploaded, latest release published
+- [ ] https://pgquery.dev/app/ connects to a real database on the public internet (e.g. a free Supabase or Neon project)
 - [ ] Google Search Console and Bing Webmaster Tools have the sitemap
 - [ ] GoatCounter is counting, so you can see which post brought people
 - [ ] You have 3–4 free hours after each post to answer comments
+
+## GitHub repository settings
+
+Open https://github.com/Hxndrik/pgquery, click the gear icon next to **About** on the right, and paste these.
+
+**Description**
+
+```text
+Postgres client in your browser. Connect your live database at pgquery.dev; connections stay in localStorage. Free, MIT, optionally self-hosted as one Docker container.
+```
+
+**Website**
+
+```text
+https://pgquery.dev
+```
+
+**Topics**
+
+```text
+postgres postgresql database-gui sql-editor sql-client postgresql-client web-based browser self-hosted docker row-level-security explain-analyze er-diagram pgadmin-alternative
+```
+
+Then upload `docs/assets/social-preview.png` (regenerated with the new "in your browser" text): https://github.com/Hxndrik/pgquery/settings → Social preview → Edit → Upload an image.
 
 ## Order
 
@@ -40,7 +65,7 @@ Submit the URL, not text. Then immediately add the first comment below. Titles m
 **Title**
 
 ```text
-Show HN: pgquery – a Postgres GUI in your browser, in one Docker container
+Show HN: pgquery – a Postgres client in the browser, connections stay in localStorage
 ```
 
 **URL**
@@ -52,23 +77,23 @@ https://pgquery.dev
 **First comment**
 
 ```text
-Hi HN, I built pgquery, a free, MIT-licensed Postgres GUI that runs in the browser.
+Hi HN, I built pgquery, a free, MIT-licensed Postgres client that runs in the browser. You open https://pgquery.dev/app/, paste a connection string and work on your live database. Nothing to install, no account.
 
-I wanted the database screens I like in Supabase Studio (table editor, RLS policies, roles, advisors) for any Postgres, without running a whole platform and without installing a desktop app on every machine I use. So it's one container:
+I wanted the database screens I like in Supabase Studio (table editor, RLS policies, roles, advisors) for any Postgres, without running a whole platform and without installing a desktop app on every machine I use. It started as a tool for myself; I'm publishing it to see if others find it useful.
 
-  docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
-
-How it works: a React app plus a small Go proxy that turns HTTP requests into Postgres connections. The proxy keeps no state; saved connections, tabs and history live in your browser's localStorage. Schema changes made through forms (CREATE, ALTER, GRANT, CREATE POLICY) are shown as SQL first and you run them yourself.
+How it works: a React app plus a small Go proxy that turns HTTP requests into Postgres connections. Saved connections, tabs and history live in your browser's localStorage; the proxy is stateless and doesn't log or store queries or connection strings. Schema changes made through forms (CREATE, ALTER, GRANT, CREATE POLICY) are shown as SQL first and you run them yourself.
 
 What's in it: SQL editor with schema-aware autocomplete, a table editor (JSONB too), an ER diagram you can export as an SVG/PNG "plate", RLS policies, roles and grants, indexes, a pg_stat_statements view, performance and security advisors, and an EXPLAIN / EXPLAIN ANALYZE viewer that draws the plan as a tree and highlights the slowest node.
 
-There's a read-only demo database (a small record store, reset daily): https://pgquery.dev/app/?demo
+No database handy? There's a read-only sample (a small record store, reset daily): https://pgquery.dev/app/?demo
 
-Limits, honestly: there's no built-in login, so on a shared server put it behind a VPN or an auth proxy. No SSH tunnels, Postgres only, and pgAdmin still does more admin work (backup/restore, a PL/pgSQL debugger). I wrote up where it wins and loses against pgweb, DbGate, pgAdmin, CloudBeaver, Adminer and Supabase Studio here: https://pgquery.dev/postgres-client-comparison/
+The hosted app only connects to public addresses. If your database is in a private network, or you'd rather queries not pass through my server, it's one container:
 
-If you know pgweb: it's a great, lean query explorer (one binary, SSH tunnels, ten years old). pgquery goes further into administration: RLS policies, roles, indexes, functions and triggers, advisors, an EXPLAIN tree and an ER diagram. DbGate is the strong multi-database option.
+  docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
 
-I'd love feedback on the plan viewer and on which advisor checks you'd want next. Source: https://github.com/Hxndrik/pgquery
+Limits, honestly: no SSH tunnels, Postgres only, and pgAdmin still does more admin work (backup/restore, a PL/pgSQL debugger). A self-hosted copy has no login of its own, so put it behind a VPN or an auth proxy. I wrote up where it wins and loses against pgweb, DbGate, pgAdmin, CloudBeaver, Adminer and Supabase Studio here: https://pgquery.dev/postgres-client-comparison/
+
+It's free and will stay free. I'd love feedback on the plan viewer, which advisor checks you'd want next, and whether the hosted limits get in your way. Source and issues: https://github.com/Hxndrik/pgquery
 ```
 
 ## r/selfhosted
@@ -108,10 +133,10 @@ Self-hosting details:
 - no built-in auth, so put it behind your VPN, Authelia, oauth2-proxy or Cloudflare Access like other admin tools
 - no SSH tunnels yet; run it next to the database instead
 
-Read-only demo (sample record store): https://pgquery.dev/app/?demo
+If you just want to try it first, the same app is hosted at https://pgquery.dev/app/ (public databases only; connections stay in your browser). Read-only sample database: https://pgquery.dev/app/?demo
 Source (MIT): https://github.com/Hxndrik/pgquery
 
-Happy to hear what's missing for your setup.
+It's a personal project, free and staying that way. Happy to hear what's missing for your setup.
 ```
 
 ## r/PostgreSQL
@@ -123,13 +148,13 @@ Lead with the Postgres-specific parts. Attach screenshot-plan.png.
 **Title**
 
 ```text
-I built a free Postgres GUI with an EXPLAIN ANALYZE tree view, RLS policy editor and advisors
+I built a free Postgres client for the browser with an EXPLAIN ANALYZE tree view, RLS policy editor and advisors
 ```
 
 **Body**
 
 ```text
-pgquery is an open-source (MIT) Postgres GUI that runs in the browser. A few parts I think this sub might care about:
+pgquery is an open-source (MIT) Postgres client that runs in the browser: open https://pgquery.dev/app/, paste a connection string, done. Connections stay in your browser's localStorage. A few parts I think this sub might care about:
 
 - EXPLAIN / EXPLAIN ANALYZE drawn as a tree: each node's own time and share of the total, the heaviest node highlighted, and a warning where estimated vs actual rows are off by 10x or more. It asks before analyzing an INSERT/UPDATE/DELETE, since ANALYZE executes it.
 - Row Level Security: see which tables have RLS on, the policies on each (command, roles, USING / WITH CHECK), and create or drop them. The SQL is shown before it runs.
@@ -137,9 +162,9 @@ pgquery is an open-source (MIT) Postgres GUI that runs in the browser. A few par
 - pg_stat_statements sorted by total time, mean time or calls.
 - ER diagram from foreign keys, exportable as SVG/PNG.
 
-Everything is plain pg_catalog queries and generated DDL behind a small stateless Go proxy, so it works with RDS, Supabase, Neon or your own server.
+Everything is plain pg_catalog queries and generated DDL behind a small stateless Go proxy, so it works with RDS, Supabase, Neon or your own server. For databases in a private network, self-host it as one container.
 
-Read-only demo: https://pgquery.dev/app/?demo
+Read-only sample database: https://pgquery.dev/app/?demo
 Source: https://github.com/Hxndrik/pgquery
 
 There's also an honest comparison with pgweb, DbGate, pgAdmin, CloudBeaver, Adminer and Supabase Studio (including where pgquery loses): https://pgquery.dev/postgres-client-comparison/
@@ -156,23 +181,23 @@ Only on Saturdays, with the Showoff Saturday flair. This crowd likes the build d
 **Title**
 
 ```text
-[Showoff Saturday] pgquery: a Postgres GUI in the browser, with a site that's prerendered from a Vite plugin
+[Showoff Saturday] pgquery: a Postgres client in the browser, everything kept in localStorage
 ```
 
 **Body**
 
 ```text
-pgquery is an open-source Postgres GUI: React 19 + Monaco for the app, a small Go proxy for the database side, one Docker image.
+pgquery is an open-source Postgres client you use at https://pgquery.dev/app/: React 19 + Monaco for the app, a small stateless Go proxy for the database side. Connections, tabs and history live in localStorage, so there's no account and no backend database. Self-hosting is one Docker image.
 
 A few build details that were fun:
 - The marketing site and guide pages are plain HTML generated by a small Vite plugin at build time from TypeScript templates, with JSON-LD, sitemap and llms.txt. No SSR framework.
 - The mascot and icons are pixel art stored as character grids in one TS file; the app, the site, the favicon, the README banner and the share image are all rendered from it.
 - The EXPLAIN viewer parses Postgres's JSON plan into a flat tree with per-node self time.
 
-Demo (read-only DB): https://pgquery.dev/app/?demo
+App: https://pgquery.dev/app/ (or a read-only sample DB: https://pgquery.dev/app/?demo)
 Code: https://github.com/Hxndrik/pgquery
 
-Feedback on the design very welcome.
+It's a side project I use myself. Feedback on the design very welcome.
 ```
 
 ## X / Bluesky thread
@@ -182,21 +207,21 @@ Attach demo.mp4 to post 1, screenshot-plan.png to post 3, schema-plate.png to po
 **1/6 (with demo.mp4)**
 
 ```text
-I made pgquery: a free Postgres GUI that runs in your browser and ships as one Docker container.
+I made pgquery: a free Postgres client in your browser. Paste a connection string, work on your live database.
 
-SQL editor, tables, ER diagram, RLS policies, roles, indexes, advisors. No account.
+SQL editor, tables, ER diagram, RLS policies, roles, indexes, advisors. No install, no account.
 
-Try the read-only demo → pgquery.dev
+→ pgquery.dev
 ```
 
 **2/6**
 
 ```text
-Self-host it in one line:
+Your connections and history stay in your browser's localStorage. The server is a small stateless Go proxy.
+
+Database in a private network? Self-host it in one line:
 
 docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
-
-The server is a small stateless Go proxy. Your connections and history stay in your browser.
 ```
 
 **3/6 (with screenshot-plan.png)**
@@ -214,7 +239,7 @@ Export your schema as a printable "plate": an ER diagram with a title block, as 
 **5/6**
 
 ```text
-I also wrote an honest comparison with pgweb, DbGate, pgAdmin, CloudBeaver, Adminer and Supabase Studio. Including the parts where pgquery loses (no login, no SSH tunnels, Postgres only).
+I also wrote an honest comparison with pgweb, DbGate, pgAdmin, CloudBeaver, Adminer and Supabase Studio. Including the parts where pgquery loses (no SSH tunnels, Postgres only, young).
 
 pgquery.dev/postgres-client-comparison
 ```
@@ -222,7 +247,7 @@ pgquery.dev/postgres-client-comparison
 **6/6**
 
 ```text
-MIT licensed. Code, issues and ideas welcome: github.com/Hxndrik/pgquery
+A personal project, MIT licensed and free. Issues and ideas welcome: github.com/Hxndrik/pgquery
 ```
 
 ## awesome-postgres (pull request)
@@ -234,13 +259,13 @@ Add one line to the GUI section, matching the list's existing format and alphabe
 **List entry**
 
 ```text
-* [pgquery](https://github.com/Hxndrik/pgquery) - Browser-based PostgreSQL GUI shipped as one Docker container: SQL editor, table editor, ER diagram, RLS policies, EXPLAIN viewer and performance/security advisors.
+* [pgquery](https://github.com/Hxndrik/pgquery) - Browser-based PostgreSQL client, hosted or self-hosted in one Docker container: SQL editor, table editor, ER diagram, RLS policies, EXPLAIN viewer and performance/security advisors.
 ```
 
 **PR description**
 
 ```text
-Adds pgquery, an MIT-licensed, browser-based PostgreSQL GUI (single Docker container) to the GUI section. Demo: https://pgquery.dev/app/?demo
+Adds pgquery, an MIT-licensed, browser-based PostgreSQL client (hosted at https://pgquery.dev, or a single Docker container) to the GUI section. Sample database: https://pgquery.dev/app/?demo
 ```
 
 ## awesome-selfhosted (pull request to awesome-selfhosted-data)
@@ -281,19 +306,19 @@ pgquery
 **Short description**
 
 ```text
-Free, open-source Postgres GUI in your browser, shipped as one Docker container.
+Free, open-source Postgres client in your browser. Connections stay in localStorage.
 ```
 
 **Description**
 
 ```text
-pgquery is a PostgreSQL GUI that runs in the browser. It includes a SQL editor with schema-aware autocomplete, a table editor, an ER diagram with SVG/PNG export, Row Level Security policies, roles and grants, indexes, a pg_stat_statements view, performance and security advisors, and an EXPLAIN plan viewer. Self-host it with one docker run; the server is a stateless Go proxy and connections stay in your browser. MIT licensed, no account.
+pgquery is a PostgreSQL GUI that runs in the browser. It includes a SQL editor with schema-aware autocomplete, a table editor, an ER diagram with SVG/PNG export, Row Level Security policies, roles and grants, indexes, a pg_stat_statements view, performance and security advisors, and an EXPLAIN plan viewer. Use it at pgquery.dev with nothing to install, or self-host it with one docker run. The server is a stateless Go proxy and connections stay in your browser. MIT licensed, no account.
 ```
 
 **Tags**
 
 ```text
-PostgreSQL, Database GUI, SQL Editor, Database Management, Self-Hosted, Web-based, Docker, Open Source
+PostgreSQL, Database GUI, SQL Editor, Database Management, Web-based, Self-Hosted, Docker, Open Source
 ```
 
 **Alternative to**
@@ -311,19 +336,19 @@ Optional; works best with a few people ready to try it on launch day. Launch at 
 **Tagline (≤ 60 chars)**
 
 ```text
-A free Postgres studio in one Docker container
+A free Postgres client in your browser
 ```
 
 **Description**
 
 ```text
-pgquery is a browser-based PostgreSQL GUI: SQL editor, table editor, ER diagram, RLS policies, EXPLAIN plan viewer and performance/security advisors. One docker run, no account, MIT licensed.
+pgquery is a PostgreSQL client in your browser: paste a connection string and get a SQL editor, table editor, ER diagram, RLS policies, EXPLAIN plan viewer and performance/security advisors. Connections stay in your browser, no account, MIT licensed. Self-host it as one container if you prefer.
 ```
 
 **Maker comment**
 
 ```text
-Hey Product Hunt! I built pgquery because I wanted Supabase-style database screens for any Postgres, without installing a desktop app or running a whole platform. It's one container; your connections stay in your browser. Try the read-only demo and tell me what you'd want next.
+Hey Product Hunt! I built pgquery because I wanted Supabase-style database screens for any Postgres, without installing a desktop app or running a whole platform. Open it, paste a connection string, and your connections stay in your browser. It's a personal project, free and staying free. Try it (or the read-only sample database) and tell me what you'd want next.
 ```
 
 ## Media (this folder and docs/assets)

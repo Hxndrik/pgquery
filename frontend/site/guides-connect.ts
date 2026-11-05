@@ -5,7 +5,7 @@ import type { Guide } from './content'
 // Connection guides: where to find the connection string, which variant to use
 // with pgquery, and the errors people actually hit.
 
-const hostedNote = `<p>The hosted app at pgquery.dev can reach databases on the public internet. For a database inside a private network, run pgquery yourself next to it:</p>
+const hostedNote = `<p>The hosted app at pgquery.dev reaches databases on the public internet. For a database inside a private network, run your own copy of pgquery next to it:</p>
 <pre><code>${DOCKER_RUN}</code></pre>`
 
 export const CONNECT_GUIDES: Guide[] = [

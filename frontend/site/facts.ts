@@ -1,12 +1,20 @@
-// Single source for facts repeated across the site, README-style copy and llms.txt.
+// Single source for facts repeated across the site and llms.txt. README.md repeats them by hand.
 export const REPO = 'https://github.com/Hxndrik/pgquery'
 export const IMAGE = 'ghcr.io/hxndrik/pgquery'
 export const PORT = 54280
 export const DOCKER_RUN = `docker run -p ${PORT}:${PORT} ${IMAGE}`
+export const ISSUES = `${REPO}/issues/new/choose`
 export const ONE_LINER =
-  'pgquery is a free, open-source PostgreSQL client that runs in your browser. It ships as one Docker container and needs no account.'
+  'pgquery is a free, open-source PostgreSQL client you open in your browser. Connect your live database; connections, tabs and history stay in your browser. Self-hosting is optional: one Docker container.'
 export const DESCRIPTION =
-  'Free, open-source PostgreSQL GUI in your browser: SQL editor, table editor, ER diagram, RLS policies, roles, indexes, EXPLAIN plan viewer and performance advisors. One Docker container, no account.'
+  'Free, open-source PostgreSQL client in your browser: connect your live database, nothing to install. SQL editor, table editor, ER diagram, RLS policies, roles, indexes, EXPLAIN viewer and advisors. Connections stay in your browser; self-host as one Docker container if you prefer.'
+/** What the hosted app can and cannot promise. Keep in step with proxy/connect.go and proxy/main.go. */
+export const DATA_NOTE =
+  'Saved connections, tabs and history live in your browser (localStorage). Each query is sent with its connection string to the pgquery server, which opens a connection, runs it and returns the rows. The server is stateless and open source; its code does not log or store connection strings or queries. To keep everything inside your own network, self-host.'
+export const HOSTED_LIMITS =
+  'The hosted app at pgquery.dev reaches databases on the public internet only (private and local addresses are refused), and limits rows per query, query time and requests per IP. Self-host to reach private networks and set your own limits.'
+export const PERSONAL_NOTE =
+  'pgquery is a tool I built for my own Postgres work and decided to publish. It is free and will stay free; it is not built to make money. Expect a few rough edges. If something breaks, a feature is missing or the hosted limits get in your way, open a GitHub issue: a link and a short description is plenty.'
 
 export const FEATURES: { name: string; what: string; slug?: string }[] = [
   { name: 'SQL Editor', what: 'Monaco editor with schema-aware autocomplete, tabs, 500-entry history, saved queries, CSV and JSON export.' },

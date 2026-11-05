@@ -1,0 +1,28 @@
+name: Feedback or question
+description: Limits, ideas, "this confused me", or interest in more than the free app offers
+labels: [feedback]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        pgquery is a personal project, and any feedback helps. Plain words are fine; no need for a technical write-up.
+  - type: textarea
+    id: context
+    attributes:
+      label: What were you doing?
+      description: A link (page, screenshot, the screen you were on) and a sentence or two is plenty.
+    validations:
+      required: true
+  - type: textarea
+    id: wish
+    attributes:
+      label: What would you like?
+      description: A fix, a feature, higher limits on pgquery.dev, a paid option with something specific, or just a thought.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where do you use pgquery?
+      options:
+        - The hosted app at pgquery.dev
+        - My own copy (self-hosted)
+        - Both

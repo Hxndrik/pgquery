@@ -6,6 +6,14 @@ Please report security issues privately through GitHub's **Report a vulnerabilit
 
 ## Security model
 
+### Hosted app (pgquery.dev)
+
+- pgquery.dev runs the same open-source image, with a demo database configured. Because of that it refuses connections to loopback, private and link-local addresses, so it cannot be used to reach anyone's internal network.
+- Saved connections live in your browser (localStorage). Each request carries its connection string to the proxy, which connects, runs the query and returns the rows. The proxy's code does not log or store connection strings or queries.
+- Use a database role with only the rights you need. If queries must not leave your own network, self-host.
+
+### Self-hosted
+
 - pgquery has no authentication of its own. Anyone who can reach an instance can use it to connect to any database they have credentials for. Run it on localhost, behind a VPN, or behind an authenticating reverse proxy.
 - The proxy is stateless. Connection strings are stored in the browser (localStorage) and sent with each request; they are not logged or stored on the server.
 - An instance with a demo database (`DEMO_DATABASE_URL`) is treated as public: it refuses connections to loopback, private and link-local addresses, checked on the resolved IP, unless `ALLOW_PRIVATE_HOSTS=true`.

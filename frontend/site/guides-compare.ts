@@ -14,9 +14,9 @@ export const ROUNDUP: Matrix = {
   caption: 'Web-based PostgreSQL clients',
   tools: ['pgquery', 'pgweb', 'DbGate', 'pgAdmin 4', 'CloudBeaver CE', 'Adminer', 'Supabase Studio'],
   rows: [
-    { label: 'Self-hosted as', cells: ['One Go container', 'One Go binary or container', 'Node.js server (container or npm); also desktop', 'Python web app', 'Java web app', 'One PHP file', 'Part of the Supabase stack'] },
+    { label: 'Self-hosted as', cells: ['One Go container (or use the hosted app)', 'One Go binary or container', 'Node.js server (container or npm); also desktop', 'Python web app', 'Java web app', 'One PHP file', 'Part of the Supabase stack'] },
     { label: 'Databases', cells: ['PostgreSQL', 'PostgreSQL', 'Many (some Premium)', 'PostgreSQL', 'Many', 'Many', 'PostgreSQL'] },
-    { label: 'Own login and user accounts', cells: [['no', 'Put it behind a VPN or auth proxy'], ['partly', 'HTTP basic auth'], 'yes', 'yes', 'yes', ['partly', 'Database login only'], ['partly', 'Basic auth when self-hosted']] },
+    { label: 'Own login and user accounts', cells: [['no', 'None needed when hosted; self-hosted, use a VPN or auth proxy'], ['partly', 'HTTP basic auth'], 'yes', 'yes', 'yes', ['partly', 'Database login only'], ['partly', 'Basic auth when self-hosted']] },
     { label: 'SSH tunnel', cells: ['no', 'yes', 'yes', 'yes', 'yes', 'no', 'no'] },
     { label: 'SQL editor with autocomplete', cells: ['yes', 'yes', 'yes', 'yes', 'yes', ['partly', 'Plain text area'], 'yes'] },
     { label: 'Edit table rows', cells: [['yes', 'Runs directly'], ['no', 'Write the UPDATE yourself'], ['yes', 'Previews the SQL'], 'yes', 'yes', 'yes', 'yes'] },
@@ -39,13 +39,13 @@ export const ROUNDUP_WINS = [
     'More than a query explorer: RLS policies, roles, indexes, functions, triggers, extensions and settings, which pgweb doesn’t cover.',
     'Postgres-specific depth DbGate doesn’t focus on: Row Level Security, performance and security advisors, pg_stat_statements.',
     'EXPLAIN ANALYZE as a tree that points at the slowest node and flags bad row estimates.',
-    'Small and stateless: one container with a Go binary, nothing stored on the server.',
+    'Nothing to install: open the hosted app and connect. Or self-host one small, stateless container; nothing is stored on the server.',
     'Schema changes made through forms (CREATE, ALTER, GRANT, policies) are shown as SQL first, and you run them yourself.',
   ]
 
 export const ROUNDUP_LOSSES = [
     'No SSH tunnels. pgweb, DbGate, pgAdmin and CloudBeaver connect through a bastion host where pgquery cannot.',
-    'No login of its own. pgweb has basic auth, DbGate, pgAdmin and CloudBeaver have accounts; pgquery needs a VPN or an auth proxy.',
+    'No login of its own. pgweb has basic auth, DbGate, pgAdmin and CloudBeaver have accounts; a self-hosted pgquery needs a VPN or an auth proxy.',
     'PostgreSQL only. DbGate, CloudBeaver and Adminer also speak MySQL, SQLite, SQL Server and more.',
     'No backup / restore, CSV import or schema diff. DbGate and pgAdmin have them, and DbGate previews even row edits as SQL.',
     'Not a single binary: pgweb runs without Docker on Mac, Linux and Windows.',
@@ -69,7 +69,7 @@ ${matrix(ROUNDUP)}
 ${verdict(ROUNDUP_WINS, ROUNDUP_LOSSES)}
 <h2>Which one to pick</h2>
 ${pick([
-  ['pgquery', 'You want a fast, modern Postgres GUI you can run anywhere in one command, and you will put it behind your own access control.'],
+  ['pgquery', 'You want a modern Postgres GUI you can open from any browser without installing anything, or run yourself in one command behind your own access control.'],
   ['pgweb', 'You want a lean, proven query explorer as a single binary, with SSH tunnels and no Docker.'],
   ['DbGate', 'You work with several databases and want a full-featured manager: import / export, schema compare, query designer.'],
   ['pgAdmin 4', 'You need the most complete PostgreSQL administration: backups, debugging, schema diff, many servers, user accounts.'],
@@ -82,7 +82,7 @@ ${pick([
       ['Which browser-based PostgreSQL client is the best?', 'It depends on what you need. For full administration with logins, pgAdmin 4. For several database engines, DbGate or CloudBeaver. For a lean query explorer as one binary, pgweb. For Postgres administration (RLS, roles, advisors, EXPLAIN) in one small container, pgquery.'],
       ['How is pgquery different from pgweb?', 'pgweb is a lean, mature query explorer: browse tables, run SQL, export, SSH tunnels, single binary. pgquery adds the administration side (RLS policies, roles, indexes, functions, triggers, extensions, settings), performance and security advisors, a visual EXPLAIN tree and an ER diagram. pgweb wins on SSH tunnels, single binary and maturity.'],
       ['Are any of these free?', 'All five have free, open-source versions. CloudBeaver and Supabase also sell paid editions or hosting.'],
-      ['Is it safe to use a web-based database client?', 'Yes, if you control who can reach it. Self-host it next to your database and put it behind a VPN or an authenticating proxy, or use a tool with its own login.'],
+      ['Is it safe to use a web-based database client?', 'Your database credentials are what protect your data, so use a role with only the rights you need. On hosted pgquery, connections are kept in your browser and the open-source server stores nothing; if queries must not leave your network, self-host it next to your database behind a VPN or an authenticating proxy.'],
     ],
   },
   {
@@ -100,7 +100,7 @@ ${matrix({
   caption: 'pgquery and pgAdmin 4',
   tools: ['pgquery', 'pgAdmin 4'],
   rows: [
-    { label: 'Runs as', cells: ['One Go container; open in any browser', 'Desktop app, or a Python web server'] },
+    { label: 'Runs as', cells: ['Hosted web app, or one Go container; open in any browser', 'Desktop app, or a Python web server'] },
     { label: 'Settings and saved connections', cells: [['partly', 'In your browser only'], ['yes', 'On the server, per user']] },
     { label: 'Own login and user accounts', cells: ['no', 'yes'] },
     { label: 'Many servers in one tree', cells: [['partly', 'Saved connections list'], 'yes'] },
@@ -123,7 +123,7 @@ ${matrix({
 })}
 ${verdict(
   [
-    'Up in one command, with no Python runtime and no settings database.',
+    'Nothing to install: open the hosted app, or self-host in one command with no Python runtime and no settings database.',
     'A Monaco editor with tabs that survive a reload, plus history and saved queries.',
     'Performance and security advisors that tell you what to fix, not just graphs.',
     'Schema changes made through forms are shown as SQL before they run.',
@@ -136,7 +136,7 @@ ${verdict(
   ],
 )}
 <h2>Use both</h2>
-<p>They don't conflict. Run pgquery for daily querying and the advisors, and keep pgAdmin around for backups and debugging:</p>
+<p>They don't conflict. Use pgquery for daily querying and the advisors, and keep pgAdmin around for backups and debugging. <a href="/app/">Open pgquery</a>, or run it next to pgAdmin:</p>
 ${run}
 <p>pgquery listens on port ${PORT}.</p>`,
     faq: [
@@ -159,7 +159,7 @@ ${matrix({
   caption: 'pgquery and DBeaver Community',
   tools: ['pgquery', 'DBeaver Community'],
   rows: [
-    { label: 'Runs as', cells: ['Browser tab + one container', 'Desktop app (Java), per machine'] },
+    { label: 'Runs as', cells: ['Browser tab (hosted, or self-hosted container)', 'Desktop app (Java), per machine'] },
     { label: 'Install on each computer', cells: [['yes', 'Nothing to install'], ['no', 'Install and update everywhere']] },
     { label: 'Works on a tablet or a locked-down laptop', cells: ['yes', 'no'] },
     { label: 'One URL for the whole team', cells: ['yes', ['partly', 'Team features are paid']] },
@@ -180,7 +180,7 @@ ${matrix({
 ${verdict(
   [
     'No installs: open a URL from any machine, including ones where you can’t install software.',
-    'One deployment the whole team shares, next to the database.',
+    'One URL the whole team shares: the hosted app, or your own deployment next to the database.',
     'Postgres-specific screens DBeaver doesn’t focus on: RLS policies, the advisors, pg_stat_statements.',
     'Light: a browser tab instead of a Java desktop app.',
   ],
@@ -205,10 +205,10 @@ ${pick([
     label: 'pgquery vs Supabase Studio',
     title: 'pgquery vs Supabase Studio: Studio-style screens for any Postgres',
     description:
-      'pgquery and Supabase Studio compared: table editor, SQL editor, RLS policies, advisors and self-hosting. Where Studio is better, and when pgquery fits.',
+      'pgquery and Supabase Studio compared: table editor, SQL editor, RLS policies, advisors, hosting and self-hosting. Where Studio is better, and when pgquery fits.',
     eyebrow: 'Guide · Comparison',
     h1: 'pgquery vs Supabase Studio',
-    lede: 'Supabase Studio is the best dashboard for Supabase projects, and pgquery borrows its best ideas. The difference: pgquery works with any PostgreSQL and runs as one container.',
+    lede: 'Supabase Studio is the best dashboard for Supabase projects, and pgquery borrows its best ideas. The difference: pgquery works with any PostgreSQL, in the browser or as one container you run yourself.',
     wide: true,
     body: `
 ${matrix({
@@ -216,7 +216,7 @@ ${matrix({
   tools: ['pgquery', 'Supabase Studio'],
   rows: [
     { label: 'Works with', cells: [['yes', 'Any PostgreSQL'], ['partly', 'Supabase projects']] },
-    { label: 'Self-hosted as', cells: ['One container', 'The Supabase stack (many containers)'] },
+    { label: 'Self-hosted as', cells: ['One container (optional; hosted app at pgquery.dev)', 'The Supabase stack (many containers)'] },
     { label: 'Table editor', cells: ['yes', ['yes', 'More polished']] },
     { label: 'SQL editor', cells: ['yes', ['yes', 'With an AI assistant']] },
     { label: 'Row Level Security policies', cells: ['yes', ['yes', 'With templates']] },
@@ -232,13 +232,13 @@ ${matrix({
 ${verdict(
   [
     'Works with RDS, Neon, Cloud SQL, a VPS or your laptop, with no Supabase project required.',
-    'One container instead of the whole Supabase stack.',
+    'Open it in the browser with no project to set up, or self-host one container instead of the whole Supabase stack.',
     'Handy alongside Supabase too: compare environments or hand a teammate a read-only role.',
   ],
   [
     'On Supabase, Studio is better integrated: auth, storage, functions, logs and an AI assistant.',
     'Studio has more advisor checks and a more polished table editor.',
-    'Studio has a login; pgquery needs your own access control.',
+    'Studio has a login; a self-hosted pgquery needs your own access control.',
   ],
 )}
 <p>Using Supabase? See <a href="/connect-supabase/">how to connect pgquery to Supabase</a>.</p>
