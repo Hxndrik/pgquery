@@ -5,9 +5,9 @@ export const PORT = 54280
 export const DOCKER_RUN = `docker run -p ${PORT}:${PORT} ${IMAGE}`
 export const ISSUES = `${REPO}/issues/new/choose`
 export const ONE_LINER =
-  'pgquery is a free, open-source PostgreSQL client you open in your browser. Connect your live database; connections, tabs and history stay in your browser. It also browses S3 buckets, and self-hosting is optional: one Docker container.'
+  'pgquery is a free, open-source browser client for remote data: a PostgreSQL studio and an S3 bucket browser in one tab. Connect your live database or bucket; connections, tabs and history stay in your browser. Self-hosting is optional: one Docker container.'
 export const DESCRIPTION =
-  'Free, open-source PostgreSQL client in your browser: connect your live database, nothing to install. SQL editor, table editor, ER diagram, RLS policies, roles, indexes, EXPLAIN viewer, advisors and an S3 bucket browser. Connections stay in your browser; self-host as one Docker container if you prefer.'
+  'Free, open-source browser client for PostgreSQL and S3. Nothing to install: SQL editor, table editor, ER diagram, RLS policies, EXPLAIN viewer, advisors and a bucket browser. Connections stay in your browser; self-host as one Docker container if you prefer.'
 /** What the hosted app can and cannot promise. Keep in step with proxy/connect.go and proxy/main.go. */
 export const DATA_NOTE =
   'Saved connections (S3 keys included), tabs and history live in your browser (localStorage). Each query is sent with its connection string to the pgquery server, which opens a connection, runs it and returns the rows. S3 requests work the same way, and uploaded and downloaded files pass through the server without being kept. The server is stateless and open source; its code does not log or store connection strings, keys, queries or files. To keep everything inside your own network, self-host.'

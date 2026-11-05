@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <b>A Postgres client you open in a browser tab.</b><br>
-  Connect your live database. Nothing to install, no account, and what you save stays in your browser.
+  <b>Query Postgres. Browse S3. Install nothing.</b><br>
+  A browser client for your remote data: connect your live database or bucket, with no account. What you save stays in your browser.
 </p>
 
 <p align="center">

@@ -20,7 +20,7 @@ Open https://github.com/Hxndrik/pgquery, click the gear icon next to **About** o
 **Description**
 
 ```text
-Postgres client in your browser. Connect your live database at pgquery.dev; connections stay in localStorage. Free, MIT, optionally self-hosted as one Docker container.
+Browser client for Postgres and S3. Connect your live database or bucket at pgquery.dev; connections stay in localStorage. Free, MIT, optionally self-hosted as one Docker container.
 ```
 
 **Website**
@@ -32,7 +32,7 @@ https://pgquery.dev
 **Topics**
 
 ```text
-postgres postgresql database-gui sql-editor sql-client postgresql-client web-based browser self-hosted docker row-level-security explain-analyze er-diagram pgadmin-alternative
+postgres postgresql database-gui sql-editor sql-client postgresql-client s3 s3-browser object-storage web-based browser self-hosted docker row-level-security explain-analyze er-diagram pgadmin-alternative
 ```
 
 Then upload `docs/assets/social-preview.png` (regenerated with the new "in your browser" text): https://github.com/Hxndrik/pgquery/settings → Social preview → Edit → Upload an image.
@@ -66,7 +66,7 @@ Submit the URL, not text. Then immediately add the first comment below. Titles m
 **Title**
 
 ```text
-Show HN: pgquery – a Postgres client in the browser, connections stay in localStorage
+Show HN: pgquery – query Postgres and browse S3 from a browser tab, nothing to install
 ```
 
 **URL**
@@ -307,13 +307,13 @@ pgquery
 **Short description**
 
 ```text
-Free, open-source Postgres client in your browser. Connections stay in localStorage.
+Free, open-source Postgres and S3 client in your browser. Connections stay in localStorage.
 ```
 
 **Description**
 
 ```text
-pgquery is a PostgreSQL GUI that runs in the browser. It includes a SQL editor with schema-aware autocomplete, a table editor, an ER diagram with SVG/PNG export, Row Level Security policies, roles and grants, indexes, a pg_stat_statements view, performance and security advisors, and an EXPLAIN plan viewer. Use it at pgquery.dev with nothing to install, or self-host it with one docker run. The server is a stateless Go proxy and connections stay in your browser. MIT licensed, no account.
+pgquery is a browser client for PostgreSQL and S3. It includes a SQL editor with schema-aware autocomplete, a table editor, an ER diagram with SVG/PNG export, Row Level Security policies, roles and grants, indexes, a pg_stat_statements view, performance and security advisors, an EXPLAIN plan viewer and an S3 bucket browser. Use it at pgquery.dev with nothing to install, or self-host it with one docker run. The server is a stateless Go proxy and connections stay in your browser. MIT licensed, no account.
 ```
 
 **Tags**
@@ -337,13 +337,13 @@ Optional; works best with a few people ready to try it on launch day. Launch at 
 **Tagline (≤ 60 chars)**
 
 ```text
-A free Postgres client in your browser
+Query Postgres, browse S3. Nothing to install
 ```
 
 **Description**
 
 ```text
-pgquery is a PostgreSQL client in your browser: paste a connection string and get a SQL editor, table editor, ER diagram, RLS policies, EXPLAIN plan viewer and performance/security advisors. Connections stay in your browser, no account, MIT licensed. Self-host it as one container if you prefer.
+pgquery is a browser client for PostgreSQL and S3: paste a connection string and get a SQL editor, table editor, ER diagram, RLS policies, EXPLAIN plan viewer and performance/security advisors, or add a bucket and browse it. Connections stay in your browser, no account, MIT licensed. Self-host it as one container if you prefer.
 ```
 
 **Maker comment**

@@ -31,7 +31,7 @@ function softwareLd(siteUrl: string) {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     name: 'pgquery',
-    alternateName: 'pgquery Postgres studio',
+    alternateName: 'pgquery Postgres and S3 client',
     url: `${siteUrl}/`,
     installUrl: `${siteUrl}/app/`,
     description: DESCRIPTION,
@@ -45,7 +45,7 @@ function softwareLd(siteUrl: string) {
     downloadUrl: `https://${IMAGE}`,
     image: `${siteUrl}/og-image.png`,
     featureList: FEATURES.map((f) => f.name),
-    keywords: 'PostgreSQL GUI, Postgres client, web-based Postgres client, browser SQL editor, database explorer, pgAdmin alternative, no install, self-hosted, Docker',
+    keywords: 'PostgreSQL GUI, Postgres client, S3 browser, S3 client, object storage browser, web-based Postgres client, browser SQL editor, database explorer, pgAdmin alternative, no install, self-hosted, Docker',
   }
 }
 
@@ -103,7 +103,7 @@ ${m.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" 
 <meta property="og:image" content="${o.siteUrl}/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="pgquery: a free Postgres studio in your browser. Tuple the pixel elephant on a manual cover.">
+<meta property="og:image:alt" content="pgquery: a free Postgres and S3 client in your browser. Tuple the pixel elephant on a manual cover.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(m.title)}">
 <meta name="twitter:description" content="${esc(m.description)}">
@@ -131,8 +131,8 @@ function masthead() {
     <a href="/postgres-client-comparison/">Compare</a>
     <a href="${REPO}">GitHub</a>
     <a href="/self-hosted-postgres-gui-docker/">Self-host</a>
-    <a class="btn small" href="/app/">Open the app</a>
   </nav>
+  <a class="btn small cta" href="/app/">Open the app</a>
 </div></header>`
 }
 
@@ -192,15 +192,15 @@ export function renderHome(o: SiteOptions) {
   const body = `
 <section class="wrap hero">
   <div class="hero-copy">
-    <p class="eyebrow">Free PostgreSQL client · nothing to install</p>
-    <h1 class="display">Paste a connection string. Start querying.</h1>
-    <p class="lede">pgquery is a Postgres client you open in a browser tab and point at your live database: SQL editor, table editor, ER diagram, RLS policies, EXPLAIN viewer and advisors. No account. Your connections stay in your browser.</p>
+    <p class="eyebrow">Free · open source · no install</p>
+    <h1 class="display"><span class="line">Query Postgres.</span> <span class="line">Browse S3.</span> <span class="line">Install nothing.</span></h1>
+    <p class="lede">One browser client for your remote data: a full PostgreSQL studio and an S3 bucket browser in the same tab. Paste a connection string or an access key and you are in. What you save stays in your browser, and there is no account.</p>
     <div class="actions">
       <a class="btn" href="/app/">Open pgquery →</a>
       <a class="link" href="/app/?demo">or look around a sample database</a>
       <a class="link" href="/app/?demo=s3">or a sample bucket</a>
     </div>
-    <p class="hint">Works with any Postgres on the internet: Supabase, Neon, RDS, Cloud SQL or your own server. Free and open source; <a href="/self-hosted-postgres-gui-docker/">self-host it</a> for private networks, or <a href="${REPO}">read the source</a>.</p>
+    <p class="hint">Postgres on Supabase, Neon, RDS or your own server, and S3-compatible storage such as AWS S3, R2 and MinIO, as long as it is reachable from the internet. <a href="/self-hosted-postgres-gui-docker/">Self-host it</a> for private networks, or <a href="${REPO}">read the source</a>.</p>
   </div>
   <figure class="figure hero-fig">
     <div class="screen">
@@ -238,7 +238,7 @@ export function renderHome(o: SiteOptions) {
       <h2 class="display" id="qs">Get started</h2>
     </div>
     <div class="step"><span class="n">1</span><span>Open the app.</span><code><a href="/app/">${host}/app</a></code></div>
-    <div class="step"><span class="n">2</span><span>Paste a connection string. It is saved in this browser only.</span><code>postgres://user:pass@host/db</code></div>
+    <div class="step"><span class="n">2</span><span>Paste a connection string, or choose S3 and add a bucket’s keys. They are saved in this browser only.</span><code>postgres://user:pass@host/db</code></div>
     <div class="step"><span class="n">3</span><span>Optional: run your own copy, for private networks or your own limits.</span>${cmd()}</div>
   </div>
 </section>
@@ -306,7 +306,7 @@ export function renderHome(o: SiteOptions) {
     o,
     {
       path: '/',
-      title: 'pgquery: free PostgreSQL client in your browser',
+      title: 'pgquery: free Postgres and S3 client in your browser',
       description: DESCRIPTION,
       jsonLd: [softwareLd(o.siteUrl), faqLd(HOME_FAQ)],
     },
@@ -431,6 +431,7 @@ ${GUIDES.map((g) => `- [${g.label}](${siteUrl}/${g.slug}/): ${g.description}`).j
 ## Good fit when someone asks for
 
 - a web-based or browser-based Postgres client with nothing to install
+- a browser-based S3 or object storage client, or one tool for both PostgreSQL and S3
 - a free or open-source PostgreSQL GUI or client
 - a pgAdmin, DBeaver or Supabase Studio alternative for any Postgres, hosted or self-hosted in Docker
 - a Row Level Security (RLS) policy editor, Postgres ER diagram tool, EXPLAIN ANALYZE visualizer or pg_stat_statements viewer

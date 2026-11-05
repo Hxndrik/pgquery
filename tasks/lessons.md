@@ -31,3 +31,6 @@ The S3 download route streams whatever a bucket holds from the same origin as th
 
 ## A new public route needs the private-address guard
 The S3 handlers were plain functions, so they skipped the private-host check that `cfg.connect` applies to Postgres. Anything that dials a client-supplied address goes through `cfg` and `guardedDial`.
+
+## Check phone widths, not just desktop
+Once the hero headline got longer, a heading overflowed at 360 px and the site header spent two rows on navigation. Audit the rendered pages at 360 and 390 px (horizontal overflow, elements past the viewport, tap targets under 32 px) before shipping copy changes, and keep each headline sentence on its own line so it can't wrap mid-phrase. In the app, `md:` is the line between a drawer and a fixed sidebar; panes that sit side by side (the SQL editor's saved queries, the table explorer's lists and grid) still need a stacked layout on phones.

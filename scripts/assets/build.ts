@@ -102,7 +102,7 @@ body { width: ${w}px; height: ${h}px; background: ${INK}; padding: 14px; }
 svg { shape-rendering: crispEdges; }
 </style></head><body><div class="card">
 <div class="l"><div class="top"><span>OPERATOR'S MANUAL</span><span>ED. 1.0</span></div>
-<div><div class="name">pgquery</div><div class="tag">A free Postgres studio<br><b>in your browser</b></div></div>
+<div><div class="name">pgquery</div><div class="tag">Postgres and S3<br><b>in your browser</b></div></div>
 <div class="cmd">pgquery.dev · nothing to install</div></div>
 <div class="r"><svg viewBox="0 0 30 20" width="${tupleW}" height="${(tupleW * 2) / 3}">${tupleMarkup('dither', { ink: INK, paper: PAPER_2 }, TUPLE, 'og')}</svg>
 <span class="cap"><b>FIG. 1</b> Tuple, the operator</span></div>
