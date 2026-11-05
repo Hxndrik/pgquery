@@ -30,6 +30,7 @@ node scripts/assets/build.ts               # regenerate brand assets after chang
 - **Facts in copy.** Website, README and guide claims must match what the code does. No invented numbers.
 - **Safe defaults.** Default views should open on user data (prefer the `public` schema) and never on something that can error.
 - **Conventional commits.** Commit messages and PR titles start with `feat:`, `fix:`, `docs:`, `chore:`, `refactor:` or `test:`. Releases and the changelog are generated from them (release-please).
+- **Public PR descriptions.** PRs, commits and comments are public. Describe only the changes and how they were tested, in a neutral, professional tone. No to-dos or hand-off steps for the maintainer and no remarks addressed to them; give those in the chat instead. Open PRs ready for review, not as drafts.
 
 ## Working style
 
