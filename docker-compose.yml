@@ -13,7 +13,14 @@ services:
       - RATE_LIMIT_RPM=${RATE_LIMIT_RPM:-120}
       - MAX_QUERY_TIMEOUT=30s
       - MAX_ROWS=10000
+      - MAX_UPLOAD_MB=${MAX_UPLOAD_MB:-100}
       # Public demo instance only: an admin URL the app seeds and resets itself.
       - DEMO_DATABASE_URL=${DEMO_DATABASE_URL:-}
       - DEMO_RESET_INTERVAL=${DEMO_RESET_INTERVAL:-24h}
+      # Public demo instance only: an S3 endpoint with its root keys and a dedicated
+      # bucket, which the app fills with sample files and keeps read-only.
+      - DEMO_S3_ENDPOINT=${DEMO_S3_ENDPOINT:-}
+      - DEMO_S3_ACCESS_KEY=${DEMO_S3_ACCESS_KEY:-}
+      - DEMO_S3_SECRET_KEY=${DEMO_S3_SECRET_KEY:-}
+      - DEMO_S3_BUCKET=${DEMO_S3_BUCKET:-pgquery-demo}
     restart: unless-stopped

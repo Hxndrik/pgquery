@@ -25,3 +25,9 @@ JSON numbers become doubles in the browser: an int8 primary key past 2^53 once s
 
 ## Hosted-app claims come from facts.ts
 pgquery.dev is the main way in, but its deployment settings are not in this repo. Say what the code guarantees (stateless proxy, no logging, private hosts refused when a demo is configured) and never quote hosted limits as numbers. `DATA_NOTE`, `HOSTED_LIMITS` and `PERSONAL_NOTE` in `frontend/site/facts.ts` feed the site and llms.txt; README.md, SECURITY.md and docs/launch repeat them by hand, so change them together.
+
+## Serving user-controlled bytes from the app's origin
+The S3 download route streams whatever a bucket holds from the same origin as the app, which keeps every saved connection in localStorage. A crafted link with an HTML object and `inline=1` would have run as a page there. Everything except a PDF is now an attachment under `Content-Security-Policy: sandbox`, and links are sealed tokens. Keep that in mind for any new route that proxies content.
+
+## A new public route needs the private-address guard
+The S3 handlers were plain functions, so they skipped the private-host check that `cfg.connect` applies to Postgres. Anything that dials a client-supplied address goes through `cfg` and `guardedDial`.

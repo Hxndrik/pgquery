@@ -1,0 +1,281 @@
+[
+  {
+    "id": 1,
+    "name": "Nina Simone",
+    "country": "US",
+    "formed": 1954,
+    "meta": {
+      "labels": [
+        "Bethlehem",
+        "Philips"
+      ],
+      "instruments": [
+        "piano",
+        "vocals"
+      ]
+    },
+    "albums": [
+      {
+        "title": "Pastel Blues",
+        "released": 1965,
+        "price_cents": 2199
+      },
+      {
+        "title": "Wild Is the Wind",
+        "released": 1966,
+        "price_cents": 1999
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Talking Heads",
+    "country": "US",
+    "formed": 1975,
+    "meta": {
+      "labels": [
+        "Sire"
+      ],
+      "members": 4
+    },
+    "albums": [
+      {
+        "title": "Remain in Light",
+        "released": 1980,
+        "price_cents": 2499
+      },
+      {
+        "title": "Fear of Music",
+        "released": 1979,
+        "price_cents": 2299
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Fela Kuti",
+    "country": "NG",
+    "formed": 1958,
+    "meta": {
+      "labels": [
+        "EMI Nigeria"
+      ],
+      "band": "Africa 70"
+    },
+    "albums": [
+      {
+        "title": "Zombie",
+        "released": 1976,
+        "price_cents": 2699
+      },
+      {
+        "title": "Expensive Shit",
+        "released": 1975,
+        "price_cents": 2499
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Björk",
+    "country": "IS",
+    "formed": 1977,
+    "meta": {
+      "labels": [
+        "One Little Independent"
+      ]
+    },
+    "albums": [
+      {
+        "title": "Homogenic",
+        "released": 1997,
+        "price_cents": 2299
+      },
+      {
+        "title": "Vespertine",
+        "released": 2001,
+        "price_cents": 2299
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Alice Coltrane",
+    "country": "US",
+    "formed": 1960,
+    "meta": {
+      "instruments": [
+        "harp",
+        "piano",
+        "organ"
+      ]
+    },
+    "albums": [
+      {
+        "title": "Journey in Satchidananda",
+        "released": 1971,
+        "price_cents": 2799
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Stereolab",
+    "country": "GB",
+    "formed": 1990,
+    "meta": {
+      "labels": [
+        "Duophonic",
+        "Warp"
+      ]
+    },
+    "albums": [
+      {
+        "title": "Emperor Tomato Ketchup",
+        "released": 1996,
+        "price_cents": 2199
+      },
+      {
+        "title": "Dots and Loops",
+        "released": 1997,
+        "price_cents": 2199
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Can",
+    "country": "DE",
+    "formed": 1968,
+    "meta": {
+      "labels": [
+        "Spoon"
+      ],
+      "members": 5
+    },
+    "albums": [
+      {
+        "title": "Tago Mago",
+        "released": 1971,
+        "price_cents": 2599
+      },
+      {
+        "title": "Ege Bamyasi",
+        "released": 1972,
+        "price_cents": 2499
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Joni Mitchell",
+    "country": "CA",
+    "formed": 1964,
+    "meta": {
+      "labels": [
+        "Reprise",
+        "Asylum"
+      ]
+    },
+    "albums": [
+      {
+        "title": "Blue",
+        "released": 1971,
+        "price_cents": 2399
+      },
+      {
+        "title": "Hejira",
+        "released": 1976,
+        "price_cents": 2299
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "A Tribe Called Quest",
+    "country": "US",
+    "formed": 1985,
+    "meta": {
+      "labels": [
+        "Jive"
+      ]
+    },
+    "albums": [
+      {
+        "title": "The Low End Theory",
+        "released": 1991,
+        "price_cents": 2199
+      },
+      {
+        "title": "Midnight Marauders",
+        "released": 1993,
+        "price_cents": 2199
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Brian Eno",
+    "country": "GB",
+    "formed": 1971,
+    "meta": {
+      "labels": [
+        "EG",
+        "Obscure"
+      ]
+    },
+    "albums": [
+      {
+        "title": "Music for Airports",
+        "released": 1978,
+        "price_cents": 1999
+      },
+      {
+        "title": "Another Green World",
+        "released": 1975,
+        "price_cents": 2099
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Parliament",
+    "country": "US",
+    "formed": 1968,
+    "meta": {
+      "labels": [
+        "Casablanca"
+      ]
+    },
+    "albums": [
+      {
+        "title": "Mothership Connection",
+        "released": 1975,
+        "price_cents": 2299
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "name": "Kraftwerk",
+    "country": "DE",
+    "formed": 1970,
+    "meta": {
+      "labels": [
+        "Kling Klang"
+      ]
+    },
+    "albums": [
+      {
+        "title": "Trans-Europe Express",
+        "released": 1977,
+        "price_cents": 2399
+      },
+      {
+        "title": "Computer World",
+        "released": 1981,
+        "price_cents": 2299
+      }
+    ]
+  }
+]

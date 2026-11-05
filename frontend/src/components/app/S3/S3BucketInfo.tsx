@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { listS3Objects } from '../../../lib/s3Api'
+import { getS3Stats, useS3Capabilities } from '../../../lib/s3Api'
+import type { S3Stats } from '../../../lib/s3Api'
 import type { S3Config } from '../../../lib/connectionTypes'
 import { RefreshIcon } from '../../icons'
 import { Button } from '../../ui/Button'
@@ -17,17 +18,15 @@ function formatSize(bytes: number): string {
 }
 
 export default function S3BucketInfo({ config }: S3BucketInfoProps) {
-  const [objectCount, setObjectCount] = useState<number | null>(null)
-  const [totalSize, setTotalSize] = useState<number | null>(null)
+  const [stats, setStats] = useState<S3Stats | null>(null)
   const [loading, setLoading] = useState(false)
+  const { readOnly, maxUploadBytes } = useS3Capabilities(config)
 
   const load = async () => {
     setLoading(true)
     try {
-      // List all objects (no delimiter) to get full picture
-      const result = await listS3Objects(config)
-      setObjectCount(result.objects.length)
-      setTotalSize(result.objects.reduce((sum, o) => sum + o.size, 0))
+      // The server counts the whole bucket, not just the first page of a listing.
+      setStats(await getS3Stats(config))
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Failed to load bucket info')
     } finally {
@@ -53,15 +52,23 @@ export default function S3BucketInfo({ config }: S3BucketInfoProps) {
         <InfoCard label="Endpoint" value={config.endpoint} />
         <InfoCard
           label="Objects"
-          value={objectCount !== null ? String(objectCount) : '—'}
+          value={stats ? `${stats.objects.toLocaleString()}${stats.truncated ? '+' : ''}` : '—'}
           loading={loading}
         />
         <InfoCard
           label="Total Size"
-          value={totalSize !== null ? formatSize(totalSize) : '—'}
+          value={stats ? `${stats.truncated ? '≥ ' : ''}${formatSize(stats.bytes)}` : '—'}
           loading={loading}
         />
+        <InfoCard label="Access" value={readOnly ? 'Read-only (demo bucket)' : 'Read and write'} />
+        <InfoCard label="Max upload" value={maxUploadBytes ? formatSize(maxUploadBytes) : '—'} />
       </div>
+
+      {stats?.truncated && (
+        <p className="text-[12px] text-[var(--fg-muted)]">
+          This bucket is large: counting stopped early, so the real totals are higher.
+        </p>
+      )}
     </div>
   )
 }

@@ -8,6 +8,7 @@ Everything for launching pgquery. Copy each block as is or put it in your own wo
 - [ ] GHCR package is public, so `docker run ghcr.io/hxndrik/pgquery` works without logging in
 - [ ] GitHub About text, website and topics are set (see [GitHub repository settings](#github-repository-settings)), social preview uploaded, latest release published
 - [ ] https://pgquery.dev/app/ connects to a real database on the public internet (e.g. a free Supabase or Neon project)
+- [ ] `DEMO_S3_*` is set on the server and https://pgquery.dev/app/?demo=s3 opens the sample bucket, with video and CSV previews working
 - [ ] Google Search Console and Bing Webmaster Tools have the sitemap
 - [ ] GoatCounter is counting, so you can see which post brought people
 - [ ] You have 3–4 free hours after each post to answer comments
@@ -83,9 +84,9 @@ I wanted the database screens I like in Supabase Studio (table editor, RLS polic
 
 How it works: a React app plus a small Go proxy that turns HTTP requests into Postgres connections. Saved connections, tabs and history live in your browser's localStorage; the proxy is stateless and doesn't log or store queries or connection strings. Schema changes made through forms (CREATE, ALTER, GRANT, CREATE POLICY) are shown as SQL first and you run them yourself.
 
-What's in it: SQL editor with schema-aware autocomplete, a table editor (JSONB too), an ER diagram you can export as an SVG/PNG "plate", RLS policies, roles and grants, indexes, a pg_stat_statements view, performance and security advisors, and an EXPLAIN / EXPLAIN ANALYZE viewer that draws the plan as a tree and highlights the slowest node.
+What's in it: SQL editor with schema-aware autocomplete, a table editor (JSONB too), an ER diagram you can export as an SVG/PNG "plate", RLS policies, roles and grants, indexes, a pg_stat_statements view, performance and security advisors, an EXPLAIN / EXPLAIN ANALYZE viewer that draws the plan as a tree and highlights the slowest node, and a small S3 bucket browser (previews, upload, delete; one bucket per connection, no multipart upload).
 
-No database handy? There's a read-only sample (a small record store, reset daily): https://pgquery.dev/app/?demo
+No database handy? There's a read-only sample (a small record store, reset daily): https://pgquery.dev/app/?demo, and a read-only sample bucket: https://pgquery.dev/app/?demo=s3
 
 The hosted app only connects to public addresses. If your database is in a private network, or you'd rather queries not pass through my server, it's one container:
 

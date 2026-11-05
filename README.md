@@ -10,6 +10,7 @@
 <p align="center">
   <a href="https://pgquery.dev/app/"><b>Open pgquery</b></a> ·
   <a href="https://pgquery.dev/app/?demo">Sample database</a> ·
+  <a href="https://pgquery.dev/app/?demo=s3">Sample bucket</a> ·
   <a href="https://pgquery.dev">Website</a> ·
   <a href="#features">Features</a> ·
   <a href="#self-hosting-optional">Self-hosting</a> ·
@@ -33,7 +34,7 @@
 2. Paste a connection string. Both `postgres://user:pass@host:5432/db` URIs and Npgsql / ADO.NET style key=value strings (`Host=…;Database=…`) work.
 3. Query, browse and manage your database.
 
-Want to look around first? The [sample database](https://pgquery.dev/app/?demo) is a small, read-only record store.
+Want to look around first? The [sample database](https://pgquery.dev/app/?demo) is a small, read-only record store, and the [sample bucket](https://pgquery.dev/app/?demo=s3) is a read-only set of images, a video, CSV and JSON. To browse your own bucket, choose **S3** in the connection dialog ([details below](#s3-buckets)).
 
 The hosted app reaches databases on the public internet: Supabase, Neon, RDS, Cloud SQL, a VPS. For a database in a private network or on localhost, [run your own copy](#self-hosting-optional). There are step-by-step guides for [Supabase](https://pgquery.dev/connect-supabase/), [Neon](https://pgquery.dev/connect-neon/), [Amazon RDS](https://pgquery.dev/connect-aws-rds/) and [local or Docker](https://pgquery.dev/connect-local-postgres/) databases.
 
@@ -43,8 +44,8 @@ The hosted app reaches databases on the public internet: Supabase, Neon, RDS, Cl
 Browser (React app) ──HTTP──▶ pgquery proxy ──Postgres protocol──▶ your database
 ```
 
-- Saved connections, tabs, history and saved queries live in your browser's localStorage. There is no account and no server-side storage.
-- Each query is sent with its connection string to the proxy, which opens a connection, runs it and returns the rows. The proxy is stateless, and its code (it's all in [`proxy/`](proxy)) does not log or store connection strings or queries.
+- Saved connections (S3 keys included), tabs, history and saved queries live in your browser's localStorage. There is no account and no server-side storage.
+- Each query is sent with its connection string to the proxy, which opens a connection, runs it and returns the rows. S3 requests work the same way, and uploaded or downloaded files pass through without being kept. The proxy is stateless, and its code (it's all in [`proxy/`](proxy)) does not log or store connection strings, keys, queries or files.
 - Connections use SSL when the server offers it (`sslmode=prefer`); the app warns when one isn't encrypted. Add `?sslmode=require` to refuse plain connections.
 - Schema changes made through forms (CREATE, ALTER, GRANT, CREATE POLICY …) are shown as SQL first, and you run them yourself.
 - On pgquery.dev, the proxy is the pgquery.dev server. If queries must not leave your own network, self-host.
@@ -66,7 +67,7 @@ Browser (React app) ──HTTP──▶ pgquery proxy ──Postgres protocol─
 | <img src="docs/assets/icons/fn.svg" width="16" alt=""> **Functions, triggers, enums** | List, read, create and drop |
 | <img src="docs/assets/icons/plug.svg" width="16" alt=""> **Extensions, publications, FDW** | Install extensions, manage publications, browse foreign servers and tables |
 | <img src="docs/assets/icons/gear.svg" width="16" alt=""> **Settings** | Every server setting by category; change session or system values |
-| <img src="docs/assets/icons/bucket.svg" width="16" alt=""> **S3 browser** | Browse, preview, upload and delete objects in S3-compatible buckets |
+| <img src="docs/assets/icons/bucket.svg" width="16" alt=""> **S3 browser** | Folders, paging, previews of images, video, audio, PDF and text, download, upload, new folders and recursive delete in an S3-compatible bucket |
 
 <table>
   <tr>
@@ -78,6 +79,22 @@ Browser (React app) ──HTTP──▶ pgquery proxy ──Postgres protocol─
     <td><sub><b>FIG. 4</b> A schema plate, exported from the schema map.</sub></td>
   </tr>
 </table>
+
+## S3 buckets
+
+Next to PostgreSQL, pgquery connects to one S3 bucket at a time: endpoint, access key, secret key, bucket and region. It uses Signature V4 and path-style requests, so it is meant for services such as AWS S3, Cloudflare R2 and MinIO. The automated tests run against an S3 emulator; if a service behaves differently, please open an issue with its name.
+
+What it does: open folders, filter, load more past 1,000 objects, preview (images, video that seeks, audio, PDF, text and code), download, upload, create folders, delete objects or whole folders after a confirmation that counts them, and show the bucket's object count and size.
+
+What it doesn't:
+
+- One bucket per connection; it doesn't list, create or delete buckets.
+- Access keys only, no session tokens or IAM roles.
+- Uploads are a single request per file, up to `MAX_UPLOAD_MB` (100 by default when self-hosting), with no multipart upload or resume. Files pass through the pgquery server, so use the AWS CLI or rclone for very large ones.
+- A delete removes up to 10,000 objects at a time.
+- No rename, copy or move, no metadata or tag editing, no versioning, ACLs, bucket policies or lifecycle rules.
+
+Keys are saved in your browser like any other connection and are sent with each request. The hosted app only reaches buckets on the public internet; for storage on localhost or in a private network, [self-host](#self-hosting-optional). The full guide is at [pgquery.dev/s3-bucket-browser](https://pgquery.dev/s3-bucket-browser/).
 
 ## How it compares
 
@@ -124,9 +141,11 @@ pgquery has no login of its own. On a shared server, put it behind your VPN or a
 | `RATE_LIMIT_RPM` | `600` | Requests per minute per client IP |
 | `MAX_QUERY_TIMEOUT` | `30s` | Maximum query time |
 | `MAX_ROWS` | `10000` | Maximum rows returned per query |
+| `MAX_UPLOAD_MB` | `100` | Largest file the S3 browser uploads |
 | `DEMO_DATABASE_URL` | – | For a public demo instance. An admin `postgres://` URL to a **dedicated** database. On startup the app seeds a sample record store ([`proxy/demo/seed.sql`](proxy/demo/seed.sql)) and serves it through a SELECT-only role with a random password. The admin URL never reaches the browser |
-| `DEMO_RESET_INTERVAL` | `24h` | How often the demo is re-seeded; `0` seeds once |
-| `ALLOW_PRIVATE_HOSTS` | `false` | With a demo configured, connections to loopback, private and link-local addresses are refused, so a public instance can't be used to reach your network. `true` allows them anyway. Without a demo nothing is blocked |
+| `DEMO_S3_ENDPOINT`, `DEMO_S3_ACCESS_KEY`, `DEMO_S3_SECRET_KEY` | – | For a public demo instance. The endpoint and root keys of an S3 service holding a **dedicated** bucket (`DEMO_S3_BUCKET`, default `pgquery-demo`; `DEMO_S3_REGION`, default `us-east-1`). On startup the app creates the bucket if needed, uploads the sample files embedded in the binary ([`proxy/demo/bucket`](proxy/demo/bucket)) and removes everything else. Visitors reach it read-only through `s3://demo.pgquery`; the keys never reach the browser |
+| `DEMO_RESET_INTERVAL` | `24h` | How often the demos are re-seeded; `0` seeds once |
+| `ALLOW_PRIVATE_HOSTS` | `false` | With a demo (database or bucket) configured, connections to loopback, private and link-local addresses are refused, for Postgres and S3 alike, so a public instance can't be used to reach your network. `true` allows them anyway. Without a demo nothing is blocked |
 
 Build-time settings for the public website (Docker build args):
 
@@ -162,6 +181,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 **Is it really free?** Yes. MIT licensed, no paid tier, no account. The hosted app is free too.
 
 **Does my data go through your servers?** On pgquery.dev, yes: each query passes through the pgquery.dev proxy on its way to your database. It is stateless and its code doesn't log or store queries or connection strings. When you self-host, queries go from your browser to your container to your database.\n\n**What are the limits on pgquery.dev?** It only connects to public addresses (private and local ones are refused), and it limits rows per query, query time and requests per IP. Self-host to lift them, or open an issue if they get in your way.
+
+**Can it browse S3 buckets?** Yes, one bucket per connection, with the limits [listed above](#s3-buckets).
 
 **Is this related to `pg_query`?** No. [pg_query](https://github.com/pganalyze/libpg_query) is pganalyze's Postgres query parser library; pgquery is a database GUI.
 

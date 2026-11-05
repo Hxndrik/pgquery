@@ -94,8 +94,10 @@ func withMiddleware(next http.Handler, rl *rateLimiter) http.Handler {
 				return
 			}
 
-			// Body size limit: 1MB
-			r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+			// Body size limit: 1MB. Uploads set their own, larger one.
+			if r.URL.Path != uploadPath {
+				r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+			}
 		}
 
 		next.ServeHTTP(w, r)

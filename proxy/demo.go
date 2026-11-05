@@ -42,23 +42,7 @@ func (d *demoDB) URL() string {
 
 // run seeds now, retrying with backoff on failure, then re-seeds every interval.
 func (d *demoDB) run(ctx context.Context) {
-	backoff := time.Minute
-	for {
-		start := time.Now()
-		if err := d.seed(ctx); err != nil {
-			log.Printf("demo: seeding failed, retrying in %s: %v", backoff, err)
-			if !sleep(ctx, backoff) {
-				return
-			}
-			backoff = min(backoff*2, 30*time.Minute)
-			continue
-		}
-		backoff = time.Minute
-		log.Printf("demo: seeded in %s", time.Since(start).Round(time.Millisecond))
-		if d.interval <= 0 || !sleep(ctx, d.interval) {
-			return
-		}
-	}
+	runSeeder(ctx, "demo", d.interval, d.seed)
 }
 
 func (d *demoDB) seed(ctx context.Context) error {
@@ -140,5 +124,27 @@ func sleep(ctx context.Context, d time.Duration) bool {
 		return true
 	case <-ctx.Done():
 		return false
+	}
+}
+
+// runSeeder calls seed until it succeeds, retrying with backoff, then again
+// every interval (0: once). The demo database and the demo bucket share it.
+func runSeeder(ctx context.Context, name string, interval time.Duration, seed func(context.Context) error) {
+	backoff := time.Minute
+	for {
+		start := time.Now()
+		if err := seed(ctx); err != nil {
+			log.Printf("%s: seeding failed, retrying in %s: %v", name, backoff, err)
+			if !sleep(ctx, backoff) {
+				return
+			}
+			backoff = min(backoff*2, 30*time.Minute)
+			continue
+		}
+		backoff = time.Minute
+		log.Printf("%s: seeded in %s", name, time.Since(start).Round(time.Millisecond))
+		if interval <= 0 || !sleep(ctx, interval) {
+			return
+		}
 	}
 }

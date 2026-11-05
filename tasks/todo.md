@@ -13,6 +13,17 @@
 - [x] Home: video hero, comparison right below
 - [x] pgweb and DbGate in the comparisons; warning when a connection isn't encrypted
 
+## S3 browser
+- [x] Same private-address block as Postgres, so a public instance can't be pointed at internal hosts
+- [x] Sealed, expiring download links instead of keys in the URL; bucket content never rendered as a page
+- [x] Uploads above 1 MB (`MAX_UPLOAD_MB`), readable errors, Range requests for video
+- [x] Paging past 1000 objects, whole-bucket stats, new folder, recursive folder delete with a count
+- [x] Read-only demo bucket (`DEMO_S3_*`) seeded from files embedded in the binary
+- [ ] Multipart upload, so large files don't have to fit in one request
+- [ ] Copy, rename and move
+- [ ] Session tokens (temporary credentials) and a bucket picker
+- [ ] Integration test against a real S3 service in CI (MaxIO or MinIO), next to the in-memory fake
+
 ## Next
 - [ ] Fix the existing `react-hooks/set-state-in-effect` lint findings, then make lint a required CI check
 - [ ] Schema map: route foreign-key lines around tables instead of through them

@@ -47,6 +47,10 @@ export default function S3ConnectionForm({ onConnect, initial, isEdit }: Connect
         value={endpoint}
         onChange={(e) => setEndpoint(e.target.value)}
       />
+      <p className="text-[12px] text-[var(--fg-muted)] -mt-2">
+        For S3-compatible services such as AWS S3, Cloudflare R2 and MinIO. Requests are signed with Signature V4 and use
+        path-style addressing. Keys are saved in this browser only, so use a key limited to this bucket.
+      </p>
 
       <div className="grid grid-cols-2 gap-3">
         <Input
