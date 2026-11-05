@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/Hxndrik/pgquery/compare/v1.2.2...v1.3.0) (2026-11-05)
+
+
+### Features
+
+* S3 demo bucket, safer S3 requests, paging and folders ([#20](https://github.com/Hxndrik/pgquery/issues/20)) ([8124679](https://github.com/Hxndrik/pgquery/commit/81246793333c855b97349d6d7427b583a52315a8))
+
 ## [1.2.2](https://github.com/Hxndrik/pgquery/compare/v1.2.1...v1.2.2) (2026-11-03)
 
 
