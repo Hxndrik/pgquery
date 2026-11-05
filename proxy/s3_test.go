@@ -198,7 +198,7 @@ func TestS3ErrorsAreReadable(t *testing.T) {
 		status  int
 		message string
 	}{
-		{"denied", cfg.handleS3Objects, s3Conn4(f, "denied"), 403, "access denied"},
+		{"denied", cfg.handleS3Objects, with(s3Conn4(f, "denied"), map[string]any{"secretKey": "hunter2"}), 403, "access denied"},
 		{"no such bucket", cfg.handleS3Objects, s3Conn4(f, "nope"), 404, "bucket not found"},
 		{"no such object", cfg.handleS3ObjectMeta, with(s3Conn4(f, "b"), map[string]any{"key": "missing"}), 404, "object not found"},
 		{"bad scheme", cfg.handleS3Objects, with(s3Conn4(f, "b"), map[string]any{"endpoint": "ftp://x"}), 400, "http:// or https://"},
@@ -211,7 +211,7 @@ func TestS3ErrorsAreReadable(t *testing.T) {
 		if rec.Code != c.status || !strings.Contains(errText(out), c.message) {
 			t.Errorf("%s: got %d %q, want %d containing %q", c.name, rec.Code, errText(out), c.status, c.message)
 		}
-		if strings.Contains(rec.Body.String(), "SK") {
+		if strings.Contains(rec.Body.String(), "hunter2") {
 			t.Errorf("%s: the secret key leaked into the response", c.name)
 		}
 	}
@@ -247,12 +247,12 @@ func TestS3LinkTokens(t *testing.T) {
 		t.Fatal(err)
 	}
 	now := time.Now()
-	p := linkPayload{Req: s3Request{Endpoint: "https://s3.example.com", AccessKey: "AKIA", SecretKey: "topsecret", Bucket: "b"}, Key: "a/b.png", Exp: now.Add(time.Hour).Unix()}
+	p := linkPayload{Req: s3Request{Endpoint: "https://s3.example.com", AccessKey: "AKIA-test-access-key", SecretKey: "topsecret-test-value", Bucket: "b"}, Key: "a/b.png", Exp: now.Add(time.Hour).Unix()}
 	token, err := s.seal(p)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Contains(token, "topsecret") || strings.Contains(token, "AKIA") {
+	if strings.Contains(token, "topsecret") || strings.Contains(token, "AKIA-test") {
 		t.Fatal("the token shows the credentials")
 	}
 	got, err := s.open(token, now)
@@ -289,8 +289,9 @@ func TestS3DownloadNeedsASealedLink(t *testing.T) {
 	if rec := get(cfg, "/api/s3/object/download?t=garbage", nil); rec.Code != http.StatusGone {
 		t.Errorf("garbage token: %d, want 410", rec.Code)
 	}
-	u := downloadURL(t, cfg, s3Conn4(f, "b"), "x.txt", false)
-	if strings.Contains(u, "SK") || strings.Contains(u, f.srv.URL) {
+	conn := with(s3Conn4(f, "b"), map[string]any{"accessKey": "AK-visible-in-no-url", "secretKey": "hunter2-is-not-in-any-url"})
+	u := downloadURL(t, cfg, conn, "x.txt", false)
+	if strings.Contains(u, "hunter2") || strings.Contains(u, "AK-visible") || strings.Contains(u, f.srv.URL) {
 		t.Errorf("the link exposes the connection: %s", u)
 	}
 }
