@@ -1,4 +1,4 @@
-import { DOCKER_RUN, PORT, REPO } from './facts'
+import { DATA_NOTE, DOCKER_RUN, HOSTED_LIMITS, ISSUES, PORT, REPO } from './facts'
 import { COMPARE_GUIDES } from './guides-compare'
 import { CONNECT_GUIDES } from './guides-connect'
 
@@ -27,10 +27,10 @@ const CORE_GUIDES: Guide[] = [
     label: 'Postgres GUI in the browser',
     title: 'Postgres GUI in your browser — free and open source',
     description:
-      'A free PostgreSQL GUI that runs in the browser: SQL editor, table editor, ER diagram, roles, RLS and advisors. Self-host it as one Docker container.',
+      'A free PostgreSQL GUI you open in the browser and connect to your live database: SQL editor, table editor, ER diagram, roles, RLS and advisors. Nothing to install.',
     eyebrow: 'Guide · Getting started',
     h1: 'A Postgres GUI that runs in your browser',
-    lede: 'pgquery gives you a full PostgreSQL client in a browser tab. Nothing to install on your laptop, no account, and the server side is one small container.',
+    lede: 'pgquery gives you a full PostgreSQL client in a browser tab. Open it, paste a connection string and work on your live database. Nothing to install, no account, and your connections stay in your browser.',
     body: `
 <h2>What you get</h2>
 <p>Everything you would expect from a desktop client, plus the admin screens most clients skip:</p>
@@ -41,16 +41,19 @@ const CORE_GUIDES: Guide[] = [
   <li>Roles, grants, Row Level Security policies, indexes, extensions, triggers and functions.</li>
   <li>A query plan viewer, a performance advisor and a security advisor.</li>
 </ul>
+<h2>Open it</h2>
+<p>Go to <a href="/app/">the app</a> and paste a connection string. Both <code>postgres://user:pass@host:5432/db</code> URIs and Npgsql / ADO.NET style key=value strings (<code>Host=…;Database=…</code>) work. To look around first, open the <a href="/app/?demo">read-only sample database</a>.</p>
 <h2>How it works</h2>
-<p>The interface is a single-page app. A Go proxy in the same container turns HTTP requests from your browser into Postgres connections, runs the query and returns rows. The proxy keeps no state: saved connections, tabs and history live in your browser's localStorage.</p>
-<h2>Run it</h2>
+<p>The interface is a single-page app. A small Go proxy turns HTTP requests from your browser into Postgres connections, runs the query and returns rows. ${DATA_NOTE}</p>
+<p>${HOSTED_LIMITS}</p>
+<h2>Or run your own</h2>
 ${run}
-<p>Then open <code>http://localhost:${PORT}</code> and paste a connection string. Both <code>postgres://user:pass@host:5432/db</code> URIs and Npgsql / ADO.NET style key=value strings (<code>Host=…;Database=…</code>) work.</p>
+<p>Then open <code>http://localhost:${PORT}</code>. See the <a href="/self-hosted-postgres-gui-docker/">self-hosting guide</a> for Compose, settings and access control.</p>
 <h2>When a browser client is the right choice</h2>
-<p>A browser client shines when you work from several machines, want to give a teammate access without installing anything, or run Postgres on a server where a desktop app cannot reach it directly. Put pgquery next to the database, behind your VPN or reverse proxy, and everyone gets the same tool at one URL.</p>`,
+<p>A browser client shines when you work from several machines, can't install software on the one in front of you, or want to give a teammate the same tool without setting anything up. For a database inside a private network, run pgquery next to it, behind your VPN or reverse proxy, and everyone gets one URL.</p>`,
     faq: [
       ['Is pgquery free?', 'Yes. It is MIT licensed, free to use, modify and self-host, with no paid tier.'],
-      ['Does my data pass through a third party?', 'Only through the proxy you run. When you self-host, queries go from your browser to your container to your database.'],
+      ['Does my data pass through a third party?', 'On pgquery.dev, each query goes from your browser through the pgquery server to your database; the server is stateless and its code does not log or store queries or connection strings. When you self-host, queries go from your browser to your own container to your database.'],
       ['Which Postgres versions work?', 'Any server reachable over the normal wire protocol. Catalog queries use standard pg_catalog views.'],
     ],
   },
@@ -172,10 +175,10 @@ shared_preload_libraries = 'pg_stat_statements'</code></pre>
     label: 'Self-hosted with Docker',
     title: 'Self-hosted Postgres GUI with Docker in one command',
     description:
-      'Run a self-hosted PostgreSQL GUI with one docker run: SQL editor, tables, ER diagram, roles, RLS and advisors. Configuration, reverse proxy and security notes.',
+      'Run pgquery on your own server with one docker run: for databases in a private network, your own limits, or traffic that stays inside your network. Configuration, reverse proxy and security notes.',
     eyebrow: 'Chapter 13 · Self-hosting',
     h1: 'Self-host a Postgres GUI with one Docker command',
-    lede: 'pgquery is one image: a Go binary that serves the app and proxies queries. Run it on your laptop, a VPS or inside your cluster.',
+    lede: 'The quickest way to use pgquery is the hosted app. Run your own copy when your database sits in a private network or on localhost, when you want your own limits, or when queries should not leave your network. It is one image: a Go binary that serves the app and proxies queries.',
     body: `
 <h2>Run</h2>
 ${run}
@@ -209,11 +212,13 @@ ${run}
 export const GUIDES: Guide[] = [...COMPARE_GUIDES, ...CONNECT_GUIDES, ...CORE_GUIDES]
 
 export const HOME_FAQ: [string, string][] = [
-  ['What is pgquery?', 'A free, open-source PostgreSQL GUI that runs in your browser: SQL editor, table editor, ER diagram, RLS policies, roles, indexes, an EXPLAIN plan viewer and performance and security advisors.'],
+  ['What is pgquery?', 'A free, open-source PostgreSQL client you open in your browser and connect to your live database: SQL editor, table editor, ER diagram, RLS policies, roles, indexes, an EXPLAIN plan viewer and performance and security advisors.'],
+  ['Where are my connection strings stored?', DATA_NOTE],
   ['Is it really free?', 'Yes. MIT licensed, no paid tier, no account.'],
-  ['Where are my connection strings stored?', "In your browser's localStorage. The proxy forwards each query and keeps nothing."],
-  ['How do I self-host it?', `Run ${DOCKER_RUN} and open http://localhost:${PORT}.`],
-  ['Does it work with RDS, Supabase, Neon or a VPS?', 'Yes. Any PostgreSQL server the container can reach over the network.'],
+  ['Does it work with RDS, Supabase, Neon or a VPS?', 'Yes. The hosted app reaches any PostgreSQL server on the public internet. For a database in a private network or on localhost, self-host pgquery next to it.'],
+  ['What are the limits on pgquery.dev?', HOSTED_LIMITS],
+  ['Something is broken, missing or too limited. Where do I say so?', `Open a GitHub issue at ${ISSUES}; a link and a short description is plenty. That goes for bugs, missing features, hosted limits that get in your way, or interest in more than the free app offers. pgquery is a personal project, so feedback is very welcome.`],
+  ['How do I self-host it?', `Run ${DOCKER_RUN} and open http://localhost:${PORT}. It has no login of its own, so put a shared instance behind a VPN or an authenticating proxy.`],
   ['How is it different from pgweb?', 'pgweb is a lean, mature query explorer shipped as one binary, with SSH tunnels. pgquery adds the administration side (RLS policies, roles, indexes, functions, triggers, extensions, settings), advisors, a visual EXPLAIN tree and an ER diagram; it has no SSH tunnels yet.'],
   ['Is pgquery related to the pg_query parser library?', 'No. pg_query by pganalyze is a Postgres query parser for developers; pgquery is a database GUI.'],
 ]

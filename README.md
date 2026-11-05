@@ -3,17 +3,17 @@
 </p>
 
 <p align="center">
-  <b>A free, open-source Postgres studio that runs in your browser.</b><br>
-  One Docker container. No account. Every statement shown before it runs.
+  <b>A Postgres client you open in a browser tab.</b><br>
+  Connect your live database. Nothing to install, no account, and what you save stays in your browser.
 </p>
 
 <p align="center">
-  <a href="https://pgquery.dev/app/?demo"><b>Try the demo</b></a> ·
+  <a href="https://pgquery.dev/app/"><b>Open pgquery</b></a> ·
+  <a href="https://pgquery.dev/app/?demo">Sample database</a> ·
   <a href="https://pgquery.dev">Website</a> ·
-  <a href="#quick-start">Quick start</a> ·
   <a href="#features">Features</a> ·
-  <a href="https://pgquery.dev/postgres-client-comparison/">Comparison</a> ·
-  <a href="https://pgquery.dev/self-hosted-postgres-gui-docker/">Self-hosting guide</a>
+  <a href="#self-hosting-optional">Self-hosting</a> ·
+  <a href="https://pgquery.dev/postgres-client-comparison/">Comparison</a>
 </p>
 
 <p align="center">
@@ -27,26 +27,27 @@
   <img src="docs/launch/demo.gif" alt="pgquery walkthrough: open the demo, run a JOIN query, Explain analyze, schema map" width="900">
 </p>
 
-## Quick start
+## Get started
 
-```bash
-docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
+1. Open **[pgquery.dev/app](https://pgquery.dev/app/)**.
+2. Paste a connection string. Both `postgres://user:pass@host:5432/db` URIs and Npgsql / ADO.NET style key=value strings (`Host=…;Database=…`) work.
+3. Query, browse and manage your database.
+
+Want to look around first? The [sample database](https://pgquery.dev/app/?demo) is a small, read-only record store.
+
+The hosted app reaches databases on the public internet: Supabase, Neon, RDS, Cloud SQL, a VPS. For a database in a private network or on localhost, [run your own copy](#self-hosting-optional). There are step-by-step guides for [Supabase](https://pgquery.dev/connect-supabase/), [Neon](https://pgquery.dev/connect-neon/), [Amazon RDS](https://pgquery.dev/connect-aws-rds/) and [local or Docker](https://pgquery.dev/connect-local-postgres/) databases.
+
+## Where your data goes
+
+```
+Browser (React app) ──HTTP──▶ pgquery proxy ──Postgres protocol──▶ your database
 ```
 
-`latest` is the newest release; `main` follows the main branch. Pin a version with e.g. `ghcr.io/hxndrik/pgquery:1.0`.
-
-Open <http://localhost:54280> and paste a connection string. Both `postgres://user:pass@host:5432/db` URIs and Npgsql / ADO.NET style key=value strings (`Host=…;Database=…`) work.
-
-Or with Docker Compose:
-
-```yaml
-services:
-  pgquery:
-    image: ghcr.io/hxndrik/pgquery
-    ports:
-      - "54280:54280"
-    restart: unless-stopped
-```
+- Saved connections, tabs, history and saved queries live in your browser's localStorage. There is no account and no server-side storage.
+- Each query is sent with its connection string to the proxy, which opens a connection, runs it and returns the rows. The proxy is stateless, and its code (it's all in [`proxy/`](proxy)) does not log or store connection strings or queries.
+- Connections use SSL when the server offers it (`sslmode=prefer`); the app warns when one isn't encrypted. Add `?sslmode=require` to refuse plain connections.
+- Schema changes made through forms (CREATE, ALTER, GRANT, CREATE POLICY …) are shown as SQL first, and you run them yourself.
+- On pgquery.dev, the proxy is the pgquery.dev server. If queries must not leave your own network, self-host.
 
 ## Features
 
@@ -67,8 +68,6 @@ services:
 | <img src="docs/assets/icons/gear.svg" width="16" alt=""> **Settings** | Every server setting by category; change session or system values |
 | <img src="docs/assets/icons/bucket.svg" width="16" alt=""> **S3 browser** | Browse, preview, upload and delete objects in S3-compatible buckets |
 
-Schema changes made through forms (CREATE, ALTER, GRANT, CREATE POLICY …) are shown as SQL first, and you run them yourself.
-
 <table>
   <tr>
     <td width="50%"><img src="docs/assets/screenshot-plan.png" alt="EXPLAIN ANALYZE plan drawn as a tree with timing bars"></td>
@@ -85,26 +84,38 @@ Schema changes made through forms (CREATE, ALTER, GRANT, CREATE POLICY …) are 
 | | pgquery | pgweb | DbGate | pgAdmin 4 | CloudBeaver | Adminer | Supabase Studio |
 |---|---|---|---|---|---|---|---|
 | Runs in the browser | yes | yes | yes (also desktop) | yes (server mode) | yes | yes | yes |
-| Self-hosted as | one Go container | one Go binary | Node.js server | Python web app | Java web app | one PHP file | part of the Supabase stack |
+| Runs as | hosted app, or one Go container | one Go binary | Node.js server | Python web app | Java web app | one PHP file | part of the Supabase stack |
 | Databases | PostgreSQL | PostgreSQL | many | PostgreSQL | many | many | PostgreSQL (Supabase) |
 | SSH tunnel | no | yes | yes | yes | yes | no | no |
 | RLS editor, advisors | yes | no | not listed | partly | no | no | yes |
 | License | MIT | MIT | GPL-3.0 | PostgreSQL License | Apache 2.0 | Apache 2.0 or GPL 2 | Apache 2.0 |
 
-pgweb is a lean, mature query explorer in one binary; DbGate covers many databases with import / export and schema compare; pgAdmin does the most administration (backup and restore, a PL/pgSQL debugger, user accounts). pgquery has no login of its own and no SSH tunnels. The [full, honest comparison](https://pgquery.dev/postgres-client-comparison/) lists where it wins and where it loses.
+pgweb is a lean, mature query explorer in one binary; DbGate covers many databases with import / export and schema compare; pgAdmin does the most administration (backup and restore, a PL/pgSQL debugger, user accounts). pgquery has no SSH tunnels, and a self-hosted copy has no login of its own. The [full, honest comparison](https://pgquery.dev/postgres-client-comparison/) lists where it wins and where it loses.
 
-## How it works
+## Self-hosting (optional)
 
+Run your own copy when your database is in a private network or on localhost, when you want your own limits, or when queries should stay inside your network. It's one image with a Go binary that serves the app and proxies queries.
+
+```bash
+docker run -p 54280:54280 ghcr.io/hxndrik/pgquery
 ```
-Browser (React app) ──HTTP──▶ Go proxy ──Postgres protocol──▶ your database
+
+Open <http://localhost:54280>. `latest` is the newest release; `main` follows the main branch. Pin a version with e.g. `ghcr.io/hxndrik/pgquery:1.0`.
+
+Or with Docker Compose:
+
+```yaml
+services:
+  pgquery:
+    image: ghcr.io/hxndrik/pgquery
+    ports:
+      - "54280:54280"
+    restart: unless-stopped
 ```
 
-- The proxy is stateless. It opens a connection per request, runs the query and returns rows.
-- Saved connections, tabs and history live in your browser's localStorage.
-- Connections use SSL when the server offers it (`sslmode=prefer`); the app warns when one isn't encrypted. Add `?sslmode=require` to refuse plain connections.
-- pgquery has no login of its own. On a shared server, put it behind your VPN or an authenticating reverse proxy (oauth2-proxy, Authelia, Cloudflare Access).
+pgquery has no login of its own. On a shared server, put it behind your VPN or an authenticating reverse proxy (oauth2-proxy, Authelia, Cloudflare Access). More in the [self-hosting guide](https://pgquery.dev/self-hosted-postgres-gui-docker/).
 
-## Configuration
+### Configuration
 
 | Variable | Default | Description |
 |---|---|---|
@@ -124,6 +135,12 @@ Build-time settings for the public website (Docker build args):
 | `VITE_SITE_URL` | `https://pgquery.dev` | Canonical URL for pages, sitemap and share images |
 | `VITE_GOATCOUNTER_CODE` | – | Optional GoatCounter site code for privacy-friendly page counts |
 
+## A personal project
+
+I built pgquery for my own Postgres work and decided to publish it. It's free and will stay free; I'm not doing this to make money. I'd like to know whether it's useful to others. Expect a few rough edges.
+
+If something breaks, a feature is missing, the hosted limits get in your way, or you'd want more than the free app offers, [open an issue](https://github.com/Hxndrik/pgquery/issues/new/choose). A link and a short description is plenty.
+
 ## Development
 
 Requirements: Node 22+, Go 1.26+.
@@ -142,9 +159,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## FAQ
 
-**Is it really free?** Yes. MIT licensed, no paid tier, no account.
+**Is it really free?** Yes. MIT licensed, no paid tier, no account. The hosted app is free too.
 
-**Does my data go through your servers?** Only if you use the hosted demo at pgquery.dev. When you self-host, queries go from your browser to your container to your database.
+**Does my data go through your servers?** On pgquery.dev, yes: each query passes through the pgquery.dev proxy on its way to your database. It is stateless and its code doesn't log or store queries or connection strings. When you self-host, queries go from your browser to your container to your database.\n\n**What are the limits on pgquery.dev?** It only connects to public addresses (private and local ones are refused), and it limits rows per query, query time and requests per IP. Self-host to lift them, or open an issue if they get in your way.
 
 **Is this related to `pg_query`?** No. [pg_query](https://github.com/pganalyze/libpg_query) is pganalyze's Postgres query parser library; pgquery is a database GUI.
 

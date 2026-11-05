@@ -22,3 +22,6 @@ The SQL tokenizer emits `predefined.sql` and `operator.sql` (JOIN, AND, IN …);
 
 ## Values travel as Postgres text, never as JS numbers
 JSON numbers become doubles in the browser: an int8 primary key past 2^53 once sent edits and deletes to a different row, and numeric `Infinity` showed as 0. Result grids and the table editor use text mode (`executeQuery(…, { text: true })`), which returns each value as Postgres prints it, and edits send strings back as text parameters. Only catalog pages use typed results. `proxy/demo/seed.sql` has a `type_edge_cases` table, and `TestTypeEdgeCasesRoundTrip` checks every value survives a write-back.
+
+## Hosted-app claims come from facts.ts
+pgquery.dev is the main way in, but its deployment settings are not in this repo. Say what the code guarantees (stateless proxy, no logging, private hosts refused when a demo is configured) and never quote hosted limits as numbers. `DATA_NOTE`, `HOSTED_LIMITS` and `PERSONAL_NOTE` in `frontend/site/facts.ts` feed the site and llms.txt; README.md, SECURITY.md and docs/launch repeat them by hand, so change them together.

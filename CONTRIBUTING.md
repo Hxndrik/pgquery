@@ -1,6 +1,6 @@
 # Contributing to pgquery
 
-Thanks for helping. Bug reports, small fixes and new database screens are all welcome.
+Thanks for helping. Bug reports, small fixes and new database screens are all welcome. Feedback doesn't have to be code: if something about the app or the hosted version at pgquery.dev bothers you, [open an issue](https://github.com/Hxndrik/pgquery/issues/new/choose) with a short description.
 
 ## Getting set up
 
