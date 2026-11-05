@@ -9,10 +9,9 @@ import { getConnectionType } from "../../lib/connectionRegistry";
 import { isPostgresConfig } from "../../lib/connectionTypes";
 import { Tuple } from "../../brand/Pixel";
 import { WelcomePanel } from "./WelcomePanel";
-import { connectDemo } from "../../lib/demo";
 import { toast } from "sonner";
 import { useConnectionHealth } from "../../stores/connectionHealthStore";
-import { isDemoUrl } from "../../lib/demo";
+import { connectDemo, connectDemoBucket, isDemoUrl } from "../../lib/demo";
 import { testConnection } from "../../lib/api";
 import { Tooltip } from "../ui/Tooltip";
 
@@ -63,14 +62,16 @@ export default function AppLayout() {
       : "Connect a database — pgquery";
   }, [activeConnection, descriptor, view]);
 
-  // /app?demo (the landing page's "Open the demo" link) connects straight away.
+  // /app?demo (the landing page's "Open the demo" link) connects straight away;
+  // /app?demo=s3 opens the demo bucket instead.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (!params.has("demo")) return;
+    const bucket = params.get("demo") === "s3";
     window.history.replaceState(null, "", window.location.pathname);
-    connectDemo().then((error) => {
+    (bucket ? connectDemoBucket() : connectDemo()).then((error) => {
       if (error) toast.error(error);
-      else setView("queries");
+      else setView(bucket ? "s3-browser" : "queries");
     });
   }, []);
 
@@ -80,7 +81,7 @@ export default function AppLayout() {
   }, []);
 
   const renderContent = () => {
-    const welcome = <WelcomePanel onConnected={() => setView("queries")} />;
+    const welcome = <WelcomePanel onConnected={setView} />;
     if (!activeConnection || !descriptor) return welcome;
 
     const ViewComponent = descriptor.viewComponents[view];

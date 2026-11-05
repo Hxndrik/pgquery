@@ -10,9 +10,11 @@ interface ConnectionManagerProps {
   open: boolean
   onClose: () => void
   editingId?: string | null
+  /** Called with the type of a newly added connection once it has connected. */
+  onConnected?: (type: ConnectionType) => void
 }
 
-export function ConnectionManager({ open, onClose, editingId }: ConnectionManagerProps) {
+export function ConnectionManager({ open, onClose, editingId, onConnected }: ConnectionManagerProps) {
   const { connections, addConnection, updateConnection, deleteConnection, setActiveConnection, setStatus } =
     useConnectionStore()
   const registeredTypes = getRegisteredTypes()
@@ -59,6 +61,7 @@ export function ConnectionManager({ open, onClose, editingId }: ConnectionManage
           setActiveConnection(conn.id)
           setStatus('connected')
           toast.success(`Connected to ${name}`)
+          onConnected?.(effectiveType)
           onClose()
         } else {
           setStatus('error')
@@ -66,7 +69,7 @@ export function ConnectionManager({ open, onClose, editingId }: ConnectionManage
         }
       }
     },
-    [editingId, effectiveType, descriptor, addConnection, updateConnection, setActiveConnection, setStatus, onClose]
+    [editingId, effectiveType, descriptor, addConnection, updateConnection, setActiveConnection, setStatus, onClose, onConnected]
   )
 
   const FormComponent = descriptor?.formComponent

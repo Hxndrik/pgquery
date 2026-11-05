@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { S3ObjectMeta } from '../../../lib/s3Api'
-import { downloadS3ObjectUrl } from '../../../lib/s3Api'
+import { getS3Link } from '../../../lib/s3Api'
 import type { S3Config } from '../../../lib/connectionTypes'
 import { CloseIcon, DownloadIcon } from '../../icons'
 import { Button } from '../../ui/Button'
@@ -213,8 +213,20 @@ function PreviewContent({
 export default function FilePreview({ config, meta, onClose }: FilePreviewProps) {
   const category = getFileCategory(meta.key)
   const filename = meta.key.split('/').pop() ?? meta.key
-  const downloadUrl = downloadS3ObjectUrl(config, meta.key)
-  const inlineUrl = downloadUrl + '&inline=1'
+  // Sealed, short-lived links: the bucket's keys never appear in a URL.
+  const [links, setLinks] = useState<{ download: string; inline: string } | null>(null)
+  const [linkError, setLinkError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([
+      getS3Link(config, meta.key),
+      category === 'pdf' ? getS3Link(config, meta.key, true) : Promise.resolve(''),
+    ])
+      .then(([download, inline]) => { if (!cancelled) setLinks({ download, inline }) })
+      .catch((e) => { if (!cancelled) setLinkError(e instanceof Error ? e.message : 'Failed to open the object') })
+    return () => { cancelled = true }
+  }, [config, meta.key, category])
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -228,12 +240,18 @@ export default function FilePreview({ config, meta, onClose }: FilePreviewProps)
             <span>{formatDate(meta.lastModified)}</span>
           </div>
         </div>
-        <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
-          <Button variant="ghost" size="sm">
+        {links ? (
+          <a href={links.download} download={filename} title="Download">
+            <Button variant="ghost" size="sm" aria-label="Download">
+              <DownloadIcon size={13} />
+            </Button>
+          </a>
+        ) : (
+          <Button variant="ghost" size="sm" disabled aria-label="Download">
             <DownloadIcon size={13} />
           </Button>
-        </a>
-        <button onClick={onClose} className="p-1 text-[var(--fg-subtle)] hover:text-[var(--fg)] rounded hover:bg-[var(--bg-hover)]">
+        )}
+        <button onClick={onClose} aria-label="Close preview" className="p-1 text-[var(--fg-subtle)] hover:text-[var(--fg)] rounded hover:bg-[var(--bg-hover)]">
           <CloseIcon size={12} />
         </button>
       </div>
@@ -247,12 +265,13 @@ export default function FilePreview({ config, meta, onClose }: FilePreviewProps)
       </div>
 
       {/* Preview */}
-      <PreviewContent
-        category={category}
-        meta={meta}
-        downloadUrl={downloadUrl}
-        inlineUrl={inlineUrl}
-      />
+      {linkError ? (
+        <div className="flex-1 flex items-center justify-center p-6 bg-[var(--bg)] text-[12px] text-[var(--error)]">{linkError}</div>
+      ) : !links ? (
+        <div className="flex-1 flex items-center justify-center p-6 bg-[var(--bg)] text-[12px] text-[var(--fg-faint)]">Loading…</div>
+      ) : (
+        <PreviewContent category={category} meta={meta} downloadUrl={links.download} inlineUrl={links.inline} />
+      )}
     </div>
   )
 }

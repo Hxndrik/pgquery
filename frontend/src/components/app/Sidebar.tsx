@@ -12,8 +12,7 @@ import { STORAGE_KEYS } from "../../lib/storageKeys";
 import { toast } from "sonner";
 import { getConnectionType } from "../../lib/connectionRegistry";
 import type { NavSection } from "../../lib/connectionRegistry";
-import { connectDemo, isDemoUrl } from "../../lib/demo";
-import { isPostgresConfig } from "../../lib/connectionTypes";
+import { connectDemo, connectDemoBucket, isDemoConfig } from "../../lib/demo";
 
 // Import registrations
 import "../../lib/connectionTypes";
@@ -79,14 +78,14 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
     useConnectionStore();
 
   const activeConnection = connections.find((c) => c.id === activeConnectionId);
-  const isDemo = (c: (typeof connections)[number]) => isPostgresConfig(c.config) && isDemoUrl(c.config.url);
-  const hasDemo = connections.some(isDemo);
+  const isDemo = (c: (typeof connections)[number]) => isDemoConfig(c.config);
+  const hasDemoDb = connections.some((c) => isDemo(c) && c.type === "postgres");
+  const hasDemoBucket = connections.some((c) => isDemo(c) && c.type === "s3");
 
-
-  const openDemo = async () => {
-    const error = await connectDemo();
+  const openDemo = async (bucket: boolean) => {
+    const error = await (bucket ? connectDemoBucket() : connectDemo());
     if (error) toast.error(error);
-    else onViewChange("queries");
+    else onViewChange(bucket ? "s3-browser" : "queries");
   };
   const activeType = activeConnection?.type;
   const descriptor = activeType ? getConnectionType(activeType) : undefined;
@@ -198,8 +197,8 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
                       e.stopPropagation();
                       deleteConnection(c.id);
                     }}
-                    title="Remove the demo database (you can bring it back any time)"
-                    aria-label="Remove the demo database"
+                    title="Remove the demo (you can bring it back any time)"
+                    aria-label={`Remove ${c.name}`}
                     className={`shrink-0 px-1.5 rounded-sm text-[14px] leading-none transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--error)] ${
                       isActive ? "text-[var(--fg-subtle)]" : "text-[var(--fg-subtle)] opacity-0 group-hover:opacity-100 focus:opacity-100"
                     }`}
@@ -230,13 +229,25 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
         )}
       </div>
 
-      {!hasDemo && (
-        <button
-          onClick={openDemo}
-          className="mx-4 mt-1.5 self-start text-[12px] text-[var(--fg-subtle)] hover:text-[var(--fg)] underline underline-offset-2 decoration-[var(--border-mid)]"
-        >
-          Try the demo database
-        </button>
+      {(!hasDemoDb || !hasDemoBucket) && (
+        <div className="mx-4 mt-1.5 flex flex-col items-start gap-0.5">
+          {!hasDemoDb && (
+            <button
+              onClick={() => openDemo(false)}
+              className="text-[12px] text-[var(--fg-subtle)] hover:text-[var(--fg)] underline underline-offset-2 decoration-[var(--border-mid)]"
+            >
+              Try the demo database
+            </button>
+          )}
+          {!hasDemoBucket && (
+            <button
+              onClick={() => openDemo(true)}
+              className="text-[12px] text-[var(--fg-subtle)] hover:text-[var(--fg)] underline underline-offset-2 decoration-[var(--border-mid)]"
+            >
+              Try the demo bucket
+            </button>
+          )}
+        </div>
       )}
 
       <div className="border-t border-[var(--border)] mx-3 my-2" />
@@ -272,6 +283,11 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
         open={connOpen}
         onClose={() => setConnOpen(false)}
         editingId={editingId}
+        // A screen from another connection type (the S3 browser while adding Postgres, or the reverse) doesn't exist here.
+        onConnected={(type) => {
+          const added = getConnectionType(type);
+          if (added && !added.viewComponents[activeView]) onViewChange(added.defaultView);
+        }}
       />
     </div>
   );
