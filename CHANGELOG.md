@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/Hxndrik/pgquery/compare/v1.3.0...v1.4.0) (2026-11-05)
+
+
+### Features
+
+* new hero for Postgres and S3, phone-friendly site and app ([#22](https://github.com/Hxndrik/pgquery/issues/22)) ([1c31bef](https://github.com/Hxndrik/pgquery/commit/1c31befead878d8b5b6145075f573f3a1b3530f6))
+
 ## [1.3.0](https://github.com/Hxndrik/pgquery/compare/v1.2.2...v1.3.0) (2026-11-05)
 
 
