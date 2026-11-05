@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"net"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -19,10 +18,7 @@ type clientError struct{ msg string }
 
 func (e clientError) Error() string { return e.msg }
 
-var (
-	errDemoUnavailable = clientError{"the demo database is not available on this server right now"}
-	errBlockedHost     = clientError{"this server does not connect to private or local addresses"}
-)
+var errDemoUnavailable = clientError{"the demo database is not available on this server right now"}
 
 // connect validates a client-supplied connection string, resolves the demo
 // sentinel, applies the private-host policy and opens a connection.
@@ -53,28 +49,7 @@ func (cfg *config) connect(ctx context.Context, connString string) (*pgx.Conn, e
 	}
 
 	if cfg.BlockPrivateHosts && !trusted {
-		// Check the address actually dialed, after DNS resolution, so a
-		// hostname that resolves to a private IP is caught too.
-		dialer := &net.Dialer{}
-		pgCfg.DialFunc = func(ctx context.Context, network, addr string) (net.Conn, error) {
-			if network == "unix" {
-				return nil, errBlockedHost
-			}
-			host, port, err := net.SplitHostPort(addr)
-			if err != nil {
-				return nil, err
-			}
-			ips, err := net.DefaultResolver.LookupIPAddr(ctx, host)
-			if err != nil {
-				return nil, err
-			}
-			for _, ip := range ips {
-				if isPrivateIP(ip.IP) {
-					return nil, errBlockedHost
-				}
-			}
-			return dialer.DialContext(ctx, network, net.JoinHostPort(ips[0].IP.String(), port))
-		}
+		pgCfg.DialFunc = guardedDial
 		pgCfg.LookupFunc = func(ctx context.Context, host string) ([]string, error) {
 			if strings.HasPrefix(host, "/") {
 				return nil, errBlockedHost
@@ -84,11 +59,6 @@ func (cfg *config) connect(ctx context.Context, connString string) (*pgx.Conn, e
 	}
 
 	return pgx.ConnectConfig(ctx, pgCfg)
-}
-
-func isPrivateIP(ip net.IP) bool {
-	return ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() ||
-		ip.IsLinkLocalMulticast() || ip.IsUnspecified() || ip.IsInterfaceLocalMulticast()
 }
 
 // connError turns a connect failure into a message safe to show the user.

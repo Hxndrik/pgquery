@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -34,24 +35,48 @@ func main() {
 		}
 	}
 
+	maxUploadMB := int64(defaultMaxUploadMB)
+	if v := os.Getenv("MAX_UPLOAD_MB"); v != "" {
+		if n, err := strconv.ParseInt(v, 10, 64); err == nil && n > 0 {
+			maxUploadMB = n
+		}
+	}
+
 	cfg := &config{
 		QueryTimeout: queryTimeout,
 		MaxRows:      maxRows,
+		MaxUploadMB:  maxUploadMB,
 	}
 
-	// A configured demo database means this is a public instance: seed it,
-	// keep it fresh, and refuse private/loopback targets unless told otherwise.
-	if adminURL := os.Getenv("DEMO_DATABASE_URL"); adminURL != "" {
-		resetEvery := 24 * time.Hour
-		if v := os.Getenv("DEMO_RESET_INTERVAL"); v != "" {
-			if d, err := time.ParseDuration(v); err == nil {
-				resetEvery = d
-			}
+	// A configured demo (database or bucket) means this is a public instance:
+	// seed it, keep it fresh, and refuse private/loopback targets unless told
+	// otherwise.
+	resetEvery := 24 * time.Hour
+	if v := os.Getenv("DEMO_RESET_INTERVAL"); v != "" {
+		if d, err := time.ParseDuration(v); err == nil {
+			resetEvery = d
 		}
+	}
+	if adminURL := os.Getenv("DEMO_DATABASE_URL"); adminURL != "" {
 		cfg.Demo = newDemoDB(adminURL, resetEvery)
 		go cfg.Demo.run(context.Background())
-		cfg.BlockPrivateHosts = os.Getenv("ALLOW_PRIVATE_HOSTS") != "true"
 	}
+	if endpoint := os.Getenv("DEMO_S3_ENDPOINT"); endpoint != "" {
+		req := s3Request{
+			Endpoint:  endpoint,
+			AccessKey: os.Getenv("DEMO_S3_ACCESS_KEY"),
+			SecretKey: os.Getenv("DEMO_S3_SECRET_KEY"),
+			Bucket:    getEnv("DEMO_S3_BUCKET", "pgquery-demo"),
+			Region:    getEnv("DEMO_S3_REGION", "us-east-1"),
+		}
+		if err := req.validate(); err != nil {
+			log.Printf("demo bucket disabled: DEMO_S3_ENDPOINT and DEMO_S3_ACCESS_KEY / DEMO_S3_SECRET_KEY must all be set (%v)", err)
+		} else {
+			cfg.DemoS3 = newDemoS3(req, resetEvery)
+			go cfg.DemoS3.run(context.Background())
+		}
+	}
+	cfg.BlockPrivateHosts = (cfg.Demo != nil || cfg.DemoS3 != nil) && os.Getenv("ALLOW_PRIVATE_HOSTS") != "true"
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/query", cfg.handleQuery)
@@ -59,12 +84,15 @@ func main() {
 	mux.HandleFunc("/api/test", cfg.handleTest)
 
 	// S3 routes
-	mux.HandleFunc("/api/s3/test", handleS3Test)
-	mux.HandleFunc("/api/s3/objects", handleS3Objects)
-	mux.HandleFunc("/api/s3/object/meta", handleS3ObjectMeta)
-	mux.HandleFunc("/api/s3/object/delete", handleS3ObjectDelete)
-	mux.HandleFunc("/api/s3/object/upload", handleS3ObjectUpload)
-	mux.HandleFunc("/api/s3/object/download", handleS3ObjectDownload)
+	mux.HandleFunc("/api/s3/test", cfg.handleS3Test)
+	mux.HandleFunc("/api/s3/objects", cfg.handleS3Objects)
+	mux.HandleFunc("/api/s3/bucket/stats", cfg.handleS3Stats)
+	mux.HandleFunc("/api/s3/folder/create", cfg.handleS3FolderCreate)
+	mux.HandleFunc("/api/s3/object/meta", cfg.handleS3ObjectMeta)
+	mux.HandleFunc("/api/s3/object/delete", cfg.handleS3ObjectDelete)
+	mux.HandleFunc(uploadPath, cfg.handleS3ObjectUpload)
+	mux.HandleFunc("/api/s3/object/link", cfg.handleS3ObjectLink)
+	mux.HandleFunc("/api/s3/object/download", cfg.handleS3ObjectDownload)
 
 	mux.HandleFunc("/", staticHandler(staticDir))
 
@@ -80,8 +108,14 @@ func main() {
 type config struct {
 	QueryTimeout      time.Duration
 	MaxRows           int
+	MaxUploadMB       int64   // largest S3 upload; 0 means defaultMaxUploadMB
 	Demo              *demoDB // set when DEMO_DATABASE_URL is configured
+	DemoS3            *demoS3 // set when DEMO_S3_ENDPOINT is configured
 	BlockPrivateHosts bool    // on with a demo (public instance) unless ALLOW_PRIVATE_HOSTS=true
+
+	linksOnce sync.Once
+	linkSeal  *linkSealer // signs S3 download links; created on first use
+	linkErr   error
 }
 
 func getEnv(key, fallback string) string {
