@@ -1,7 +1,7 @@
 {
-  "name": "pgquery — Postgres studio",
+  "name": "pgquery — Postgres and S3 client",
   "short_name": "pgquery",
-  "description": "Free, open-source Postgres studio in your browser.",
+  "description": "Free, open-source Postgres and S3 client in your browser.",
   "start_url": "/app/",
   "display": "standalone",
   "background_color": "#e7e9e2",

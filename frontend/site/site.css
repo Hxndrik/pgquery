@@ -50,7 +50,8 @@ a:hover { color: var(--ink); }
   margin: 0;
 }
 h1.display { font-size: clamp(32px, 5.6vw, 78px); overflow-wrap: break-word; hyphens: auto; }
-h2.display { font-size: clamp(32px, 4.4vw, 48px); }
+h2.display { font-size: clamp(28px, 4.4vw, 48px); }
+@media (min-width: 400px) { h2.display { font-size: clamp(32px, 4.4vw, 48px); } }
 h3 { font-family: var(--display); font-stretch: 105%; font-weight: 800; font-size: 21px; line-height: 1.2; margin: 0; }
 .eyebrow { font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); margin: 0; }
 .lede { font-size: 20px; max-width: 34em; margin: 0; }
@@ -67,7 +68,9 @@ p { margin: 0; }
 
 /* ── running header ─────────────────────────────────── */
 .masthead { border-bottom: 2px solid var(--ink); }
-.masthead .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 28px; padding-block: 14px; }
+.masthead .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 22px; padding-block: 14px; }
+.masthead .nav { margin-left: auto; }
+.masthead .cta { flex: none; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; }
 .brand b { font-family: var(--display); font-stretch: 125%; font-weight: 900; font-size: 22px; letter-spacing: -0.02em; }
 .nav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; font-family: var(--mono); font-size: 13px; }
@@ -165,8 +168,8 @@ p { margin: 0; }
 
 /* faq */
 .faq { display: grid; border-top: 2px solid var(--ink); }
-.faq details { border-bottom: 1px solid var(--rule); padding: 14px 0; }
-.faq summary { cursor: pointer; font-family: var(--display); font-weight: 750; font-size: 19px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq details { border-bottom: 1px solid var(--rule); padding: 4px 0; }
+.faq summary { padding: 10px 0; cursor: pointer; font-family: var(--display); font-weight: 750; font-size: 19px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
 .faq summary::after { content: '+'; font-family: var(--mono); }
 .faq details[open] summary::after { content: '−'; }
 .faq details p { margin-top: 10px; max-width: 44em; }
@@ -197,6 +200,28 @@ p { margin: 0; }
   body { font-size: 17px; }
   .section { padding-block: 52px; }
   .toc .w { display: none; }
+}
+
+/* ── phones ─────────────────────────────────────────────
+   One header row (logo and the app button) with the links below it, and
+   tap targets of at least 44px. */
+.scroll-hint { display: none; }
+@media (max-width: 640px) {
+  .masthead .brand { flex: 1; }
+  .masthead .cta { order: 2; padding: 11px 16px; }
+  .masthead .nav { order: 3; flex-basis: 100%; margin-left: 0; justify-content: space-between; gap: 0; border-top: 1px solid var(--rule); }
+  .masthead .nav a { padding: 12px 0; }
+  .actions { gap: 0 16px; }
+  .actions .btn { margin-bottom: 10px; }
+  .actions .link { min-height: 44px; display: inline-flex; align-items: center; }
+  .step > code a { display: inline-block; padding: 10px 0; }
+  .cmd button { padding: 13px 14px; }
+  .specs, .specs tbody, .specs tr, .specs th, .specs td { display: block; width: auto; }
+  .specs th { border-top: 1px solid var(--ink); padding: 12px 0 2px; }
+  .specs td { border-top: 0; padding: 0 0 12px; overflow-wrap: anywhere; }
+}
+@media (max-width: 720px) {
+  .scroll-hint { display: block; margin: 0; font: 500 12px var(--mono); letter-spacing: 0.04em; color: var(--ink-3); }
 }
 
 /* ── comparison pages ───────────────────────────────── */
@@ -244,7 +269,8 @@ p { margin: 0; }
 /* ── home hero ──────────────────────────────────────── */
 .hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; padding-block: 56px 64px; align-items: center; }
 .hero-copy { display: grid; gap: 24px; min-width: 0; }
-.hero h1.display { font-size: clamp(32px, 3.4vw, 50px); overflow-wrap: anywhere; }
+.hero h1.display { font-size: clamp(26px, 2.8vw, 36px); overflow-wrap: anywhere; }
+.hero h1 .line { display: block; }
 .hero .lede { font-size: 19px; }
 .screen { border: 2px solid var(--ink); background: var(--paper-2); box-shadow: 10px 10px 0 var(--ink); }
 .screen video { display: block; width: 100%; height: auto; }
@@ -253,4 +279,4 @@ p { margin: 0; }
 .compare-band .matrix { min-width: 640px; }
 .tuple-fig { max-width: 420px; justify-self: center; }
 .tuple-fig .plate { padding: 24px; }
-@media (max-width: 960px) { .hero { grid-template-columns: 1fr; } .hero-fig { margin-right: 10px; } }
+@media (max-width: 960px) { .hero { grid-template-columns: 1fr; } .hero-fig { margin-right: 10px; } .hero h1.display { font-size: clamp(24px, 6.9vw, 56px); } }

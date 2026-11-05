@@ -261,7 +261,7 @@ ${run}
 export const GUIDES: Guide[] = [...COMPARE_GUIDES, ...CONNECT_GUIDES, ...CORE_GUIDES]
 
 export const HOME_FAQ: [string, string][] = [
-  ['What is pgquery?', 'A free, open-source PostgreSQL client you open in your browser and connect to your live database: SQL editor, table editor, ER diagram, RLS policies, roles, indexes, an EXPLAIN plan viewer and performance and security advisors.'],
+  ['What is pgquery?', 'A free, open-source client for remote data that you open in your browser: a PostgreSQL studio (SQL editor, table editor, ER diagram, RLS policies, roles, indexes, an EXPLAIN plan viewer, performance and security advisors) and an S3 bucket browser in one tab. You connect your live database or bucket; nothing is installed.'],
   ['Where are my connection strings stored?', DATA_NOTE],
   ['Is it really free?', 'Yes. MIT licensed, no paid tier, no account.'],
   ['Can it browse S3 buckets?', 'Yes, one bucket per connection on AWS S3, Cloudflare R2, MinIO or another S3-compatible service: folders, previews, upload, download and delete. It has no multipart upload, versioning or bucket management; see the S3 guide for the full list.'],

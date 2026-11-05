@@ -32,6 +32,7 @@ export function matrix(m: Matrix): string {
     )
     .join('')
   return `<figure class="matrix-fig">
+<p class="scroll-hint" aria-hidden="true">Swipe sideways for the other tools →</p>
 <div class="table-scroll"><table class="matrix" style="min-width:${180 + m.tools.length * 125}px"><caption>${esc(m.caption)}</caption><thead><tr><th scope="col"><span class="sr">Feature</span></th>${head}</tr></thead><tbody>${body}</tbody></table></div>
 <figcaption class="caption"><span class="mk yes">Yes</span> <span class="mk partly">Partly</span> <span class="mk no">No</span>${m.footnote ? ` · ${esc(m.footnote)}` : ''}</figcaption>
 </figure>`
