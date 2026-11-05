@@ -152,6 +152,7 @@ function colophon() {
   <div><p class="eyebrow" style="margin-bottom:10px">Project</p><ul>
     <li><a href="/app/">Open the app</a></li>
     <li><a href="/app/?demo">Try the demo database</a></li>
+    <li><a href="/app/?demo=s3">Try the demo bucket</a></li>
     <li><a href="${REPO}">Source on GitHub</a></li>
     <li><a href="/self-hosted-postgres-gui-docker/">Self-host it</a></li>
     <li><a href="${ISSUES}">Feedback and issues</a></li>
@@ -182,6 +183,7 @@ const CHAPTERS: { title: string; what: string; href?: string }[] = [
   { title: 'Query Performance', what: 'pg_stat_statements', href: '/pg-stat-statements-viewer/' },
   { title: 'Advisors', what: 'performance, security' },
   { title: 'Functions, triggers, enums', what: 'and extensions' },
+  { title: 'S3 browser', what: 'buckets, previews, upload', href: '/s3-bucket-browser/' },
   { title: 'Self-hosting', what: 'optional, Docker', href: '/self-hosted-postgres-gui-docker/' },
 ]
 
@@ -196,6 +198,7 @@ export function renderHome(o: SiteOptions) {
     <div class="actions">
       <a class="btn" href="/app/">Open pgquery →</a>
       <a class="link" href="/app/?demo">or look around a sample database</a>
+      <a class="link" href="/app/?demo=s3">or a sample bucket</a>
     </div>
     <p class="hint">Works with any Postgres on the internet: Supabase, Neon, RDS, Cloud SQL or your own server. Free and open source; <a href="/self-hosted-postgres-gui-docker/">self-host it</a> for private networks, or <a href="${REPO}">read the source</a>.</p>
   </div>
@@ -269,7 +272,7 @@ export function renderHome(o: SiteOptions) {
       <tr><th>Schema changes</th><td>Shown as SQL before they run; dropping a table asks first</td></tr>
       <tr><th>Encryption</th><td>SSL when the server offers it, with a warning when it doesn’t</td></tr>
       <tr><th>Connection formats</th><td><code>postgres://</code> URI, Npgsql / ADO.NET key=value (<code>Host=…;Database=…</code>)</td></tr>
-      <tr><th>Also browses</th><td>S3-compatible buckets</td></tr>
+      <tr><th>Also browses</th><td>S3-compatible buckets, one per connection (<a href="/s3-bucket-browser/">what it does and doesn’t do</a>)</td></tr>
       <tr><th>License</th><td>MIT</td></tr>
     </tbody></table>
   </div>
@@ -407,12 +410,12 @@ export function llmsTxt(siteUrl: string) {
 
 > ${ONE_LINER} Use it to query, browse and administer any PostgreSQL database: SQL editor, table editor, ER diagram, Row Level Security policies, roles, indexes, an EXPLAIN plan viewer, and performance and security advisors.
 
-- Use: open ${siteUrl}/app/ and paste a connection string (\`postgres://\` URI or Npgsql / ADO.NET key=value). No install, no account. A read-only sample database: ${siteUrl}/app/?demo
+- Use: open ${siteUrl}/app/ and paste a connection string (\`postgres://\` URI or Npgsql / ADO.NET key=value). No install, no account. Read-only samples: a database at ${siteUrl}/app/?demo and an S3 bucket at ${siteUrl}/app/?demo=s3
 - Data: ${DATA_NOTE}
 - Hosted limits: ${HOSTED_LIMITS}
 - Self-host (optional): \`${DOCKER_RUN}\`, then open http://localhost:${PORT}. Images for amd64 and arm64. No built-in login, so put a shared instance behind a VPN or an authenticating proxy.
 - Architecture: React single-page app plus a stateless Go proxy that forwards queries to Postgres.
-- Works with any PostgreSQL server reachable over the network (RDS, Cloud SQL, Supabase, Neon, a VPS, ...). Also browses S3-compatible buckets.
+- Works with any PostgreSQL server reachable over the network (RDS, Cloud SQL, Supabase, Neon, a VPS, ...). Also browses S3-compatible buckets, one per connection, with previews, upload, download and delete; no multipart upload, versioning or bucket management (see the S3 guide).
 - License: MIT. Free, no paid tier. A personal project by one maintainer, published for others to use; feedback, bug reports and feature requests go to GitHub issues (${ISSUES}).
 - Not to be confused with pg_query (pganalyze's Postgres query parser library).
 - Source: ${REPO}

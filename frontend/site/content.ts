@@ -23,6 +23,53 @@ const run = `<pre><code>${DOCKER_RUN}</code></pre>`
 
 const CORE_GUIDES: Guide[] = [
   {
+    slug: 's3-bucket-browser',
+    label: 'S3 bucket browser',
+    title: 'S3 bucket browser in your browser: preview, upload, delete',
+    description:
+      'Browse a bucket on AWS S3, Cloudflare R2, MinIO or another S3-compatible service: folders, previews of images, video, PDF and text, uploads, downloads and deletes. Free, with the limits listed.',
+    eyebrow: 'Chapter 13 · Storage',
+    h1: 'Browse an S3 bucket from a browser tab',
+    lede: 'Next to PostgreSQL, pgquery connects to one S3 bucket at a time and shows it as folders and files, with previews. This page lists what it does and, just as important, what it does not.',
+    body: `
+<h2>What you can do</h2>
+<ul>
+  <li>Open folders (keys are grouped by <code>/</code>), filter the current folder and load more when it holds over 1,000 objects.</li>
+  <li>Preview images, video (it seeks), audio, PDF and text or source code. Fonts and archives show their details only. A large text file asks before it loads and is not previewed above 10 MB.</li>
+  <li>Download any object.</li>
+  <li>Upload files into the open folder, create a folder, and delete objects or whole folders. Deleting asks first and says how many objects it will remove.</li>
+  <li>See the bucket's object count and total size under Bucket Info.</li>
+</ul>
+<h2>Connect a bucket</h2>
+<p>Choose <strong>S3</strong> in the new connection dialog and fill in five fields:</p>
+<ul>
+  <li><strong>Endpoint URL</strong>. AWS S3: <code>https://s3.&lt;region&gt;.amazonaws.com</code>. Cloudflare R2: <code>https://&lt;account-id&gt;.r2.cloudflarestorage.com</code>. MinIO or MaxIO: the server's address, such as <code>http://host:9000</code>.</li>
+  <li><strong>Access key</strong> and <strong>secret key</strong>. Use a key limited to this bucket: it is saved in your browser.</li>
+  <li><strong>Bucket</strong> and <strong>region</strong>. The region defaults to <code>us-east-1</code>; AWS needs the bucket's real region and R2 uses <code>auto</code>.</li>
+</ul>
+<p>Test connection checks that the bucket exists and that the key can reach it. Without a bucket at hand, open the <a href="/app/?demo=s3">read-only sample bucket</a>.</p>
+<h2>What it does not do</h2>
+<ul>
+  <li>One bucket per connection. It does not list, create or delete buckets.</li>
+  <li>Access keys only: no session tokens, no IAM roles. Requests use Signature V4 and path-style addressing, so the service has to accept path-style requests.</li>
+  <li>Uploads are one request per file, with no resume and no multipart upload. A self-hosted instance accepts files up to <code>MAX_UPLOAD_MB</code>, 100 by default; the hosted app has a limit of its own. Every file passes through the pgquery server on its way, so very large files belong in the AWS CLI or rclone.</li>
+  <li>A delete removes up to 10,000 objects at a time. Larger folders need the AWS CLI or a lifecycle rule.</li>
+  <li>No rename, copy or move. No editing of metadata or tags. No versioning, ACLs, bucket policies or lifecycle rules.</li>
+  <li>The filter only matches what is loaded in the open folder.</li>
+  <li>Bucket Info stops counting at 100,000 objects or after 20 seconds, and says so.</li>
+</ul>
+<p>pgquery's tests run against an S3 emulator. AWS S3, R2 and MinIO speak the same protocol, but if a service behaves differently, please <a href="${ISSUES}">open an issue</a> with the service name.</p>
+<h2>Where your keys and files go</h2>
+<p>Connections, keys included, are saved in your browser's localStorage. Every request carries them to the pgquery server, which talks to the bucket and returns the result. Previews and downloads use a link that expires after an hour, so the keys never appear in a URL. Files pass through the server without being kept; its code does not log keys or file contents.</p>
+<p>The hosted app only reaches buckets on the public internet. For MinIO on localhost or storage inside a private network, <a href="/self-hosted-postgres-gui-docker/">run pgquery yourself</a> next to it.</p>`,
+    faq: [
+      ['Which services does the S3 browser work with?', 'Services that speak the S3 API and accept path-style requests with Signature V4: AWS S3, Cloudflare R2, MinIO and similar. pgquery is tested against an S3 emulator, so report any service that misbehaves.'],
+      ['Can I upload large files?', 'Up to the server limit: 100 MB by default on a self-hosted instance, set with MAX_UPLOAD_MB. Uploads are a single request with no resume, so use the AWS CLI or rclone for anything bigger.'],
+      ['Are my S3 keys safe?', 'They stay in your browser and travel with each request to the pgquery server, which does not log or store them. Use a key limited to one bucket, and self-host if the keys must not leave your network.'],
+      ['Can it delete a folder?', 'Yes. S3 has no real folders, so pgquery deletes every object under the prefix, after showing how many that is. It refuses more than 10,000 objects at once.'],
+    ],
+  },
+  {
     slug: 'postgres-gui-in-browser',
     label: 'Postgres GUI in the browser',
     title: 'Postgres GUI in your browser — free and open source',
@@ -176,7 +223,7 @@ shared_preload_libraries = 'pg_stat_statements'</code></pre>
     title: 'Self-hosted Postgres GUI with Docker in one command',
     description:
       'Run pgquery on your own server with one docker run: for databases in a private network, your own limits, or traffic that stays inside your network. Configuration, reverse proxy and security notes.',
-    eyebrow: 'Chapter 13 · Self-hosting',
+    eyebrow: 'Chapter 14 · Self-hosting',
     h1: 'Self-host a Postgres GUI with one Docker command',
     lede: 'The quickest way to use pgquery is the hosted app. Run your own copy when your database sits in a private network or on localhost, when you want your own limits, or when queries should not leave your network. It is one image: a Go binary that serves the app and proxies queries.',
     body: `
@@ -197,7 +244,9 @@ ${run}
   <li><code>PORT</code>: listen port, default ${PORT}.</li>
   <li><code>RATE_LIMIT_RPM</code>: requests per minute per client IP.</li>
   <li><code>MAX_QUERY_TIMEOUT</code> and <code>MAX_ROWS</code>: limits per query.</li>
+  <li><code>MAX_UPLOAD_MB</code>: largest file the S3 browser uploads, default 100.</li>
   <li><code>DEMO_DATABASE_URL</code>: run a public demo. pgquery seeds a sample database, serves it read-only and resets it daily (<code>DEMO_RESET_INTERVAL</code>). Instances with a demo also refuse private and local addresses.</li>
+  <li><code>DEMO_S3_ENDPOINT</code>, <code>DEMO_S3_ACCESS_KEY</code>, <code>DEMO_S3_SECRET_KEY</code>: the same for a sample bucket. Give it a dedicated bucket (<code>DEMO_S3_BUCKET</code>): the seed removes everything that is not part of the sample.</li>
 </ul>
 <h2>Security notes</h2>
 <p>pgquery has no login of its own. Anyone who can reach it can use it to connect to databases they have credentials for. Put it behind your VPN, an authenticating reverse proxy (oauth2-proxy, Authelia, Cloudflare Access) or bind it to localhost.</p>
@@ -215,6 +264,7 @@ export const HOME_FAQ: [string, string][] = [
   ['What is pgquery?', 'A free, open-source PostgreSQL client you open in your browser and connect to your live database: SQL editor, table editor, ER diagram, RLS policies, roles, indexes, an EXPLAIN plan viewer and performance and security advisors.'],
   ['Where are my connection strings stored?', DATA_NOTE],
   ['Is it really free?', 'Yes. MIT licensed, no paid tier, no account.'],
+  ['Can it browse S3 buckets?', 'Yes, one bucket per connection on AWS S3, Cloudflare R2, MinIO or another S3-compatible service: folders, previews, upload, download and delete. It has no multipart upload, versioning or bucket management; see the S3 guide for the full list.'],
   ['Does it work with RDS, Supabase, Neon or a VPS?', 'Yes. The hosted app reaches any PostgreSQL server on the public internet. For a database in a private network or on localhost, self-host pgquery next to it.'],
   ['What are the limits on pgquery.dev?', HOSTED_LIMITS],
   ['Something is broken, missing or too limited. Where do I say so?', `Open a GitHub issue at ${ISSUES}; a link and a short description is plenty. That goes for bugs, missing features, hosted limits that get in your way, or interest in more than the free app offers. pgquery is a personal project, so feedback is very welcome.`],
