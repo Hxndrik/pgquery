@@ -389,7 +389,6 @@ export function robotsTxt(siteUrl: string) {
 ${bots.map((b) => `User-agent: ${b}`).join('\n')}
 User-agent: *
 Allow: /
-Disallow: /app/
 Disallow: /api/
 
 Sitemap: ${siteUrl}/sitemap.xml
