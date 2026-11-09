@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/Hxndrik/pgquery/compare/v1.4.0...v1.4.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* let crawlers reach /app/ so its noindex tag is honored ([#24](https://github.com/Hxndrik/pgquery/issues/24)) ([1dd1e24](https://github.com/Hxndrik/pgquery/commit/1dd1e24f4e0a8912a596415957cdd712d099e348))
+
 ## [1.4.0](https://github.com/Hxndrik/pgquery/compare/v1.3.0...v1.4.0) (2026-11-05)
 
 
